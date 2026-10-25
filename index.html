@@ -307,6 +307,48 @@
     width: 19%;
     height: 14%;
   }
+
+  /* Animated Endgame Stage Canvas & Glitch Title */
+  #endgameCanvas {
+    width: 240px;
+    height: 146px;
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    background: radial-gradient(circle at 50% 60%, #1d122e 0%, #07050c 100%);
+    margin: 4px 0 8px 0;
+    box-shadow: 0 0 24px rgba(255, 23, 68, 0.35), inset 0 0 18px rgba(0, 0, 0, 0.85);
+    image-rendering: pixelated;
+  }
+
+  @keyframes shutdownGlitch {
+    0%, 100% { transform: translate(0, 0) skewX(0deg); text-shadow: 3px 3px 0px #FF1744, -2px -2px 0px #00F0FF; }
+    20% { transform: translate(-2px, 1px) skewX(-3deg); text-shadow: -3px 2px 0px #FF1744, 3px -1px 0px #FFD700; }
+    40% { transform: translate(2px, -1px) skewX(2deg); opacity: 0.92; }
+    60% { transform: translate(-1px, 0px) skewX(0deg); opacity: 1; }
+    80% { transform: translate(1px, 2px) skewX(-2deg); text-shadow: 4px -2px 0px #FF1744, -3px 2px 0px #00E676; }
+  }
+
+  @keyframes championPulse {
+    0%, 100% { transform: scale(1); text-shadow: 3px 3px 0px #FF1744, 0 0 22px #FFD700; }
+    50% { transform: scale(1.05); text-shadow: 3px 3px 0px #00E676, 0 0 36px #00F0FF; }
+  }
+
+  .glitch-title {
+    animation: shutdownGlitch 1.6s infinite;
+  }
+
+  .champion-title {
+    animation: championPulse 1.1s infinite ease-in-out;
+  }
+
+  @keyframes rewindPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 5px 0 #b26a00, 0 0 22px rgba(255, 215, 0, 0.75); }
+    50% { transform: scale(1.04); box-shadow: 0 7px 0 #b26a00, 0 0 34px rgba(0, 230, 118, 0.95); }
+  }
+
+  #restartBtn {
+    animation: rewindPulse 1.2s infinite ease-in-out;
+  }
 </style>
 </head>
 <body>
@@ -374,8 +416,9 @@
   <!-- GAME OVER / VICTORY OVERLAY -->
   <div id="gameOverOverlay" class="overlay hidden">
     <div class="rasta-stripe"></div>
-    <h1 id="endTitle" class="game-title">SOUND SYSTEM SHUT DOWN</h1>
+    <h1 id="endTitle" class="game-title glitch-title">SOUND SYSTEM SHUT DOWN</h1>
     <h2 id="endSubtitle" class="game-subtitle">DROWNED OUT BY THE RIVAL CREW</h2>
+    <canvas id="endgameCanvas" width="240" height="146"></canvas>
     <div class="instructions-card" id="endStats" style="text-align:center; font-size:15px;"></div>
     <button id="restartBtn" class="btn-clash">🔄 Run It Back (Rewind)</button>
   </div>
@@ -661,6 +704,7 @@
 
     start(stageNum = 1) {
       this.init();
+      this.stopEndgameLoop();
       this.isPlaying = true;
       this.isPaused = false;
       this.setRiddimForStage(stageNum);
@@ -1142,6 +1186,139 @@
       gain.connect(this.masterGain);
       osc.start(now);
       osc.stop(now + 0.25);
+    }
+
+    stopEndgameLoop() {
+      if (this.endgameTimerID) {
+        clearInterval(this.endgameTimerID);
+        this.endgameTimerID = null;
+      }
+    }
+
+    // Dramatic Turntable Power-Down Brake + Half-Time Dub Outro Groove on Game Over!
+    playShutdownSequence() {
+      if (!this.ctx) return;
+      this.stopEndgameLoop();
+      const now = this.ctx.currentTime;
+
+      // 1. Heavy Vinyl Turntable Brake / Power-Down Pitch Dive (1.1s)
+      const brakeOsc = this.ctx.createOscillator();
+      const brakeSub = this.ctx.createOscillator();
+      const brakeFilter = this.ctx.createBiquadFilter();
+      const brakeGain = this.ctx.createGain();
+
+      brakeOsc.type = 'sawtooth';
+      brakeOsc.frequency.setValueAtTime(220, now);
+      brakeOsc.frequency.exponentialRampToValueAtTime(18, now + 1.15);
+
+      brakeSub.type = 'sine';
+      brakeSub.frequency.setValueAtTime(110, now);
+      brakeSub.frequency.exponentialRampToValueAtTime(14, now + 1.15);
+
+      brakeFilter.type = 'lowpass';
+      brakeFilter.frequency.setValueAtTime(1200, now);
+      brakeFilter.frequency.exponentialRampToValueAtTime(65, now + 1.15);
+      brakeFilter.Q.setValueAtTime(6.0, now);
+
+      brakeGain.gain.setValueAtTime(0.55, now);
+      brakeGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+
+      brakeOsc.connect(brakeFilter);
+      brakeSub.connect(brakeFilter);
+      brakeFilter.connect(brakeGain);
+      brakeGain.connect(this.masterGain);
+
+      brakeOsc.start(now);
+      brakeSub.start(now);
+      brakeOsc.stop(now + 1.22);
+      brakeSub.stop(now + 1.22);
+
+      // 2. Dub Siren Descending Wail with Echo Taps
+      for (let tap = 0; tap < 4; tap++) {
+        const tapTime = now + 0.18 + tap * 0.28;
+        const siren = this.ctx.createOscillator();
+        const sGain = this.ctx.createGain();
+        siren.type = 'triangle';
+        siren.frequency.setValueAtTime(680 - tap * 95, tapTime);
+        siren.frequency.exponentialRampToValueAtTime(180 - tap * 20, tapTime + 0.24);
+
+        sGain.gain.setValueAtTime(0.28 * Math.pow(0.65, tap), tapTime);
+        sGain.gain.exponentialRampToValueAtTime(0.002, tapTime + 0.25);
+
+        siren.connect(sGain);
+        sGain.connect(this.masterGain);
+        siren.start(tapTime);
+        siren.stop(tapTime + 0.26);
+      }
+
+      // 3. Start looping moody Half-Time Dub Bass & Echo Rimshot Outro (75 BPM feel)
+      let step = 0;
+      const dubNotes = [43.65, 0, 51.91, 0, 38.89, 0, 32.70, 0]; // Fm -> Ab -> Eb -> C1 deep dub
+      const playDubBar = () => {
+        if (gameState !== 'GAMEOVER' || !this.ctx) {
+          this.stopEndgameLoop();
+          return;
+        }
+        const t = this.ctx.currentTime + 0.02;
+        const idx = step % 8;
+        const freq = dubNotes[idx];
+        if (freq > 0) {
+          this.playStageBass(t, freq, 0.36, 'sub_pluck');
+        }
+        if (idx === 0 || idx === 4) {
+          this.playKick(t, 0.65);
+        }
+        if (idx === 2 || idx === 6) {
+          // Dub echo rimshot + minor skank
+          this.playRimSnare(t, 0.45);
+          this.playStageLead(t + 0.18, 261.63, 0.12, 'dub_chord');
+        }
+        step++;
+      };
+
+      this.endgameTimerID = setInterval(playDubBar, 400);
+    }
+
+    // Celebratory Kingston Dancehall Fanfare + Upbeat Riddim on Victory!
+    playVictoryFanfare() {
+      if (!this.ctx) return;
+      this.stopEndgameLoop();
+      const now = this.ctx.currentTime;
+
+      // Triple Airhorn Salute + Major Steelpan Arpeggio
+      this.playAirhornSFX();
+      const fanfareNotes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      fanfareNotes.forEach((f, idx) => {
+        const t = now + idx * 0.14;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(f, t);
+        gain.gain.setValueAtTime(0.32, t);
+        gain.gain.exponentialRampToValueAtTime(0.002, t + 0.35);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(t);
+        osc.stop(t + 0.36);
+      });
+
+      let step = 0;
+      const winNotes = [65.41, 77.78, 87.31, 98.00];
+      this.endgameTimerID = setInterval(() => {
+        if (gameState !== 'GAMEOVER' || !this.ctx) {
+          this.stopEndgameLoop();
+          return;
+        }
+        const t = this.ctx.currentTime + 0.02;
+        const idx = step % 4;
+        this.playKick(t, 0.8);
+        this.playStageBass(t, winNotes[idx], 0.25, 'sub_pluck');
+        if (idx % 2 === 1) {
+          this.playDiwaliHandclap(t);
+          this.playStageLead(t, 523.25, 0.18, 'brass_horn');
+        }
+        step++;
+      }, 280);
     }
   }
 
@@ -1895,10 +2072,201 @@
     });
   }
 
+  let isVictoryEndgame = false;
+  const endgameCanvas = document.getElementById('endgameCanvas');
+  const endCtx = endgameCanvas ? endgameCanvas.getContext('2d') : null;
+  let endAnimParticles = [];
+
+  function initEndgameParticles(isWin) {
+    endAnimParticles = [];
+    for (let i = 0; i < 22; i++) {
+      endAnimParticles.push({
+        x: 30 + Math.random() * 180,
+        y: 20 + Math.random() * 110,
+        vx: (Math.random() - 0.5) * (isWin ? 35 : 18),
+        vy: isWin ? (25 + Math.random() * 40) : (-18 - Math.random() * 28),
+        size: isWin ? (3 + Math.random() * 4) : (4 + Math.random() * 8),
+        color: isWin
+          ? ['#FFD700', '#00E676', '#00F0FF', '#FF007F'][Math.floor(Math.random() * 4)]
+          : ['#555', '#333', '#FF1744', '#FF9100'][Math.floor(Math.random() * 4)],
+        alpha: 0.4 + Math.random() * 0.6
+      });
+    }
+  }
+
+  function renderEndgameScene(now) {
+    if (!endCtx || gameState !== 'GAMEOVER') return;
+    const w = endgameCanvas.width;
+    const h = endgameCanvas.height;
+    endCtx.clearRect(0, 0, w, h);
+
+    const t = now * 0.001;
+    const dubPulse = Math.abs(Math.sin(t * Math.PI * (isVictoryEndgame ? 3.5 : 1.25)));
+
+    // 1. Background Spotlight / Smoke Haze
+    const bgGrad = endCtx.createRadialGradient(w / 2, h * 0.65, 10, w / 2, h * 0.5, 130);
+    if (isVictoryEndgame) {
+      bgGrad.addColorStop(0, 'rgba(255, 215, 0, 0.28)');
+      bgGrad.addColorStop(0.6, 'rgba(0, 230, 118, 0.12)');
+      bgGrad.addColorStop(1, 'rgba(8, 6, 14, 0.95)');
+    } else {
+      bgGrad.addColorStop(0, 'rgba(255, 23, 68, 0.22)');
+      bgGrad.addColorStop(0.6, 'rgba(30, 15, 45, 0.4)');
+      bgGrad.addColorStop(1, 'rgba(5, 4, 8, 0.98)');
+    }
+    endCtx.fillStyle = bgGrad;
+    endCtx.fillRect(0, 0, w, h);
+
+    // 2. Draw Left & Right Sound System Speaker Stacks (Smoking on Defeat, Thumping on Victory)
+    [34, w - 34].forEach((sx, idx) => {
+      const sy = 88;
+      endCtx.save();
+      endCtx.translate(sx, sy);
+      if (!isVictoryEndgame) {
+        // Tilted, blown-out speaker cabinet
+        endCtx.rotate(idx === 0 ? -0.08 : 0.1);
+      }
+      endCtx.fillStyle = '#181424';
+      endCtx.fillRect(-20, -34, 40, 62);
+      endCtx.strokeStyle = isVictoryEndgame ? '#FFD700' : '#4a2535';
+      endCtx.lineWidth = 2;
+      endCtx.strokeRect(-20, -34, 40, 62);
+
+      // Woofer Cones
+      const coneR = 11 + dubPulse * (isVictoryEndgame ? 4 : 1.5);
+      endCtx.beginPath();
+      endCtx.arc(0, -14, coneR * 0.75, 0, Math.PI * 2);
+      endCtx.arc(0, 10, coneR, 0, Math.PI * 2);
+      endCtx.fillStyle = '#07060a';
+      endCtx.fill();
+      endCtx.strokeStyle = isVictoryEndgame ? '#00E676' : '#FF1744';
+      endCtx.lineWidth = 1.5;
+      endCtx.stroke();
+
+      // Crackle sparks on defeat
+      if (!isVictoryEndgame && Math.sin(t * 14 + idx * 3) > 0.65) {
+        endCtx.strokeStyle = '#FFD700';
+        endCtx.beginPath();
+        endCtx.moveTo(-8, -20);
+        endCtx.lineTo(4, -28);
+        endCtx.lineTo(10, -18);
+        endCtx.stroke();
+      }
+      endCtx.restore();
+    });
+
+    // 3. Draw Animated Smoke / Confetti Particles
+    endAnimParticles.forEach(p => {
+      p.x += p.vx * 0.016;
+      p.y += p.vy * 0.016;
+      if (isVictoryEndgame) {
+        if (p.y > h) { p.y = -5; p.x = 20 + Math.random() * (w - 40); }
+      } else {
+        if (p.y < -10) {
+          p.y = 105;
+          p.x = (Math.random() < 0.5 ? 34 : w - 34) + (Math.random() - 0.5) * 28;
+        }
+      }
+      endCtx.save();
+      endCtx.globalAlpha = p.alpha;
+      endCtx.fillStyle = p.color;
+      if (isVictoryEndgame) {
+        endCtx.fillRect(p.x, p.y, p.size, p.size);
+      } else {
+        endCtx.beginPath();
+        endCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        endCtx.fill();
+      }
+      endCtx.restore();
+    });
+
+    // 4. Draw Center Character: MC Ananas (Dizzy w/ Spinning Vinyl Stars on Defeat, Dancing w/ Crown on Victory)
+    const cx = w / 2;
+    const cy = 92 - (isVictoryEndgame ? dubPulse * 10 : Math.sin(t * 2.5) * 2);
+    endCtx.save();
+    endCtx.translate(cx, cy);
+
+    // Pineapple Crown
+    endCtx.fillStyle = '#00E676';
+    endCtx.beginPath();
+    endCtx.moveTo(-14, -16);
+    endCtx.lineTo(-18, -29);
+    endCtx.lineTo(-6, -20);
+    endCtx.lineTo(0, -34);
+    endCtx.lineTo(6, -20);
+    endCtx.lineTo(18, -29);
+    endCtx.lineTo(14, -16);
+    endCtx.closePath();
+    endCtx.fill();
+
+    // Pineapple Suit Body
+    endCtx.fillStyle = '#FFD700';
+    endCtx.fillRect(-15, -16, 30, 28);
+    endCtx.strokeStyle = '#CC7A00';
+    endCtx.lineWidth = 1.5;
+    endCtx.strokeRect(-15, -16, 30, 28);
+
+    // Sunglasses (Askew on Defeat, Glowing Cyan on Victory)
+    endCtx.save();
+    if (!isVictoryEndgame) {
+      endCtx.rotate(0.18); // crooked shades after getting knocked out!
+    }
+    endCtx.fillStyle = '#08060c';
+    endCtx.fillRect(-14, -11, 28, 9);
+    endCtx.strokeStyle = isVictoryEndgame ? '#00F0FF' : '#FF1744';
+    endCtx.lineWidth = 1.5;
+    endCtx.strokeRect(-14, -11, 28, 9);
+    endCtx.restore();
+
+    if (!isVictoryEndgame) {
+      // Orbiting Dizzy Vinyl Dubplates above MC Ananas's head!
+      for (let k = 0; k < 3; k++) {
+        const ang = t * 3.8 + (k * Math.PI * 2) / 3;
+        const vx = Math.cos(ang) * 22;
+        const vy = -36 + Math.sin(ang) * 6;
+        endCtx.beginPath();
+        endCtx.arc(vx, vy, 5, 0, Math.PI * 2);
+        endCtx.fillStyle = '#111';
+        endCtx.fill();
+        endCtx.strokeStyle = '#FFD700';
+        endCtx.lineWidth = 1.5;
+        endCtx.stroke();
+      }
+    } else {
+      // Champion Trophy / Dubplate Halo
+      endCtx.fillStyle = '#FFD700';
+      endCtx.font = '900 13px "Courier New", monospace';
+      endCtx.textAlign = 'center';
+      endCtx.fillText('★ KING OF KINGSTON ★', 0, -40);
+    }
+
+    endCtx.restore();
+
+    // 5. Bottom Animated 12-Band Sound System Spectrum Visualizer
+    const numBars = 16;
+    const barW = (w - 32) / numBars;
+    for (let b = 0; b < numBars; b++) {
+      const wave = isVictoryEndgame
+        ? (0.35 + 0.65 * Math.abs(Math.sin(t * 6 + b * 0.5)))
+        : (0.12 + 0.35 * Math.abs(Math.sin(t * 2.5 + b * 0.7)) * dubPulse);
+      const bh = Math.max(3, wave * 24);
+      endCtx.fillStyle = isVictoryEndgame
+        ? (b % 2 === 0 ? '#00E676' : '#FFD700')
+        : (b % 2 === 0 ? '#FF1744' : '#FF9100');
+      endCtx.fillRect(16 + b * barW, h - 6 - bh, barW - 3, bh);
+    }
+  }
+
   function triggerVictory() {
     gameState = 'GAMEOVER';
+    isVictoryEndgame = true;
     audio.stop();
-    document.getElementById('endTitle').textContent = '👑 KINGSTON SOUND CLASH CHAMPION! 👑';
+    audio.playVictoryFanfare();
+    initEndgameParticles(true);
+
+    const titleEl = document.getElementById('endTitle');
+    titleEl.textContent = '👑 KINGSTON SOUND CLASH CHAMPION! 👑';
+    titleEl.className = 'game-title champion-title';
     document.getElementById('endSubtitle').textContent = 'MC ANANAS RULED STING \'04 PON DI RIDDIM!';
     gameOverOverlay.classList.remove('hidden');
     document.getElementById('endStats').innerHTML = `
@@ -1911,9 +2279,15 @@
 
   function triggerGameOver() {
     gameState = 'GAMEOVER';
+    isVictoryEndgame = false;
     audio.stop();
+    audio.playShutdownSequence();
+    initEndgameParticles(false);
+
     const theme = getStageTheme(stage);
-    document.getElementById('endTitle').textContent = 'SOUND SYSTEM SHUT DOWN';
+    const titleEl = document.getElementById('endTitle');
+    titleEl.textContent = 'SOUND SYSTEM SHUT DOWN';
+    titleEl.className = 'game-title glitch-title';
     document.getElementById('endSubtitle').textContent = 'DROWNED OUT BY THE RIVAL CREW';
     gameOverOverlay.classList.remove('hidden');
     document.getElementById('endStats').innerHTML = `
@@ -2642,6 +3016,9 @@
 
     update(dt);
     render();
+    if (gameState === 'GAMEOVER') {
+      renderEndgameScene(now);
+    }
 
     requestAnimationFrame(gameLoop);
   }
