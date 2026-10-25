@@ -254,6 +254,65 @@
     text-transform: uppercase;
     white-space: nowrap;
   }
+
+  /* iOS Safari 18+/26+ Native Taptic Engine Switch Hit-Targets over Steelpan Domes */
+  .ios-haptic-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0.001;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  #steelpan-touch-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 12;
+    pointer-events: none;
+  }
+
+  .steelpan-pad-label {
+    position: absolute;
+    pointer-events: auto;
+    cursor: pointer;
+    border-radius: 50%;
+    background: transparent;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Mapped to 540x920 canvas coordinates:
+     DRUM_CENTER = (270, 772), padDist = 74
+     Up:    (270, 698)
+     Down:  (270, 846)
+     Left:  (196, 772)
+     Right: (344, 772) */
+  #pad-up {
+    left: 50%;
+    top: 75.87%;
+    width: 24%;
+    height: 11.5%;
+  }
+  #pad-down {
+    left: 50%;
+    top: 91.95%;
+    width: 24%;
+    height: 11.5%;
+  }
+  #pad-left {
+    left: 36.3%;
+    top: 83.91%;
+    width: 19%;
+    height: 14%;
+  }
+  #pad-right {
+    left: 63.7%;
+    top: 83.91%;
+    width: 19%;
+    height: 14%;
+  }
 </style>
 </head>
 <body>
@@ -261,6 +320,24 @@
 <div id="game-wrapper">
   <canvas id="gameCanvas" width="540" height="920"></canvas>
   <div class="crt-overlay"></div>
+
+  <!-- iOS Safari Native Taptic Engine Switch Hit-Targets -->
+  <div id="steelpan-touch-layer" aria-hidden="true">
+    <input type="checkbox" switch id="haptic-sw-up" class="ios-haptic-input">
+    <label for="haptic-sw-up" id="pad-up" class="steelpan-pad-label" data-dx="0" data-dy="-1"></label>
+
+    <input type="checkbox" switch id="haptic-sw-down" class="ios-haptic-input">
+    <label for="haptic-sw-down" id="pad-down" class="steelpan-pad-label" data-dx="0" data-dy="1"></label>
+
+    <input type="checkbox" switch id="haptic-sw-left" class="ios-haptic-input">
+    <label for="haptic-sw-left" id="pad-left" class="steelpan-pad-label" data-dx="-1" data-dy="0"></label>
+
+    <input type="checkbox" switch id="haptic-sw-right" class="ios-haptic-input">
+    <label for="haptic-sw-right" id="pad-right" class="steelpan-pad-label" data-dx="1" data-dy="0"></label>
+
+    <input type="checkbox" switch id="haptic-sw-generic" class="ios-haptic-input">
+    <label for="haptic-sw-generic" id="haptic-label-generic" style="position:absolute;width:1px;height:1px;opacity:0.001;pointer-events:none;"></label>
+  </div>
 
   <!-- START CLASH OVERLAY -->
   <div id="startOverlay" class="overlay">
@@ -354,12 +431,20 @@
   const perkCardsContainer = document.getElementById('perkCardsContainer');
 
   // ==========================================
-  // TACTILE HAPTIC VIBRATION HELPER
+  // TACTILE HAPTIC VIBRATION HELPER (ANDROID + iOS SAFARI TAPTIC ENGINE)
   // ==========================================
+  const genericHapticLabel = document.getElementById('haptic-label-generic');
+
   function triggerHaptic(pattern) {
     try {
+      // 1. Standard Vibration API (Android / supported browsers)
       if (navigator && typeof navigator.vibrate === 'function') {
         navigator.vibrate(pattern);
+        return;
+      }
+      // 2. iOS 18+/26+ Safari fallback: programmatic click on <label> tied to <input type="checkbox" switch>
+      if (genericHapticLabel) {
+        genericHapticLabel.click();
       }
     } catch (_) {
       // Ignore on unsupported browsers
@@ -699,6 +784,19 @@
         osc.start(now);
         osc.stop(now + h.decay + 0.01);
       });
+
+      // Physical Sub-Bass Mallet Thump (55Hz -> 38Hz) so phone speakers physically vibrate in hand
+      const thumpOsc = this.ctx.createOscillator();
+      const thumpGain = this.ctx.createGain();
+      thumpOsc.type = 'sine';
+      thumpOsc.frequency.setValueAtTime(68, now);
+      thumpOsc.frequency.exponentialRampToValueAtTime(36, now + 0.045);
+      thumpGain.gain.setValueAtTime(0.55, now);
+      thumpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+      thumpOsc.connect(thumpGain);
+      thumpGain.connect(this.masterGain);
+      thumpOsc.start(now);
+      thumpOsc.stop(now + 0.055);
     }
 
     playAttackSFX(isAirhorn = false) {
@@ -2178,8 +2276,31 @@
   }
 
   // ==========================================
-  // INPUT HANDLERS: KEYBOARD + INSTANT TOUCHSTART STEEL DRUM
+  // INPUT HANDLERS: KEYBOARD + INSTANT TOUCHSTART + iOS TAPTIC LABELS
   // ==========================================
+  let lastTouchInputTimestamp = 0;
+
+  // Bind the 4 transparent iOS Safari <label> hit-targets directly over the Steelpan Domes.
+  // DO NOT call e.preventDefault() on these labels so iOS Safari completes the native
+  // <input type="checkbox" switch> toggle and fires the hardware iPhone Taptic Engine!
+  document.querySelectorAll('.steelpan-pad-label').forEach((labelEl) => {
+    const dx = parseInt(labelEl.getAttribute('data-dx'), 10);
+    const dy = parseInt(labelEl.getAttribute('data-dy'), 10);
+
+    labelEl.addEventListener('touchstart', () => {
+      if (gameState !== 'PLAYING') return;
+      lastTouchInputTimestamp = performance.now();
+      handlePlayerInput(dx, dy);
+    }, { passive: true });
+
+    labelEl.addEventListener('mousedown', (e) => {
+      if (gameState !== 'PLAYING') return;
+      if (performance.now() - lastTouchInputTimestamp < 500) return; // ignore synthesized mouse event after touch
+      e.preventDefault();
+      handlePlayerInput(dx, dy);
+    });
+  });
+
   function handleSteelDrumTouchOrClick(clientX, clientY) {
     if (gameState !== 'PLAYING') return;
 
@@ -2189,7 +2310,7 @@
     const x = (clientX - rect.left) * scaleX;
     const y = (clientY - rect.top) * scaleY;
 
-    // Check if tap is in the bottom Steel Drum Deck area (or anywhere around the Steelpan)
+    // Check if tap is in the bottom Steel Drum Deck area (outside the 4 label domes)
     if (y >= 615) {
       const dx = x - DRUM_CENTER_X;
       const dy = y - DRUM_CENTER_Y;
@@ -2215,19 +2336,21 @@
     }
   }
 
-  // Instant zero-latency touchstart on the Steel Drum controller
+  // Fallback instant touchstart on the rest of the Steel Drum bowl
   canvas.addEventListener('touchstart', (e) => {
     if (gameState !== 'PLAYING') return;
     e.preventDefault();
+    lastTouchInputTimestamp = performance.now();
     if (e.changedTouches && e.changedTouches.length > 0) {
       const t = e.changedTouches[0];
       handleSteelDrumTouchOrClick(t.clientX, t.clientY);
     }
   }, { passive: false });
 
-  // Also allow mouse click on the Steel Drum pads on desktop!
+  // Also allow mouse click on the Steel Drum bowl on desktop!
   canvas.addEventListener('mousedown', (e) => {
     if (gameState !== 'PLAYING') return;
+    if (performance.now() - lastTouchInputTimestamp < 500) return;
     handleSteelDrumTouchOrClick(e.clientX, e.clientY);
   });
 
