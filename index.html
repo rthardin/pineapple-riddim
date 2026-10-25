@@ -1257,15 +1257,15 @@
       osc.frequency.setValueAtTime(bassFreq * 2, time);
 
       filter.type = 'lowpass';
-      filter.Q.setValueAtTime(7.0, time);
-      filter.frequency.setValueAtTime(560, time);
+      filter.Q.setValueAtTime(4.2, time);
+      filter.frequency.setValueAtTime(310, time);
 
-      // Wobble LFO: modulates filter cutoff between ~120 Hz and ~1000 Hz
+      // Wobble LFO: tight low-mid sweep between ~130 Hz and ~490 Hz (tight, punchy sub pressure)
       const lfo = this.ctx.createOscillator();
       const lfoGain = this.ctx.createGain();
       lfo.type = 'sine';
       lfo.frequency.setValueAtTime(wobbleHz, time);
-      lfoGain.gain.setValueAtTime(440, time);
+      lfoGain.gain.setValueAtTime(180, time);
 
       lfo.connect(lfoGain);
       lfoGain.connect(filter.frequency);
