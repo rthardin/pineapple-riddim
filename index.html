@@ -321,15 +321,23 @@
   }
 
   .shop-wallet-banner {
-    background: rgba(255, 215, 0, 0.14);
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.12) 0%, rgba(255, 215, 0, 0.32) 50%, rgba(255, 215, 0, 0.12) 100%);
+    background-size: 200% 100%;
+    animation: goldShimmer 2s infinite linear;
     border: 1.5px solid var(--gold);
     color: var(--gold);
-    padding: 6px 16px;
-    border-radius: 6px;
+    padding: 7px 18px;
+    border-radius: 8px;
     font-weight: 900;
     font-size: 15px;
     margin-bottom: 6px;
     letter-spacing: 1px;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+  }
+
+  @keyframes goldShimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 
   .endgame-btn-row {
@@ -1348,21 +1356,133 @@
     }
 
     playCoinSFX() {
+      this.playCoinVacuumChime(0);
+    }
+
+    // Vampire Survivors Ascending Pentatonic XP/Coin Vacuum Chimes!
+    playCoinVacuumChime(streak = 0) {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      // 12-Note ascending pentatonic scale spanning 2+ octaves
+      const scale = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51, 1567.98, 1760.00, 2093.00, 2349.32];
+      const noteIdx = Math.min(streak, scale.length - 1);
+      const freq = scale[noteIdx];
+
+      // Bell chime fundamental
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.008, now + 0.12);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.32, now + 0.006);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+      // Shimmering second harmonic
+      const harm = this.ctx.createOscillator();
+      const hGain = this.ctx.createGain();
+      harm.type = 'triangle';
+      harm.frequency.setValueAtTime(freq * 2.0, now);
+      hGain.gain.setValueAtTime(0.001, now);
+      hGain.gain.linearRampToValueAtTime(0.14, now + 0.004);
+      hGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+      // Sub click pop
+      const click = this.ctx.createOscillator();
+      const cGain = this.ctx.createGain();
+      click.type = 'sine';
+      click.frequency.setValueAtTime(90, now);
+      click.frequency.exponentialRampToValueAtTime(32, now + 0.03);
+      cGain.gain.setValueAtTime(0.35, now);
+      cGain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      harm.connect(hGain);
+      hGain.connect(this.masterGain);
+      click.connect(cGain);
+      cGain.connect(this.masterGain);
+
+      osc.start(now);
+      harm.start(now);
+      click.start(now);
+      osc.stop(now + 0.19);
+      harm.stop(now + 0.13);
+      click.stop(now + 0.04);
+    }
+
+    // Heavy Distorted Bass Impact Boom on Critical Hits & Lethal K.O.
+    playCritImpactSFX() {
       if (!this.ctx) return;
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(987.77, now);
-      osc.frequency.setValueAtTime(1318.51, now + 0.055);
+      const filter = this.ctx.createBiquadFilter();
 
-      gain.gain.setValueAtTime(0.28, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(170, now);
+      osc.frequency.exponentialRampToValueAtTime(28, now + 0.28);
 
-      osc.connect(gain);
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1200, now);
+      filter.frequency.exponentialRampToValueAtTime(120, now + 0.28);
+      filter.Q.setValueAtTime(6.0, now);
+
+      gain.gain.setValueAtTime(0.7, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+      osc.connect(filter);
+      filter.connect(gain);
       gain.connect(this.masterGain);
       osc.start(now);
-      osc.stop(now + 0.19);
+      osc.stop(now + 0.32);
+    }
+
+    // High-Voltage Electric Zap Crackle for 10x+ Chain Lightning Kills
+    playLightningArcSFX() {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = this.noiseBuffer;
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(3200, now);
+      filter.frequency.exponentialRampToValueAtTime(800, now + 0.14);
+      filter.Q.setValueAtTime(6.0, now);
+
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.48, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+      noise.start(now);
+      noise.stop(now + 0.16);
+    }
+
+    // Dopamine Slot-Machine Chest Fanfare for Level-Up / Bling Shop
+    playLevelUpFanfare() {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const notes = [523.25, 659.25, 783.99, 987.77, 1046.50, 1318.51, 1567.98];
+      notes.forEach((f, idx) => {
+        const t = now + idx * 0.05;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(f, t);
+
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.24, t + 0.006);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(t);
+        osc.stop(t + 0.24);
+      });
     }
 
     playHurtSFX() {
@@ -1621,6 +1741,18 @@
   let shockwaves = [];
   let timingJudgement = { text: '', color: '#FFD700', alpha: 0, scale: 1 };
 
+  // Vampire Survivors Dopamine Mechanics
+  let coinStreak = 0;
+  let lastCoinPickupTime = 0;
+  let hitStopTimer = 0; // Micro-freeze frame on impact (visceral weight)
+  let screenPunch = 1.0; // Dynamic scale punch on crits & kills
+  let globalVacuumTimer = 0; // Magnet pulls all coins across arena on Pull-Up & Stage Clear
+  let lightningArcs = []; // Chain lightning arcs on 10x+ kills
+  let vinylShards = []; // Exploding spinning dubplate shards on enemy kills
+  let lastKillTime = 0;
+  let multiKillCount = 0;
+  let feverDiscoTimer = 0;
+
   function getMaxHypeCharge() {
     return player.perks.dub_siren_battery > 0 ? 9 : 12;
   }
@@ -1685,6 +1817,12 @@
     particles = [];
     shockwaves = [];
     afterimages = [];
+    lightningArcs = [];
+    vinylShards = [];
+    globalVacuumTimer = 0;
+    coinStreak = 0;
+    screenPunch = 1.0;
+    hitStopTimer = 0;
 
     const occupied = new Set([`${player.x},${player.y}`, '4,4', '5,4']); // keep portal center & player clear
 
@@ -1945,7 +2083,8 @@
         tileCenterY(player.y) - 20,
         `CHARGE HYPE (${hypeCharge}/${maxCharge})!`,
         '#00F0FF',
-        14
+        14,
+        true
       );
       return;
     }
@@ -1960,9 +2099,13 @@
     hypeCharge = 0;
     const freezeBeats = 3 + (player.perks.dub_siren_battery > 0 ? 1 : 0);
     globalFreezeBeats = freezeBeats;
+    globalVacuumTimer = 3.5; // Dopamine: vacuum up all coins on arena!
 
     player.hopAnim = 1.4;
-    screenShake = 14;
+    screenShake = 18;
+    screenPunch = 1.15;
+    hitStopTimer = 0.06;
+    audio.playCritImpactSFX();
     audio.playAirhornSFX();
     audio.playBossBeamSFX();
     triggerHaptic([35, 30, 50, 30, 65]);
@@ -1973,26 +2116,28 @@
       ARENA_OFFSET_Y + (GRID_SIZE * TILE_SIZE) / 2,
       `🔊 PULL UP! RIVALS FROZEN (${freezeBeats} BEATS)!`,
       '#FFD700',
-      17
+      18,
+      true,
+      true
     );
 
     shockwaves.push({
       x: tileCenterX(player.x),
       y: tileCenterY(player.y),
       radius: 10,
-      maxRadius: TILE_SIZE * 4.5,
+      maxRadius: TILE_SIZE * 5.0,
       alpha: 1.0,
       color: '#FFD700'
     });
 
-    // Blast all enemies within 2 tiles for 2 damage & knockback!
+    // Blast all enemies within 2.5 tiles for 2 damage & knockback!
     enemies.forEach(e => {
       const dist = Math.hypot(e.x - player.x, e.y - player.y);
       if (dist <= 2.5) {
         e.hp -= 2;
         e.flashTimer = 0.35;
-        spawnFloatingText(tileCenterX(e.x), tileCenterY(e.y) - 18, 'PULL UP BLAST! -2', '#00F0FF', 15);
-        spawnParticles(tileCenterX(e.x), tileCenterY(e.y), '#00F0FF', 18);
+        spawnFloatingText(tileCenterX(e.x), tileCenterY(e.y) - 18, 'PULL UP BLAST! -2', '#00F0FF', 16, true);
+        spawnParticles(tileCenterX(e.x), tileCenterY(e.y), '#00F0FF', 22);
       }
     });
 
@@ -2073,18 +2218,6 @@
 
       spawnParticles(tileCenterX(player.x), tileCenterY(player.y) + 10, '#00E676', 6);
 
-      for (let i = coins.length - 1; i >= 0; i--) {
-        if (coins[i].x === player.x && coins[i].y === player.y) {
-          const val = coins[i].value;
-          blingCoins += val;
-          score += val * 25 * Math.max(1, combo);
-          audio.playCoinSFX();
-          triggerHaptic([15, 25, 20]);
-          spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 18, `+$${val} BLING!`, '#FFD700', 15);
-          coins.splice(i, 1);
-        }
-      }
-
       if (portal && player.x === portal.x && player.y === portal.y) {
         audio.playAirhornSFX();
         triggerHaptic([30, 40, 60]);
@@ -2105,19 +2238,29 @@
     player.renderY = player.y + dy * 0.45;
 
     const doubleComboThreshold = player.perks.subwoofer_chain > 0 ? 8 : 14;
-    const dmg = 1 + player.perks.subwoofer_chain + (combo >= doubleComboThreshold ? 1 : 0);
+    const isCrit = combo >= doubleComboThreshold;
+    const dmg = 1 + player.perks.subwoofer_chain + (isCrit ? 1 : 0);
     enemy.hp -= dmg;
-    enemy.flashTimer = 0.25;
-    screenShake = enemy.type === 'boss' ? 12 : 8;
+    enemy.flashTimer = 0.28;
 
-    const slang = SLANG_HIT[Math.floor(Math.random() * SLANG_HIT.length)];
-    spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 18, `${slang} -${dmg}`, '#FF1744', 16);
-    spawnParticles(tileCenterX(enemy.x), tileCenterY(enemy.y), '#FFD700', 16);
+    if (isCrit) {
+      screenPunch = 1.08;
+      hitStopTimer = 0.05;
+      screenShake = enemy.type === 'boss' ? 16 : 11;
+      audio.playCritImpactSFX();
+      spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 22, `💥 CRIT! -${dmg}`, '#FFD700', 20, true, true);
+    } else {
+      screenShake = enemy.type === 'boss' ? 12 : 8;
+      const slang = SLANG_HIT[Math.floor(Math.random() * SLANG_HIT.length)];
+      spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 18, `${slang} -${dmg}`, '#FF1744', 16, true);
+    }
+
+    spawnParticles(tileCenterX(enemy.x), tileCenterY(enemy.y), isCrit ? '#FFD700' : '#FF1744', isCrit ? 22 : 14);
 
     const hasAirhorn = player.perks.airhorn_dubplate > 0;
     audio.playSteelDrumStepSFX(dirKey, stage);
     audio.playAttackSFX(hasAirhorn);
-    triggerHaptic([28, 25, 40]);
+    triggerHaptic(isCrit ? [35, 25, 45] : [28, 25, 40]);
 
     // When Boss is hit, he teleports/hops away if crowded so the fight stays dynamic
     if (enemy.type === 'boss' && enemy.hp > 0 && enemy.hp % 3 === 0) {
@@ -2136,7 +2279,7 @@
         x: tileCenterX(enemy.x),
         y: tileCenterY(enemy.y),
         radius: 8,
-        maxRadius: TILE_SIZE * 1.9,
+        maxRadius: TILE_SIZE * 2.2,
         alpha: 1.0,
         color: '#00F0FF'
       });
@@ -2156,7 +2299,7 @@
           }
           other.hp -= 1;
           other.flashTimer = 0.25;
-          spawnFloatingText(tileCenterX(other.x), tileCenterY(other.y) - 12, 'BASS! -1', '#00F0FF', 13);
+          spawnFloatingText(tileCenterX(other.x), tileCenterY(other.y) - 12, 'BASS! -1', '#00F0FF', 14, true);
         }
       });
     }
@@ -2170,23 +2313,89 @@
         const dead = enemies[i];
         const isBoss = dead.type === 'boss';
         score += (isBoss ? 1000 : 150) * Math.max(1, combo);
-        spawnParticles(tileCenterX(dead.x), tileCenterY(dead.y), isBoss ? '#FFD700' : '#00E676', isBoss ? 40 : 22);
-        spawnFloatingText(
-          tileCenterX(dead.x),
-          tileCenterY(dead.y) - 26,
-          isBoss ? '👑 KING SOUNDCLASH DEFEATED!' : 'K.O. FORWARD!',
-          isBoss ? '#FFD700' : '#00E676',
-          isBoss ? 18 : 16
-        );
 
+        // Vampire Survivors Sensory Explosion
+        hitStopTimer = isBoss ? 0.09 : 0.045;
+        screenPunch = isBoss ? 1.15 : 1.07;
+        screenShake = isBoss ? 28 : 14;
+
+        spawnFireworks(tileCenterX(dead.x), tileCenterY(dead.y), isBoss ? 48 : 24);
+        spawnVinylShards(tileCenterX(dead.x), tileCenterY(dead.y), isBoss ? 16 : 8);
+
+        // Multi-kill announcements
+        const nowTime = performance.now();
+        if (nowTime - lastKillTime < 2400) {
+          multiKillCount++;
+        } else {
+          multiKillCount = 1;
+        }
+        lastKillTime = nowTime;
+
+        if (multiKillCount === 2) {
+          spawnFloatingText(tileCenterX(dead.x), tileCenterY(dead.y) - 34, '⚡ DOUBLE CLASH! ⚡', '#00F0FF', 16, true);
+        } else if (multiKillCount === 3) {
+          spawnFloatingText(tileCenterX(dead.x), tileCenterY(dead.y) - 36, '🔥 TRIPLE FORWARD! 🔥', '#FF9100', 18, true, true);
+        } else if (multiKillCount >= 4) {
+          spawnFloatingText(tileCenterX(dead.x), tileCenterY(dead.y) - 38, '👑 SOUND SYSTEM RAMPAGE! 👑', '#FFD700', 21, true, true);
+        } else {
+          spawnFloatingText(
+            tileCenterX(dead.x),
+            tileCenterY(dead.y) - 26,
+            isBoss ? '👑 KING SOUNDCLASH DEFEATED!' : 'K.O. FORWARD!',
+            isBoss ? '#FFD700' : '#00E676',
+            isBoss ? 19 : 16,
+            true,
+            isBoss
+          );
+        }
+
+        // 10x+ Chain Lightning Arc to nearby rivals
+        if (combo >= 10) {
+          let zapped = 0;
+          enemies.forEach(other => {
+            if (other !== dead && other.hp > 0 && zapped < 2) {
+              const dist = Math.hypot(other.x - dead.x, other.y - dead.y);
+              if (dist <= 3.8) {
+                zapped++;
+                other.hp -= 1;
+                other.flashTimer = 0.28;
+                lightningArcs.push({
+                  x1: tileCenterX(dead.x),
+                  y1: tileCenterY(dead.y),
+                  x2: tileCenterX(other.x),
+                  y2: tileCenterY(other.y),
+                  alpha: 1.0,
+                  color: '#00F0FF'
+                });
+                spawnFloatingText(tileCenterX(other.x), tileCenterY(other.y) - 14, '⚡ZAP! -1', '#00F0FF', 14, true);
+              }
+            }
+          });
+          if (zapped > 0) {
+            audio.playLightningArcSFX();
+          }
+        }
+
+        // Fling out physical coins with bounce velocity
         const coinBonus = player.perks.fresh_clarks > 0 ? 2 : 1;
-        const baseVal = isBoss ? 15 : (dead.type === 'selector' || dead.type === 'hypeman' ? 3 : 2);
-        coins.push({
-          x: dead.x,
-          y: dead.y,
-          value: baseVal * coinBonus,
-          bobOffset: Math.random() * Math.PI * 2
-        });
+        const numCoins = isBoss ? 10 : (dead.type === 'selector' || dead.type === 'hypeman' ? 4 : 2);
+        const baseVal = isBoss ? 4 : 1;
+        for (let cIdx = 0; cIdx < numCoins; cIdx++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 45 + Math.random() * 85;
+          coins.push({
+            x: dead.x,
+            y: dead.y,
+            renderX: tileCenterX(dead.x),
+            renderY: tileCenterY(dead.y),
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 30,
+            value: baseVal * coinBonus,
+            bobOffset: Math.random() * Math.PI * 2,
+            isMagnetized: false,
+            trailTimer: 0
+          });
+        }
 
         enemies.splice(i, 1);
       }
@@ -2253,12 +2462,15 @@
     if (player.x === 4 && player.y === 4) { px = 5; py = 4; }
     portal = { x: px, y: py, angle: 0 };
     audio.playAirhornSFX();
+    globalVacuumTimer = 4.0; // Dopamine: vacuum up all coins remaining on the arena!
     spawnFloatingText(
       tileCenterX(px),
       tileCenterY(py) - 22,
       stage === 4 ? 'CHAMPION DUBPLATE OPEN!' : 'DUBPLATE PORTAL OPEN!',
       '#FFD700',
-      17
+      18,
+      true,
+      true
     );
     shockwaves.push({
       x: tileCenterX(px),
@@ -2530,6 +2742,8 @@
   function openBlingShop() {
     gameState = 'PERK_SELECT';
     perkOverlay.classList.remove('hidden');
+    audio.playLevelUpFanfare();
+    triggerHaptic([20, 20, 40]);
 
     const nextTheme = getStageTheme(stage + 1);
     const nextBpm = getStageBPM(stage + 1, tourLoop);
@@ -2879,7 +3093,7 @@
     return ARENA_OFFSET_Y + gy * TILE_SIZE + TILE_SIZE / 2;
   }
 
-  function spawnFloatingText(x, y, text, color = '#FFD700', size = 15) {
+  function spawnFloatingText(x, y, text, color = '#FFD700', size = 15, isBouncy = false, isRainbow = false) {
     floatingTexts.push({
       x,
       y,
@@ -2887,7 +3101,13 @@
       color,
       size,
       alpha: 1.0,
-      vy: -38
+      scale: isBouncy ? 1.75 : 1.0,
+      scaleVel: isBouncy ? -3.5 : 0,
+      vx: isBouncy ? (Math.random() - 0.5) * 45 : 0,
+      vy: isBouncy ? -60 - Math.random() * 20 : -38,
+      gravity: isBouncy ? 75 : 0,
+      isRainbow,
+      hue: Math.random() * 360
     });
   }
 
@@ -2902,7 +3122,48 @@
         vy: Math.sin(angle) * speed,
         size: 3 + Math.random() * 3.5,
         color,
-        alpha: 1.0
+        alpha: 1.0,
+        gravity: 0,
+        drag: 0.98
+      });
+    }
+  }
+
+  // Exploding Spinning Vinyl Record Shards on Enemy K.O.
+  function spawnVinylShards(x, y, count = 8) {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 70 + Math.random() * 110;
+      vinylShards.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 45,
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 20,
+        size: 5 + Math.random() * 5,
+        alpha: 1.0,
+        color: Math.random() < 0.65 ? '#111' : '#FFD700'
+      });
+    }
+  }
+
+  // Multi-Color Dopamine Confetti & Fireworks Shower on K.O.
+  function spawnFireworks(x, y, count = 24) {
+    const palette = ['#FF1744', '#FFD700', '#00E676', '#00F0FF', '#E040FB', '#FF9100'];
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 45 + Math.random() * 125;
+      particles.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 35,
+        size: 3 + Math.random() * 4,
+        color: palette[Math.floor(Math.random() * palette.length)],
+        alpha: 1.0,
+        gravity: 55,
+        drag: 0.95
       });
     }
   }
@@ -3671,6 +3932,12 @@
   }
 
   function update(dt) {
+    // Hit-stop micro-freeze frame for heavy impact feel
+    if (hitStopTimer > 0) {
+      hitStopTimer -= dt;
+      return;
+    }
+
     if (gameState === 'PLAYING' && audio.isPlaying && !audio.isPaused) {
       const beatFloat = audio.getCurrentBeatFloat();
       const beatIndex = Math.floor(beatFloat);
@@ -3680,6 +3947,10 @@
         onQuarterNoteBeat(beatIndex);
       }
     }
+
+    feverDiscoTimer += dt * 3.2;
+    screenPunch = 1.0 + (screenPunch - 1.0) * Math.pow(0.001, dt);
+    if (globalVacuumTimer > 0) globalVacuumTimer = Math.max(0, globalVacuumTimer - dt);
 
     player.renderX += (player.x - player.renderX) * Math.min(1, dt * 18);
     player.renderY += (player.y - player.renderY) * Math.min(1, dt * 18);
@@ -3704,6 +3975,103 @@
       timingJudgement.scale = 1.0 + (timingJudgement.scale - 1.0) * Math.pow(0.01, dt);
     }
 
+    // Update Coins: Magnetic Vacuum Physics & Collection
+    const playerPixelX = tileCenterX(player.renderX);
+    const playerPixelY = tileCenterY(player.renderY);
+
+    for (let i = coins.length - 1; i >= 0; i--) {
+      const c = coins[i];
+      if (c.renderX === undefined) {
+        c.renderX = tileCenterX(c.x);
+        c.renderY = tileCenterY(c.y);
+      }
+
+      // Initial physical burst deceleration
+      if (c.vx || c.vy) {
+        c.renderX += c.vx * dt;
+        c.renderY += c.vy * dt;
+        c.vx *= Math.pow(0.05, dt);
+        c.vy *= Math.pow(0.05, dt);
+      }
+
+      const dx = playerPixelX - c.renderX;
+      const dy = playerPixelY - c.renderY;
+      const dist = Math.hypot(dx, dy);
+
+      // Vacuum Magnet Trigger: within 2.8 tiles, global vacuum, or 20x Fever Mode!
+      if (dist < TILE_SIZE * 2.8 || globalVacuumTimer > 0 || combo >= 20) {
+        c.isMagnetized = true;
+      }
+
+      if (c.isMagnetized) {
+        const pullSpeed = Math.max(280, 520 - dist * 0.7);
+        c.renderX += (dx / Math.max(1, dist)) * pullSpeed * dt;
+        c.renderY += (dy / Math.max(1, dist)) * pullSpeed * dt;
+
+        // Sparkling golden comet trail
+        c.trailTimer = (c.trailTimer || 0) + dt;
+        if (c.trailTimer > 0.035) {
+          c.trailTimer = 0;
+          particles.push({
+            x: c.renderX,
+            y: c.renderY,
+            vx: (Math.random() - 0.5) * 15,
+            vy: (Math.random() - 0.5) * 15,
+            size: 2 + Math.random() * 2,
+            color: '#FFD700',
+            alpha: 0.8,
+            gravity: 0,
+            drag: 0.92
+          });
+        }
+      }
+
+      // Collection threshold
+      if (dist < 20) {
+        const now = performance.now();
+        if (now - lastCoinPickupTime > 1200) {
+          coinStreak = 0;
+        }
+        coinStreak++;
+        lastCoinPickupTime = now;
+
+        const val = c.value || 1;
+        blingCoins += val;
+        score += val * 30 * Math.max(1, combo);
+        audio.playCoinVacuumChime(coinStreak);
+        triggerHaptic(10);
+
+        spawnFloatingText(playerPixelX + (Math.random() - 0.5) * 16, playerPixelY - 14, `+$${val}`, '#FFD700', 14, true);
+
+        if (coinStreak === 5) {
+          spawnFloatingText(playerPixelX, playerPixelY - 32, '★ 5x BLING STREAK! ★', '#00F0FF', 16, true);
+        } else if (coinStreak === 10) {
+          spawnFloatingText(playerPixelX, playerPixelY - 36, '👑 10x MONEY RAIN! 👑', '#FFD700', 18, true, true);
+        } else if (coinStreak === 20) {
+          spawnFloatingText(playerPixelX, playerPixelY - 40, '⚡ JACKPOT VACUUM! ⚡', '#FF007F', 20, true, true);
+        }
+
+        coins.splice(i, 1);
+      }
+    }
+
+    // Update Exploding Vinyl Shards
+    for (let i = vinylShards.length - 1; i >= 0; i--) {
+      const s = vinylShards[i];
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+      s.vy += 140 * dt;
+      s.rot += s.rotSpeed * dt;
+      s.alpha -= dt * 1.6;
+      if (s.alpha <= 0) vinylShards.splice(i, 1);
+    }
+
+    // Update Chain Lightning Arcs
+    for (let i = lightningArcs.length - 1; i >= 0; i--) {
+      lightningArcs[i].alpha -= dt * 4.2;
+      if (lightningArcs[i].alpha <= 0) lightningArcs.splice(i, 1);
+    }
+
     for (let i = afterimages.length - 1; i >= 0; i--) {
       afterimages[i].alpha -= dt * 2.4;
       if (afterimages[i].alpha <= 0) afterimages.splice(i, 1);
@@ -3718,6 +4086,8 @@
       const p = particles[i];
       p.x += p.vx * dt;
       p.y += p.vy * dt;
+      if (p.gravity) p.vy += p.gravity * dt;
+      if (p.drag) { p.vx *= p.drag; p.vy *= p.drag; }
       p.alpha -= dt * 2.2;
       if (p.alpha <= 0) particles.splice(i, 1);
     }
@@ -3729,10 +4099,19 @@
       if (sw.alpha <= 0) shockwaves.splice(i, 1);
     }
 
+    // Update Bouncing Vampire Survivors Floating Text
     for (let i = floatingTexts.length - 1; i >= 0; i--) {
       const ft = floatingTexts[i];
+      ft.x += (ft.vx || 0) * dt;
       ft.y += ft.vy * dt;
-      ft.alpha -= dt * 1.1;
+      if (ft.gravity) ft.vy += ft.gravity * dt;
+      if (ft.scaleVel) {
+        ft.scale = Math.max(1.0, ft.scale + ft.scaleVel * dt);
+      }
+      if (ft.isRainbow) {
+        ft.hue = (ft.hue + dt * 400) % 360;
+      }
+      ft.alpha -= dt * (ft.isRainbow ? 0.85 : 1.1);
       if (ft.alpha <= 0) floatingTexts.splice(i, 1);
     }
   }
@@ -3746,6 +4125,14 @@
     const beatPulse = (audio.isPlaying && !audio.isPaused) ? Math.pow(1 - frac, 3) : 0;
 
     ctx.save();
+
+    // Vampire Survivors Screen Punch Zoom on Crits & K.O.s
+    if (screenPunch > 1.002) {
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.scale(screenPunch, screenPunch);
+      ctx.translate(-canvas.width / 2, -canvas.height / 2);
+    }
+
     if (screenShake > 0.5) {
       const sx = (Math.random() - 0.5) * screenShake;
       const sy = (Math.random() - 0.5) * screenShake;
@@ -3763,7 +4150,7 @@
       }
     }
 
-    // 2. Draw 10x10 Pulsing Checkerboard Dancefloor (Stage-Themed Colors)
+    // 2. Draw 10x10 Pulsing Checkerboard Dancefloor (Stage-Themed Colors + 20x+ Fever Rainbow)
     const parityInvert = currentQuarterBeat % 2;
     for (let gx = 0; gx < GRID_SIZE; gx++) {
       for (let gy = 0; gy < GRID_SIZE; gy++) {
@@ -3791,6 +4178,18 @@
       }
     }
 
+    // 2.5 20x+ FEVER MODE Glowing Disco Border
+    if (combo >= 20) {
+      const rainbowHue = (feverDiscoTimer * 80) % 360;
+      ctx.save();
+      ctx.strokeStyle = `hsl(${rainbowHue}, 100%, 65%)`;
+      ctx.lineWidth = 3.5;
+      ctx.shadowColor = `hsl(${rainbowHue}, 100%, 65%)`;
+      ctx.shadowBlur = 14;
+      ctx.strokeRect(ARENA_OFFSET_X - 1.5, ARENA_OFFSET_Y - 1.5, GRID_SIZE * TILE_SIZE + 3, GRID_SIZE * TILE_SIZE + 3);
+      ctx.restore();
+    }
+
     // 3. Draw Stage Obstacles (Vinyl Crates & Bass Traps)
     obstacles.forEach(obs => drawObstacle(obs, beatPulse));
 
@@ -3807,22 +4206,52 @@
       ctx.restore();
     });
 
-    // 5. Draw Gold Coins / Bling Drops
-    coins.forEach(c => {
-      c.bobOffset += 0.08;
-      const cx = tileCenterX(c.x);
-      const cy = tileCenterY(c.y) + Math.sin(c.bobOffset) * 2.5;
+    // 4.5 Draw Chain Lightning Arcs
+    lightningArcs.forEach(arc => {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, arc.alpha);
+      ctx.strokeStyle = arc.color || '#00F0FF';
+      ctx.lineWidth = 3.0;
+      ctx.shadowColor = '#00F0FF';
+      ctx.shadowBlur = 10;
       ctx.beginPath();
-      ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+      ctx.moveTo(arc.x1, arc.y1);
+      const segments = 4;
+      for (let s = 1; s < segments; s++) {
+        const segFrac = s / segments;
+        const midX = arc.x1 + (arc.x2 - arc.x1) * segFrac + (Math.random() - 0.5) * 18;
+        const midY = arc.y1 + (arc.y2 - arc.y1) * segFrac + (Math.random() - 0.5) * 18;
+        ctx.lineTo(midX, midY);
+      }
+      ctx.lineTo(arc.x2, arc.y2);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // 5. Draw Gold Coins / Bling Drops with Comet Halos & Vacuum Magnet Trails
+    coins.forEach(c => {
+      c.bobOffset = (c.bobOffset || 0) + 0.08;
+      const cx = c.renderX !== undefined ? c.renderX : tileCenterX(c.x);
+      const cy = (c.renderY !== undefined ? c.renderY : tileCenterY(c.y)) + Math.sin(c.bobOffset) * 2.5;
+
+      ctx.save();
+      if (c.isMagnetized) {
+        ctx.shadowColor = '#FFD700';
+        ctx.shadowBlur = 12;
+      }
+      ctx.beginPath();
+      ctx.arc(cx, cy, c.isMagnetized ? 8.5 : 7, 0, Math.PI * 2);
       ctx.fillStyle = '#FFD700';
       ctx.fill();
       ctx.strokeStyle = '#FFF';
       ctx.lineWidth = 1.5;
       ctx.stroke();
+
       ctx.fillStyle = '#000';
       ctx.font = 'bold 9px monospace';
       ctx.textAlign = 'center';
       ctx.fillText('$', cx, cy + 3);
+      ctx.restore();
     });
 
     // 6. Draw Dubplate Portal if active
@@ -3853,6 +4282,24 @@
       ctx.restore();
     });
 
+    // 8.7 Draw Exploding Spinning Vinyl Shards
+    vinylShards.forEach(s => {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, s.alpha);
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.rot);
+      ctx.fillStyle = s.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, s.size, 0, Math.PI * 0.75);
+      ctx.lineTo(0, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#FFD700';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.restore();
+    });
+
     // 9. Draw Protagonist: MC Ananas
     drawMCAnanas(
       tileCenterX(player.renderX),
@@ -3871,17 +4318,29 @@
       ctx.restore();
     });
 
-    // 11. Draw Jamaican Slang Floating Popups
+    // 11. Draw Vampire Survivors Bouncing Popups & Floating Slang
     floatingTexts.forEach(ft => {
       ctx.save();
       ctx.globalAlpha = Math.max(0, ft.alpha);
-      ctx.font = `900 ${ft.size}px "Courier New", monospace`;
+      const scale = ft.scale || 1.0;
+      ctx.translate(ft.x, ft.y);
+      ctx.scale(scale, scale);
+
+      const textColor = ft.isRainbow ? `hsl(${ft.hue || 0}, 100%, 65%)` : ft.color;
+      const fontSize = Math.round(ft.size);
+      ctx.font = `900 ${fontSize}px "Courier New", monospace`;
       ctx.textAlign = 'center';
+
+      if (ft.isRainbow || scale > 1.2) {
+        ctx.shadowColor = textColor;
+        ctx.shadowBlur = 10;
+      }
+
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 3.5;
-      ctx.strokeText(ft.text, ft.x, ft.y);
-      ctx.fillStyle = ft.color;
-      ctx.fillText(ft.text, ft.x, ft.y);
+      ctx.strokeText(ft.text, 0, 0);
+      ctx.fillStyle = textColor;
+      ctx.fillText(ft.text, 0, 0);
       ctx.restore();
     });
 
