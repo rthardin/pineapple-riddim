@@ -95,11 +95,54 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     z-index: 20;
-    padding: 20px;
+    padding: 16px 14px;
     text-align: center;
     backdrop-filter: blur(5px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) rgba(20, 16, 34, 0.6);
+  }
+
+  .overlay::-webkit-scrollbar {
+    width: 6px;
+  }
+  .overlay::-webkit-scrollbar-track {
+    background: rgba(10, 8, 16, 0.7);
+  }
+  .overlay::-webkit-scrollbar-thumb {
+    background: var(--gold);
+    border-radius: 4px;
+  }
+
+  .overlay-content {
+    margin: auto 0;
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 6px 0 16px 0;
+  }
+
+  .overlay,
+  .overlay * {
+    touch-action: pan-y;
+  }
+
+  .overlay button {
+    touch-action: manipulation;
+  }
+
+  #perkOverlay {
+    justify-content: center;
   }
 
   .overlay.hidden {
@@ -309,6 +352,45 @@
     box-shadow: 0 4px 0 #b26a00, 0 0 20px rgba(255, 215, 0, 0.6);
   }
 
+  @media (max-height: 760px), (max-width: 560px) {
+    .overlay {
+      padding: 10px 10px;
+    }
+    .overlay-content {
+      padding: 2px 0 14px 0;
+    }
+    h1.game-title {
+      font-size: 26px;
+    }
+    h2.game-subtitle {
+      font-size: 13px;
+      margin: 3px 0 6px 0;
+      letter-spacing: 2px;
+    }
+    .rasta-stripe {
+      height: 5px;
+      margin: 5px 0;
+    }
+    #highScoreBanner {
+      font-size: 11.5px;
+      padding: 3px 8px;
+      margin-top: 2px;
+    }
+    .instructions-card {
+      padding: 9px 12px;
+      margin: 4px 0 10px 0;
+    }
+    .instructions-card p {
+      margin: 4px 0;
+      font-size: 11.5px;
+      line-height: 1.32;
+    }
+    .btn-clash {
+      font-size: 16px;
+      padding: 9px 20px;
+    }
+  }
+
   @media (max-height: 720px) {
     #perkOverlay {
       padding: 6px 10px 10px 10px;
@@ -347,6 +429,33 @@
       padding: 8px 18px;
       font-size: 13.5px;
       margin-top: 6px;
+    }
+  }
+
+  @media (max-height: 640px) {
+    h1.game-title {
+      font-size: 22px;
+    }
+    h2.game-subtitle {
+      font-size: 11.5px;
+      margin: 2px 0 4px 0;
+    }
+    .rasta-stripe {
+      height: 4px;
+      margin: 3px 0;
+    }
+    .instructions-card {
+      padding: 6px 10px;
+      margin: 3px 0 8px 0;
+    }
+    .instructions-card p {
+      font-size: 10.5px;
+      margin: 3px 0;
+      line-height: 1.25;
+    }
+    .btn-clash {
+      font-size: 14.5px;
+      padding: 8px 16px;
     }
   }
 
@@ -585,36 +694,39 @@
 
   <!-- START CLASH OVERLAY -->
   <div id="startOverlay" class="overlay">
-    <div class="rasta-stripe"></div>
-    <h1 class="game-title">Pineapple Riddim</h1>
-    <h2 class="game-subtitle">Kingston Clash '04</h2>
-    <div class="rasta-stripe"></div>
+    <div class="overlay-content">
+      <div class="rasta-stripe"></div>
+      <h1 class="game-title">Pineapple Riddim</h1>
+      <h2 class="game-subtitle">Kingston Clash '04</h2>
+      <div class="rasta-stripe"></div>
 
-    <div id="highScoreBanner" class="shop-wallet-banner" style="font-size: 13px; margin-top: 4px;">
-      🏆 RECORD SCORE: 0 PTS • MAX HYPE: 0x
+      <div id="highScoreBanner" class="shop-wallet-banner" style="font-size: 13px; margin-top: 4px;">
+        🏆 RECORD SCORE: 0 PTS • MAX HYPE: 0x
+      </div>
+
+      <div class="instructions-card">
+        <p><span class="highlight-gold">THE 4-STAGE KINGSTON TOUR:</span> Guide <strong>MC Ananas</strong> through 4 dancehall venues—each with its own '04 Riddim, obstacles &amp; dynamic combo music!</p>
+        <p>• <strong>CLASH ATTACK COMBOS:</strong> Bump-attack rivals strictly on the beat to rank up your <strong>Hype Multiplier</strong> (5x Handclaps, 10x Brass, 20x Fever Mode!). Moving maintains your rhythm &amp; charges your Special.</p>
+        <p>• <strong>DROPS &amp; SYNERGIES:</strong> Rivals drop <span class="highlight-green">Patties (+HP)</span>, <span class="highlight-red">Scotch Bonnet (+DMG)</span>, <span class="highlight-cyan">Slow-Mo Tapes</span> &amp; <span class="highlight-gold">Magnets</span>. Fuse items in King Tubby's Shop for <em>Legendary Weapons</em>!</p>
+        <p>• <span class="highlight-gold">ENCORE TOUR BOSSES:</span> Each Encore Loop boosts the BPM (+8 BPM) and summons legendary rival champions—from King Soundclash (+) to Queen di Riddim (X), Scientist Dub-Dr (AoE), and frantic Dual &amp; Triple Boss clashes!</p>
+        <p><span class="highlight-cyan">CONTROLS:</span> Tap the 4 <strong>Steelpan Note Domes</strong> (or <span class="key-badge">WASD</span> / <span class="key-badge">ARROWS</span>) on the beat! Tap the <strong>Center Hub</strong> (<span class="key-badge">SPACE</span>) when charged for the <strong>PULL UP! Special</strong>!</p>
+      </div>
+
+      <button id="startBtn" class="btn-clash">🔥 Start Sound Clash 🔥</button>
     </div>
-
-    <div class="instructions-card">
-      <p><span class="highlight-gold">THE 4-STAGE KINGSTON TOUR:</span> Guide <strong>MC Ananas</strong> through 4 dancehall venues—each with its own '04 Riddim, obstacles &amp; dynamic combo music!</p>
-      <p>• <strong>CLASH ATTACK COMBOS:</strong> Bump-attack rivals strictly on the beat to rank up your <strong>Hype Multiplier</strong> (5x Handclaps, 10x Brass, 20x Fever Mode!). Moving maintains your rhythm &amp; charges your Special.</p>
-      <p>• <strong>DANCEHALL DROPS:</strong> Defeated rivals drop <span class="highlight-green">Beef Patties (+HP)</span>, <span class="highlight-red">Scotch Bonnet (+2 DMG)</span>, <span class="highlight-cyan">Half-Time Tapes (Slow-Mo)</span> &amp; <span class="highlight-gold">Boombox Magnets</span>!</p>
-      <p>• <strong>DUBPLATE SYNERGIES:</strong> Pair matching items in King Tubby's Bling Shop to evolve devastating <em>Legendary Sound System Weapons</em>!</p>
-      <p>• <span class="highlight-gold">ENCORE TOUR BOSSES:</span> Each Encore Loop boosts the BPM (+8 BPM) and summons legendary rival champions—from King Soundclash (+) to Queen di Riddim (X), Scientist Dub-Dr (AoE), and frantic Dual &amp; Triple Boss clashes!</p>
-      <p><span class="highlight-cyan">CONTROLS:</span> Tap the 4 <strong>Steelpan Note Domes</strong> (or <span class="key-badge">WASD</span> / <span class="key-badge">ARROWS</span>) on the beat! Tap the <strong>Center Hub</strong> (<span class="key-badge">SPACE</span>) when charged for the <strong>PULL UP! Special</strong>!</p>
-    </div>
-
-    <button id="startBtn" class="btn-clash">🔥 Start Sound Clash 🔥</button>
   </div>
 
   <!-- BACKGROUND / AUDIO RESUME OVERLAY -->
   <div id="pauseOverlay" class="overlay hidden">
-    <div class="rasta-stripe"></div>
-    <h1 class="game-title">CLASH PAUSED</h1>
-    <h2 class="game-subtitle">SOUND SYSTEM ON STANDBY</h2>
-    <p style="color:#d8d4e8; max-width: 360px; margin: 14px 0 24px 0; font-size: 14px; line-height: 1.5;">
-      Audio clock paused cleanly while in background so the riddim stays locked in sync.
-    </p>
-    <button id="resumeBtn" class="btn-clash">▶️ Drop Di Riddim (Resume)</button>
+    <div class="overlay-content">
+      <div class="rasta-stripe"></div>
+      <h1 class="game-title">CLASH PAUSED</h1>
+      <h2 class="game-subtitle">SOUND SYSTEM ON STANDBY</h2>
+      <p style="color:#d8d4e8; max-width: 360px; margin: 14px 0 24px 0; font-size: 14px; line-height: 1.5;">
+        Audio clock paused cleanly while in background so the riddim stays locked in sync.
+      </p>
+      <button id="resumeBtn" class="btn-clash">▶️ Drop Di Riddim (Resume)</button>
+    </div>
   </div>
 
   <!-- KING TUBBY'S DUBPLATE CRATE & BLING SHOP OVERLAY -->
@@ -629,14 +741,16 @@
 
   <!-- GAME OVER / VICTORY OVERLAY -->
   <div id="gameOverOverlay" class="overlay hidden">
-    <div class="rasta-stripe"></div>
-    <h1 id="endTitle" class="game-title glitch-title">SOUND SYSTEM SHUT DOWN</h1>
-    <h2 id="endSubtitle" class="game-subtitle">DROWNED OUT BY THE RIVAL CREW</h2>
-    <canvas id="endgameCanvas" width="240" height="146"></canvas>
-    <div class="instructions-card" id="endStats" style="text-align:center; font-size:14px; margin: 6px 0 12px 0;"></div>
-    <div class="endgame-btn-row">
-      <button id="encoreBtn" class="btn-clash btn-encore hidden">🔥 Encore Tour (+BPM)</button>
-      <button id="restartBtn" class="btn-clash">🔄 Run It Back (Rewind)</button>
+    <div class="overlay-content">
+      <div class="rasta-stripe"></div>
+      <h1 id="endTitle" class="game-title glitch-title">SOUND SYSTEM SHUT DOWN</h1>
+      <h2 id="endSubtitle" class="game-subtitle">DROWNED OUT BY THE RIVAL CREW</h2>
+      <canvas id="endgameCanvas" width="240" height="146"></canvas>
+      <div class="instructions-card" id="endStats" style="text-align:center; font-size:14px; margin: 6px 0 12px 0;"></div>
+      <div class="endgame-btn-row">
+        <button id="encoreBtn" class="btn-clash btn-encore hidden">🔥 Encore Tour (+BPM)</button>
+        <button id="restartBtn" class="btn-clash">🔄 Run It Back (Rewind)</button>
+      </div>
     </div>
   </div>
 </div>
