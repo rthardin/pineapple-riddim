@@ -200,37 +200,78 @@
     box-shadow: 0 2px 0 #b26a00;
   }
 
-  /* Perk / Bling Shop Cards */
+  /* King Tubby's Bling Shop Overlay & Cards */
+  #perkOverlay {
+    justify-content: flex-start;
+    padding: 12px 14px 14px 14px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  #perkOverlay .rasta-stripe {
+    flex-shrink: 0;
+    margin: 4px 0 6px 0;
+  }
+
+  #perkOverlay .game-title {
+    flex-shrink: 0;
+    font-size: clamp(18px, 4.4vw, 24px);
+  }
+
+  #perkOverlay .game-subtitle {
+    flex-shrink: 0;
+    font-size: clamp(10px, 2.4vw, 12px);
+    margin: 2px 0 6px 0;
+  }
+
+  #shopWalletDisplay {
+    flex-shrink: 0;
+    padding: 5px 14px;
+    font-size: 13.5px;
+    margin-bottom: 4px;
+  }
+
   .perk-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 8px;
+    gap: 8px;
+    margin-top: 4px;
     width: 100%;
     max-width: 460px;
+    flex: 1 1 auto;
+    min-height: 0;
     max-height: 520px;
     box-sizing: border-box;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 4px 6px 6px 4px;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    padding: 4px 6px 16px 4px;
     scrollbar-width: thin;
     scrollbar-color: var(--gold) rgba(20, 16, 34, 0.6);
+  }
+
+  .perk-container,
+  .perk-card,
+  .perk-card * {
+    touch-action: pan-y;
   }
 
   .perk-card {
     box-sizing: border-box;
     width: 100%;
+    flex-shrink: 0;
     background: linear-gradient(180deg, #1b162a 0%, #0f0b18 100%);
     border: 2px solid var(--gold);
     border-radius: 8px;
-    padding: 11px 13px;
+    padding: 9px 12px;
     cursor: pointer;
     transition: transform 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
     display: flex;
     align-items: center;
     justify-content: space-between;
     text-align: left;
-    gap: 12px;
+    gap: 10px;
     position: relative;
   }
 
@@ -258,6 +299,55 @@
     border-color: #555;
     box-shadow: none;
     background: linear-gradient(180deg, #1b162a 0%, #0f0b18 100%);
+  }
+
+  #nextStageBtn {
+    flex-shrink: 0;
+    margin-top: 8px;
+    padding: 10px 22px;
+    font-size: 15px;
+    box-shadow: 0 4px 0 #b26a00, 0 0 20px rgba(255, 215, 0, 0.6);
+  }
+
+  @media (max-height: 720px) {
+    #perkOverlay {
+      padding: 6px 10px 10px 10px;
+    }
+    #perkOverlay .rasta-stripe {
+      margin: 2px 0 4px 0;
+      height: 4px;
+    }
+    #shopWalletDisplay {
+      padding: 3px 10px;
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+    .perk-container {
+      gap: 6px;
+      padding: 2px 4px 14px 2px;
+    }
+    .perk-card {
+      padding: 7px 10px;
+      gap: 8px;
+    }
+    .perk-title {
+      font-size: 13px;
+    }
+    .perk-desc {
+      font-size: 10px;
+    }
+    .synergy-hint {
+      font-size: 9.5px;
+    }
+    .perk-tag {
+      font-size: 10px;
+      padding: 4px 7px;
+    }
+    #nextStageBtn {
+      padding: 8px 18px;
+      font-size: 13.5px;
+      margin-top: 6px;
+    }
   }
 
   .perk-card.synergy-card {
@@ -529,11 +619,11 @@
   <!-- KING TUBBY'S DUBPLATE CRATE & BLING SHOP OVERLAY -->
   <div id="perkOverlay" class="overlay hidden">
     <div class="rasta-stripe"></div>
-    <h1 class="game-title" style="font-size: 25px;">KING TUBBY'S BLING SHOP</h1>
-    <h2 id="perkSubtitle" class="game-subtitle" style="font-size: 12.5px; margin-bottom: 6px;">SPEND YOUR GOLD BLING BEFORE THE NEXT CLASH</h2>
+    <h1 class="game-title">KING TUBBY'S BLING SHOP</h1>
+    <h2 id="perkSubtitle" class="game-subtitle">SPEND YOUR GOLD BLING BEFORE THE NEXT CLASH</h2>
     <div id="shopWalletDisplay" class="shop-wallet-banner">💰 BLING WALLET: $0 GOLD</div>
     <div class="perk-container" id="perkCardsContainer"></div>
-    <button id="nextStageBtn" class="btn-clash" style="margin-top: 12px; font-size: 16px; padding: 10px 24px;">➡️ Forward To Next Arena</button>
+    <button id="nextStageBtn" class="btn-clash">➡️ Forward To Next Arena</button>
   </div>
 
   <!-- GAME OVER / VICTORY OVERLAY -->
