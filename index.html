@@ -128,10 +128,10 @@
   }
 
   h2.game-subtitle {
-    font-size: 16px;
+    font-size: 15px;
     margin: 6px 0 10px 0;
     color: var(--green);
-    letter-spacing: 4px;
+    letter-spacing: 3px;
     text-transform: uppercase;
     text-shadow: 2px 2px 0px #000;
   }
@@ -140,18 +140,18 @@
     background: rgba(20, 16, 34, 0.96);
     border: 2px solid var(--gold);
     border-radius: 8px;
-    padding: 14px 18px;
+    padding: 13px 16px;
     width: 100%;
     max-width: 470px;
-    margin: 8px 0 16px 0;
+    margin: 6px 0 14px 0;
     text-align: left;
     box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
   }
 
   .instructions-card p {
-    margin: 7px 0;
-    font-size: 13px;
-    line-height: 1.4;
+    margin: 6px 0;
+    font-size: 12.5px;
+    line-height: 1.38;
     color: #e8e6f0;
   }
 
@@ -163,7 +163,7 @@
     padding: 1px 6px;
     border-radius: 4px;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 11.5px;
     box-shadow: 0 2px 0 #000;
   }
 
@@ -176,9 +176,9 @@
     background: linear-gradient(180deg, #FFD700 0%, #FFA000 100%);
     color: #0b0812;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 19px;
+    font-size: 18px;
     font-weight: 900;
-    padding: 14px 28px;
+    padding: 13px 26px;
     border: 3px solid #fff;
     border-radius: 8px;
     cursor: pointer;
@@ -254,6 +254,59 @@
     text-transform: uppercase;
     white-space: nowrap;
   }
+
+  /* iOS Safari 18+/26+ Native Taptic Engine Switch Hit-Targets over Steelpan Domes */
+  .ios-haptic-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0.001;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  #steelpan-touch-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 12;
+    pointer-events: none;
+  }
+
+  .steelpan-pad-label {
+    position: absolute;
+    pointer-events: auto;
+    cursor: pointer;
+    border-radius: 50%;
+    background: transparent;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transform: translate(-50%, -50%);
+  }
+
+  #pad-up {
+    left: 50%;
+    top: 75.87%;
+    width: 24%;
+    height: 11.5%;
+  }
+  #pad-down {
+    left: 50%;
+    top: 91.95%;
+    width: 24%;
+    height: 11.5%;
+  }
+  #pad-left {
+    left: 36.3%;
+    top: 83.91%;
+    width: 19%;
+    height: 14%;
+  }
+  #pad-right {
+    left: 63.7%;
+    top: 83.91%;
+    width: 19%;
+    height: 14%;
+  }
 </style>
 </head>
 <body>
@@ -261,6 +314,24 @@
 <div id="game-wrapper">
   <canvas id="gameCanvas" width="540" height="920"></canvas>
   <div class="crt-overlay"></div>
+
+  <!-- iOS Safari Native Taptic Engine Switch Hit-Targets -->
+  <div id="steelpan-touch-layer" aria-hidden="true">
+    <input type="checkbox" switch id="haptic-sw-up" class="ios-haptic-input">
+    <label for="haptic-sw-up" id="pad-up" class="steelpan-pad-label" data-dx="0" data-dy="-1"></label>
+
+    <input type="checkbox" switch id="haptic-sw-down" class="ios-haptic-input">
+    <label for="haptic-sw-down" id="pad-down" class="steelpan-pad-label" data-dx="0" data-dy="1"></label>
+
+    <input type="checkbox" switch id="haptic-sw-left" class="ios-haptic-input">
+    <label for="haptic-sw-left" id="pad-left" class="steelpan-pad-label" data-dx="-1" data-dy="0"></label>
+
+    <input type="checkbox" switch id="haptic-sw-right" class="ios-haptic-input">
+    <label for="haptic-sw-right" id="pad-right" class="steelpan-pad-label" data-dx="1" data-dy="0"></label>
+
+    <input type="checkbox" switch id="haptic-sw-generic" class="ios-haptic-input">
+    <label for="haptic-sw-generic" id="haptic-label-generic" style="position:absolute;width:1px;height:1px;opacity:0.001;pointer-events:none;"></label>
+  </div>
 
   <!-- START CLASH OVERLAY -->
   <div id="startOverlay" class="overlay">
@@ -270,12 +341,12 @@
     <div class="rasta-stripe"></div>
 
     <div class="instructions-card">
-      <p><span class="highlight-gold">PROTAGONIST:</span> You are <strong>MC Ananas</strong>—rocking a fresh golden pineapple suit, shutter shades &amp; thick gold chains.</p>
-      <p><span class="highlight-cyan">STEEL DRUM TOUCH DECK:</span> Tap the 4 hammered <strong>Steelpan Note Zones</strong> at the bottom of the screen (or use <span class="key-badge">WASD</span> / <span class="key-badge">ARROWS</span>) strictly when the beat markers hit the center Pineapple (<strong>100 BPM</strong>).</p>
-      <p><span class="highlight-red">RHYTHM RULES:</span> Only <strong>1 move or bump-attack per beat</strong>! Tapping off-beat or missing a beat resets your Hype Combo.</p>
-      <p>• <strong>Soundboy Roadie (Rasta Cap):</strong> Hops 1 tile every <strong>2 beats</strong>.<br>
-         • <strong>Selector Rival (Neon Visor):</strong> Charges for <strong>3 beats</strong>, then dashes <strong>2 tiles</strong> on beat 4!</p>
-      <p><span class="highlight-gold">DUBPLATE PORTAL:</span> Defeat all rival soundboys to drop the spinning <strong>Golden Dubplate</strong> and unlock Bling Perks!</p>
+      <p><span class="highlight-gold">THE 4-STAGE KINGSTON TOUR:</span> Guide <strong>MC Ananas</strong> through 4 distinct dancehall venues—each with its own authentic '04 Riddim, obstacles &amp; tempo:</p>
+      <p>• <strong>Stage 1 (100 BPM):</strong> Downtown Corner — <em>Dem Bow Riddim</em><br>
+         • <strong>Stage 2 (100 BPM):</strong> Half-Way Tree — <em>Diwali Clap Riddim</em> + Vinyl Crates<br>
+         • <strong>Stage 3 (105 BPM):</strong> Harbour Beach — <em>Sleng Teng Digital Dub</em> + Bass Traps<br>
+         • <strong>Stage 4 (110 BPM):</strong> Sting '04 Finals — <em>Bruk Out Riddim</em> vs. <strong>BOSS: KING SOUNDCLASH!</strong></p>
+      <p><span class="highlight-cyan">CONTROLS:</span> Tap the 4 hammered <strong>Steelpan Note Domes</strong> at the bottom (or use <span class="key-badge">WASD</span> / <span class="key-badge">ARROWS</span>) strictly on the beat!</p>
     </div>
 
     <button id="startBtn" class="btn-clash">🔥 Start Sound Clash 🔥</button>
@@ -287,7 +358,7 @@
     <h1 class="game-title">CLASH PAUSED</h1>
     <h2 class="game-subtitle">SOUND SYSTEM ON STANDBY</h2>
     <p style="color:#d8d4e8; max-width: 360px; margin: 14px 0 24px 0; font-size: 14px; line-height: 1.5;">
-      Audio clock paused cleanly while in background so the 100 BPM riddim stays locked in sync.
+      Audio clock paused cleanly while in background so the riddim stays locked in sync.
     </p>
     <button id="resumeBtn" class="btn-clash">▶️ Drop Di Riddim (Resume)</button>
   </div>
@@ -295,12 +366,12 @@
   <!-- PERK / STAGE CLEAR OVERLAY -->
   <div id="perkOverlay" class="overlay hidden">
     <div class="rasta-stripe"></div>
-    <h1 class="game-title" style="font-size: 28px;">PULL UP! STAGE CLEARED!</h1>
-    <h2 id="perkSubtitle" class="game-subtitle" style="font-size: 14px;">SELECT YOUR BLING UPGRADE</h2>
+    <h1 class="game-title" style="font-size: 26px;">PULL UP! STAGE CLEARED!</h1>
+    <h2 id="perkSubtitle" class="game-subtitle" style="font-size: 13px;">SELECT YOUR BLING UPGRADE FOR THE NEXT VENUE</h2>
     <div class="perk-container" id="perkCardsContainer"></div>
   </div>
 
-  <!-- GAME OVER OVERLAY -->
+  <!-- GAME OVER / VICTORY OVERLAY -->
   <div id="gameOverOverlay" class="overlay hidden">
     <div class="rasta-stripe"></div>
     <h1 id="endTitle" class="game-title">SOUND SYSTEM SHUT DOWN</h1>
@@ -315,20 +386,113 @@
   'use strict';
 
   // ==========================================
-  // PORTRAIT LAYOUT & GEOMETRY CONSTANTS
+  // STAGE THEMES, BPM & MUSICAL CONFIGURATIONS
   // ==========================================
-  const BPM = 100;
-  const BEAT_DURATION = 60 / BPM; // 0.600s per quarter note
-  const SIXTEENTH_DURATION = BEAT_DURATION / 4; // 0.150s per 16th note
+  const STAGE_THEMES = [
+    {
+      id: 1,
+      name: 'DOWNTOWN CORNER',
+      riddimName: 'Pineapple Dem Bow',
+      bpm: 100,
+      keyName: 'F Min',
+      // Classic Kingston Gold, Green & Deep Club Purple
+      tileEven: '#161224',
+      tileEvenFlash: '#281f42',
+      tileOdd: '#0d1b18',
+      tileOddFlash: '#143028',
+      borderEven: '255, 215, 0',
+      borderOdd: '0, 230, 118',
+      speakerCabinet: '#181522',
+      speakerTrim: '#352f47',
+      speakerCorner: '#b59410',
+      coneActive: '#00E676',
+      deckTint: '#141821',
+      steelpanNotes: { down: 349.23, left: 415.30, right: 466.16, up: 523.25 }, // F4, Ab4, Bb4, C5
+       steelpanLabels: { down: 'F4', left: 'Ab4', right: 'Bb4', up: 'C5' }
+    },
+    {
+      id: 2,
+      name: 'HALF-WAY TREE',
+      riddimName: 'Diwali Handclap',
+      bpm: 100,
+      keyName: 'C Min',
+      // Warm Sunset Orange, Magenta & Block Party Asphalt
+      tileEven: '#261019',
+      tileEvenFlash: '#441a2b',
+      tileOdd: '#1f160d',
+      tileOddFlash: '#382714',
+      borderEven: '255, 109, 0',
+      borderOdd: '255, 0, 127',
+      speakerCabinet: '#261410',
+      speakerTrim: '#5c2c16',
+      speakerCorner: '#FF6D00',
+      coneActive: '#FF007F',
+      deckTint: '#211316',
+      steelpanNotes: { down: 261.63, left: 311.13, right: 349.23, up: 392.00 }, // C4, Eb4, F4, G4
+      steelpanLabels: { down: 'C4', left: 'Eb4', right: 'F4', up: 'G4' }
+    },
+    {
+      id: 3,
+      name: 'HARBOUR BEACH',
+      riddimName: 'Sleng Teng Digital',
+      bpm: 105,
+      keyName: 'G Min',
+      // Electric Ocean Teal, Bioluminescent Cyan & Sandy Gold
+      tileEven: '#0a1f26',
+      tileEvenFlash: '#123845',
+      tileOdd: '#0d241e',
+      tileOddFlash: '#174035',
+      borderEven: '0, 240, 255',
+      borderOdd: '118, 255, 3',
+      speakerCabinet: '#0d2126',
+      speakerTrim: '#1c4954',
+      speakerCorner: '#00F0FF',
+      coneActive: '#76FF03',
+      deckTint: '#0e1d24',
+      steelpanNotes: { down: 392.00, left: 466.16, right: 523.25, up: 587.33 }, // G4, Bb4, C5, D5
+      steelpanLabels: { down: 'G4', left: 'Bb4', right: 'C5', up: 'D5' }
+    },
+    {
+      id: 4,
+      name: 'STING \'04 FINALS',
+      riddimName: 'Bruk Out Badman',
+      bpm: 110,
+      keyName: 'D Min',
+      // High-Voltage Crimson Red, Blinding Gold & Obsidian Stage
+      tileEven: '#240b0e',
+      tileEvenFlash: '#451219',
+      tileOdd: '#171219',
+      tileOddFlash: '#2e2233',
+      borderEven: '255, 23, 68',
+      borderOdd: '255, 215, 0',
+      speakerCabinet: '#1f090d',
+      speakerTrim: '#591520',
+      speakerCorner: '#FF1744',
+      coneActive: '#FFD700',
+      deckTint: '#1f0d12',
+      steelpanNotes: { down: 293.66, left: 349.23, right: 392.00, up: 440.00 }, // D4, F4, G4, A4
+      steelpanLabels: { down: 'D4', left: 'F4', right: 'G4', up: 'A4' }
+    }
+  ];
+
+  function getStageTheme(stageNum) {
+    const idx = Math.min(stageNum - 1, STAGE_THEMES.length - 1);
+    return STAGE_THEMES[idx];
+  }
+
+  // Dynamic Tempo State (100 -> 100 -> 105 -> 110 BPM)
+  let currentBPM = 100;
+  let beatDuration = 60 / currentBPM;
+  let sixteenthDuration = beatDuration / 4;
   const BASE_TIMING_WINDOW = 0.120; // ±120ms around each beat
 
-  // Portrait Canvas: 540 x 920
-  // - Top HUD: Y = 8..68
-  // - 10x10 Arena + 1-tile Speaker Border (12x12 total tiles @ 40px = 480x480):
-  //   Outer speaker border X = 30..510, Y = 74..554
-  //   Inner 10x10 playable dancefloor X = 70..470, Y = 114..514
-  // - Beat Bar: Y = 576..622
-  // - Steel Drum (Steelpan) Controller Deck: Center (270, 772), Radius = 126
+  function setStageTempo(bpm) {
+    currentBPM = bpm;
+    beatDuration = 60 / currentBPM;
+    sixteenthDuration = beatDuration / 4;
+  }
+
+  // Portrait Canvas Geometry: 540 x 920
   const GRID_SIZE = 10;
   const TILE_SIZE = 40;
   const ARENA_OFFSET_X = 70;
@@ -354,12 +518,18 @@
   const perkCardsContainer = document.getElementById('perkCardsContainer');
 
   // ==========================================
-  // TACTILE HAPTIC VIBRATION HELPER
+  // TACTILE HAPTIC VIBRATION HELPER (ANDROID + iOS SAFARI TAPTIC ENGINE)
   // ==========================================
+  const genericHapticLabel = document.getElementById('haptic-label-generic');
+
   function triggerHaptic(pattern) {
     try {
       if (navigator && typeof navigator.vibrate === 'function') {
         navigator.vibrate(pattern);
+        return;
+      }
+      if (genericHapticLabel) {
+        genericHapticLabel.click();
       }
     } catch (_) {
       // Ignore on unsupported browsers
@@ -367,7 +537,7 @@
   }
 
   // ==========================================
-  // WEB AUDIO API: 2004 DANCEHALL RIDDIM + STEELPAN
+  // WEB AUDIO API: MULTI-STAGE 2004 DANCEHALL SYNTHESIZER
   // ==========================================
   class DancehallSoundSystem {
     constructor() {
@@ -384,24 +554,61 @@
       this.lastProcessedBeatIndex = -1;
       this.masterGain = null;
       this.noiseBuffer = null;
+      this.riddimIndex = 0; // 0: Dem Bow, 1: Diwali, 2: Sleng Teng, 3: Bruk Out
 
-      // 16-step Dancehall Riddim Pattern (100 BPM)
-      this.kickPattern  = [1, 0, 0, 0,  0, 0, 0, 1,  1, 0, 0, 0,  0, 0, 1, 0];
-      this.snarePattern = [0, 0, 0, 1,  0, 0, 1, 0,  0, 0, 0, 1,  0, 0, 1, 0];
-      this.hatPattern   = [1, 0, 1, 1,  1, 0, 1, 0,  1, 0, 1, 1,  1, 0, 1, 1];
-      this.bassPatternA = [
-        43.65, 0, 43.65, 51.91,
-        0, 58.27, 65.41, 0,
-        43.65, 0, 43.65, 77.78,
-        0, 65.41, 51.91, 0
+      // 4 Distinct 16-Step Stage Riddim Patterns!
+      this.riddims = [
+        // STAGE 1: Pineapple Dem Bow (F Minor, 100 BPM)
+        {
+          kick:  [1, 0, 0, 0,  0, 0, 0, 1,  1, 0, 0, 0,  0, 0, 1, 0],
+          snare: [0, 0, 0, 1,  0, 0, 1, 0,  0, 0, 0, 1,  0, 0, 1, 0],
+          clap:  [0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0],
+          hat:   [1, 0, 1, 1,  1, 0, 1, 0,  1, 0, 1, 1,  1, 0, 1, 1],
+          bassA: [43.65, 0, 43.65, 51.91,  0, 58.27, 65.41, 0,  43.65, 0, 43.65, 77.78,  0, 65.41, 51.91, 0],
+          bassB: [43.65, 0, 43.65, 51.91,  0, 65.41, 77.78, 0,  58.27, 0, 58.27, 65.41,  0, 51.91, 43.65, 87.31],
+          lead:  [0, 0, 261.63, 0,  0, 0, 261.63, 0,  0, 0, 311.13, 0,  0, 0, 261.63, 0],
+          bassStyle: 'sub_pluck',
+          leadStyle: 'clav_skank'
+        },
+        // STAGE 2: Diwali Handclap Riddim (C Minor, 100 BPM)
+        {
+          kick:  [1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 1,  0, 0, 0, 0],
+          snare: [0, 0, 0, 1,  0, 1, 0, 0,  0, 0, 0, 1,  0, 1, 0, 1],
+          clap:  [0, 0, 0, 1,  0, 0, 1, 0,  0, 0, 1, 0,  1, 0, 1, 0], // Iconic syncopated handclap bounce
+          hat:   [1, 1, 0, 1,  1, 0, 1, 1,  1, 1, 0, 1,  1, 0, 1, 0],
+          bassA: [65.41, 0, 0, 65.41,  0, 0, 77.78, 0,  65.41, 0, 0, 58.27,  0, 0, 49.00, 0],
+          bassB: [65.41, 0, 0, 77.78,  0, 0, 87.31, 0,  77.78, 0, 0, 65.41,  0, 58.27, 65.41, 0],
+          lead:  [523.25, 0, 554.37, 622.25,  0, 554.37, 523.25, 0,  392.00, 0, 466.16, 523.25,  0, 392.00, 523.25, 0],
+          bassStyle: 'acoustic_sub',
+          leadStyle: 'phrygian_reed'
+        },
+        // STAGE 3: Sleng Teng Digital Dub (G Minor, 105 BPM)
+        {
+          kick:  [1, 0, 0, 0,  0, 0, 1, 0,  1, 0, 0, 0,  0, 0, 1, 0],
+          snare: [0, 0, 0, 0,  1, 0, 0, 1,  0, 0, 0, 0,  1, 0, 0, 1],
+          clap:  [0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 0],
+          hat:   [1, 0, 1, 0,  1, 1, 1, 0,  1, 0, 1, 0,  1, 1, 1, 1],
+          // Classic Casio MT-40 walking digital bassline in G minor (G1=49.0, Bb1=58.27, C2=65.41, D2=73.42, F1=43.65)
+          bassA: [49.00, 0, 49.00, 58.27,  65.41, 0, 73.42, 0,  49.00, 0, 49.00, 0,  43.65, 0, 49.00, 0],
+          bassB: [49.00, 0, 58.27, 65.41,  73.42, 0, 87.31, 73.42,  65.41, 0, 58.27, 0,  43.65, 49.00, 49.00, 0],
+          lead:  [0, 0, 392.00, 0,  0, 0, 466.16, 0,  0, 0, 392.00, 0,  587.33, 0, 392.00, 0],
+          bassStyle: 'digital_square',
+          leadStyle: 'dub_chord'
+        },
+        // STAGE 4: Sting '04 Finals — Bruk Out Badman Riddim (D Minor, 110 BPM)
+        {
+          kick:  [1, 0, 0, 1,  0, 0, 1, 0,  1, 0, 0, 1,  0, 1, 0, 0],
+          snare: [0, 0, 0, 1,  0, 0, 1, 0,  0, 0, 0, 1,  0, 0, 1, 1],
+          clap:  [0, 0, 0, 1,  0, 0, 1, 0,  0, 0, 0, 1,  0, 0, 1, 0],
+          hat:   [1, 1, 1, 1,  1, 0, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1],
+          // Heavy D Minor 808 + Brass Bashment (D1=36.71, F1=43.65, G1=49.00, A1=55.00, Bb1=58.27)
+          bassA: [36.71, 0, 36.71, 43.65,  0, 36.71, 55.00, 0,  36.71, 0, 36.71, 58.27,  0, 55.00, 43.65, 0],
+          bassB: [36.71, 0, 43.65, 49.00,  0, 55.00, 58.27, 0,  55.00, 0, 49.00, 43.65,  0, 36.71, 73.42, 0],
+          lead:  [293.66, 0, 0, 349.23,  0, 0, 440.00, 0,  293.66, 0, 0, 466.16,  0, 440.00, 349.23, 0],
+          bassStyle: 'heavy_808',
+          leadStyle: 'brass_horn'
+        }
       ];
-      this.bassPatternB = [
-        43.65, 0, 43.65, 51.91,
-        0, 65.41, 77.78, 0,
-        58.27, 0, 58.27, 65.41,
-        0, 51.91, 43.65, 87.31
-      ];
-      this.skankPattern = [0, 0, 1, 0,  0, 0, 1, 0,  0, 0, 1, 0,  0, 0, 1, 0];
     }
 
     init() {
@@ -438,10 +645,25 @@
       this.noiseBuffer = buffer;
     }
 
-    start() {
+    setRiddimForStage(stageNum) {
+      const theme = getStageTheme(stageNum);
+      this.riddimIndex = Math.min(stageNum - 1, this.riddims.length - 1);
+      setStageTempo(theme.bpm);
+
+      // Re-anchor timing clock cleanly for the new stage BPM!
+      if (this.ctx && this.isPlaying) {
+        this.current16thStep = 0;
+        this.startTime = this.ctx.currentTime + 0.08;
+        this.nextNoteTime = this.startTime;
+        this.lastProcessedBeatIndex = -1;
+      }
+    }
+
+    start(stageNum = 1) {
       this.init();
       this.isPlaying = true;
       this.isPaused = false;
+      this.setRiddimForStage(stageNum);
       this.current16thStep = 0;
       this.startTime = this.ctx.currentTime + 0.08;
       this.nextNoteTime = this.startTime;
@@ -467,12 +689,11 @@
       if (!this.isPlaying || !this.isPaused || !this.ctx) return;
       this.ctx.resume().then(() => {
         this.isPaused = false;
-        // Re-anchor to exact next quarter beat so the beat bar & scheduler never drift!
-        const nextBeatIndex = Math.ceil(this.pauseElapsed / BEAT_DURATION);
+        const nextBeatIndex = Math.ceil(this.pauseElapsed / beatDuration);
         this.lastProcessedBeatIndex = nextBeatIndex - 1;
         this.current16thStep = nextBeatIndex * 4;
         const leadIn = 0.08;
-        this.startTime = this.ctx.currentTime + leadIn - (nextBeatIndex * BEAT_DURATION);
+        this.startTime = this.ctx.currentTime + leadIn - (nextBeatIndex * beatDuration);
         this.nextNoteTime = this.ctx.currentTime + leadIn;
         if (this.timerID) clearInterval(this.timerID);
         this.timerID = setInterval(() => this.scheduler(), this.lookahead);
@@ -495,14 +716,14 @@
     }
 
     getCurrentBeatFloat() {
-      return this.getElapsedBeatTime() / BEAT_DURATION;
+      return this.getElapsedBeatTime() / beatDuration;
     }
 
     scheduler() {
       if (!this.isPlaying || this.isPaused) return;
       while (this.nextNoteTime < this.ctx.currentTime + this.scheduleAheadTime) {
         this.scheduleStep(this.current16thStep, this.nextNoteTime);
-        this.nextNoteTime += SIXTEENTH_DURATION;
+        this.nextNoteTime += sixteenthDuration;
         this.current16thStep++;
       }
     }
@@ -510,29 +731,35 @@
     scheduleStep(stepCounter, time) {
       const step = stepCounter % 16;
       const bar = Math.floor(stepCounter / 16);
+      const r = this.riddims[this.riddimIndex];
 
-      if (this.kickPattern[step]) {
+      if (r.kick[step]) {
         const isMainBeat = (step === 0 || step === 8);
-        this.playKick(time, isMainBeat ? 1.0 : 0.75);
+        this.playKick(time, isMainBeat ? 1.0 : 0.78);
       }
 
-      if (this.snarePattern[step]) {
-        this.playRimSnare(time, step === 6 || step === 14 ? 0.9 : 0.8);
+      if (r.snare[step]) {
+        this.playRimSnare(time, step === 6 || step === 14 ? 0.9 : 0.78);
       }
 
-      if (this.hatPattern[step]) {
+      if (r.clap && r.clap[step]) {
+        this.playDiwaliHandclap(time);
+      }
+
+      if (r.hat[step]) {
         const openHat = (step === 2 || step === 10);
         this.playHiHat(time, openHat);
       }
 
-      const bassNotes = (bar % 2 === 0) ? this.bassPatternA : this.bassPatternB;
+      const bassNotes = (bar % 2 === 0) ? r.bassA : r.bassB;
       const freq = bassNotes[step];
       if (freq > 0) {
-        this.playDancehallBass(time, freq, SIXTEENTH_DURATION * 0.92);
+        this.playStageBass(time, freq, sixteenthDuration * 0.92, r.bassStyle);
       }
 
-      if (this.skankPattern[step]) {
-        this.playClavSkank(time, bar % 4 === 3 ? 311.13 : 261.63);
+      const leadFreq = r.lead[step];
+      if (leadFreq > 0) {
+        this.playStageLead(time, leadFreq, sixteenthDuration * 0.85, r.leadStyle);
       }
     }
 
@@ -585,6 +812,30 @@
       noise.stop(time + 0.12);
     }
 
+    playDiwaliHandclap(time) {
+      // Multi-burst filtered noise for authentic 2004 Diwali clap
+      const offsets = [0, 0.011, 0.023];
+      offsets.forEach((off, idx) => {
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = this.noiseBuffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1500, time + off);
+        filter.Q.setValueAtTime(1.8, time + off);
+
+        const gain = this.ctx.createGain();
+        const dur = idx === 2 ? 0.13 : 0.025;
+        gain.gain.setValueAtTime(0.42, time + off);
+        gain.gain.exponentialRampToValueAtTime(0.002, time + off + dur);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+        noise.start(time + off);
+        noise.stop(time + off + dur + 0.01);
+      });
+    }
+
     playHiHat(time, isOpen = false) {
       const noise = this.ctx.createBufferSource();
       noise.buffer = this.noiseBuffer;
@@ -604,25 +855,47 @@
       noise.stop(time + dur + 0.01);
     }
 
-    playDancehallBass(time, freq, duration) {
+    playStageBass(time, freq, duration, style) {
       const osc = this.ctx.createOscillator();
       const sub = this.ctx.createOscillator();
       const filter = this.ctx.createBiquadFilter();
       const gain = this.ctx.createGain();
 
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(freq * 2, time);
-
-      sub.type = 'sine';
-      sub.frequency.setValueAtTime(freq, time);
-
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(520, time);
-      filter.frequency.exponentialRampToValueAtTime(130, time + duration * 0.85);
-      filter.Q.setValueAtTime(4.5, time);
+      if (style === 'digital_square') {
+        // Stage 3: Sleng Teng Casio MT-40 Square Bass
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq * 2, time);
+        sub.type = 'triangle';
+        sub.frequency.setValueAtTime(freq, time);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(680, time);
+        filter.frequency.exponentialRampToValueAtTime(210, time + duration * 0.8);
+        filter.Q.setValueAtTime(3.0, time);
+      } else if (style === 'heavy_808') {
+        // Stage 4: Sting '04 Finals Heavy Distorted 808 Sub
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq * 2.0, time);
+        sub.type = 'sine';
+        sub.frequency.setValueAtTime(freq * 1.15, time);
+        sub.frequency.exponentialRampToValueAtTime(freq, time + 0.05);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(750, time);
+        filter.frequency.exponentialRampToValueAtTime(140, time + duration * 0.9);
+        filter.Q.setValueAtTime(5.5, time);
+      } else {
+        // Stage 1 & 2: Deep Kingston Sub + Pluck
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq * 2, time);
+        sub.type = 'sine';
+        sub.frequency.setValueAtTime(freq, time);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(520, time);
+        filter.frequency.exponentialRampToValueAtTime(130, time + duration * 0.85);
+        filter.Q.setValueAtTime(4.5, time);
+      }
 
       gain.gain.setValueAtTime(0.001, time);
-      gain.gain.linearRampToValueAtTime(0.52, time + 0.008);
+      gain.gain.linearRampToValueAtTime(0.5, time + 0.008);
       gain.gain.exponentialRampToValueAtTime(0.008, time + duration);
 
       osc.connect(filter);
@@ -636,57 +909,97 @@
       sub.stop(time + duration + 0.01);
     }
 
-    playClavSkank(time, rootFreq) {
-      const ratios = [1, 1.2, 1.5];
-      ratios.forEach((r) => {
+    playStageLead(time, rootFreq, duration, style) {
+      if (style === 'phrygian_reed') {
+        // Stage 2: Diwali Snake-Charmer Phrygian Reed Pluck
         const osc = this.ctx.createOscillator();
         const filter = this.ctx.createBiquadFilter();
         const gain = this.ctx.createGain();
-
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(rootFreq * r, time);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(rootFreq * 0.985, time);
+        osc.frequency.linearRampToValueAtTime(rootFreq, time + 0.025);
 
         filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(1400, time);
-        filter.Q.setValueAtTime(2.5, time);
+        filter.frequency.setValueAtTime(1850, time);
+        filter.Q.setValueAtTime(4.2, time);
 
-        gain.gain.setValueAtTime(0.09, time);
-        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.055);
+        gain.gain.setValueAtTime(0.16, time);
+        gain.gain.exponentialRampToValueAtTime(0.002, time + duration);
 
         osc.connect(filter);
         filter.connect(gain);
         gain.connect(this.masterGain);
-
         osc.start(time);
-        osc.stop(time + 0.06);
-      });
+        osc.stop(time + duration + 0.01);
+      } else if (style === 'brass_horn') {
+        // Stage 4: Aggressive Bashment Brass Stabs
+        const ratios = [1, 1.5, 2.0];
+        ratios.forEach(r => {
+          const osc = this.ctx.createOscillator();
+          const filter = this.ctx.createBiquadFilter();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(rootFreq * r, time);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(300, time);
+          filter.frequency.linearRampToValueAtTime(2200, time + 0.03);
+          filter.frequency.exponentialRampToValueAtTime(800, time + duration);
+
+          gain.gain.setValueAtTime(0.11, time);
+          gain.gain.exponentialRampToValueAtTime(0.002, time + duration);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(time);
+          osc.stop(time + duration + 0.01);
+        });
+      } else {
+        // Stage 1 & 3: Classic Organ/Clav Skank Chords
+        const ratios = [1, 1.2, 1.5];
+        ratios.forEach((r) => {
+          const osc = this.ctx.createOscillator();
+          const filter = this.ctx.createBiquadFilter();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(rootFreq * r, time);
+
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(style === 'dub_chord' ? 1100 : 1400, time);
+          filter.Q.setValueAtTime(2.5, time);
+
+          gain.gain.setValueAtTime(0.09, time);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + 0.065);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.masterGain);
+
+          osc.start(time);
+          osc.stop(time + 0.07);
+        });
+      }
     }
 
-    // Authentic Caribbean Steel Drum (Steelpan) Note Synthesis on step!
-    // Pitched to F Minor Pentatonic (F4, Ab4, Bb4, C5) based on pad direction
-    playSteelDrumStepSFX(dirKey, combo) {
+    // Authentic Caribbean Steel Drum (Steelpan) Note Synthesis — Transposes automatically to current Stage Key!
+    playSteelDrumStepSFX(dirKey, stageNum) {
       if (!this.ctx) return;
       const now = this.ctx.currentTime;
-      const noteMap = {
-        down: 349.23,  // F4 (Low Tenor Pan fundamental)
-        left: 415.30,  // Ab4
-        right: 466.16, // Bb4
-        up: 523.25     // C5 (High bright pan note)
-      };
-      const baseFreq = noteMap[dirKey] || 415.30;
+      const theme = getStageTheme(stageNum);
+      const baseFreq = theme.steelpanNotes[dirKey] || 415.30;
 
-      // Steelpan characteristic metallic overtones (fundamental + octave + shimmering 3rd harmonic)
       const harmonics = [
         { ratio: 1.0, amp: 0.24, decay: 0.16 },
         { ratio: 2.0, amp: 0.15, decay: 0.11 },
-        { ratio: 2.98, amp: 0.08, decay: 0.06 } // slightly detuned 3rd harmonic gives authentic hammered steelpan ring
+        { ratio: 2.98, amp: 0.08, decay: 0.06 }
       ];
 
       harmonics.forEach(h => {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'sine';
-        // Slight pitch bend on initial mallet strike
         osc.frequency.setValueAtTime(baseFreq * h.ratio * 1.018, now);
         osc.frequency.exponentialRampToValueAtTime(baseFreq * h.ratio, now + 0.018);
 
@@ -699,6 +1012,19 @@
         osc.start(now);
         osc.stop(now + h.decay + 0.01);
       });
+
+      // Physical Sub-Bass Mallet Thump (68Hz -> 36Hz)
+      const thumpOsc = this.ctx.createOscillator();
+      const thumpGain = this.ctx.createGain();
+      thumpOsc.type = 'sine';
+      thumpOsc.frequency.setValueAtTime(68, now);
+      thumpOsc.frequency.exponentialRampToValueAtTime(36, now + 0.045);
+      thumpGain.gain.setValueAtTime(0.55, now);
+      thumpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+      thumpOsc.connect(thumpGain);
+      thumpGain.connect(this.masterGain);
+      thumpOsc.start(now);
+      thumpOsc.stop(now + 0.055);
     }
 
     playAttackSFX(isAirhorn = false) {
@@ -721,6 +1047,25 @@
       gain.connect(this.masterGain);
       osc.start(now);
       osc.stop(now + 0.16);
+    }
+
+    playBossBeamSFX() {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      // Heavy Dub Siren + Sub Bass Drop when Boss fires soundwave beams!
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(880, now);
+      osc.frequency.exponentialRampToValueAtTime(120, now + 0.28);
+
+      gain.gain.setValueAtTime(0.38, now);
+      gain.gain.exponentialRampToValueAtTime(0.005, now + 0.3);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.31);
     }
 
     playAirhornSFX() {
@@ -829,7 +1174,7 @@
     }
   ];
 
-  let gameState = 'START'; // START, PLAYING, PAUSED, PERK_SELECT, GAMEOVER
+  let gameState = 'START';
   let stage = 1;
   let score = 0;
   let blingCoins = 0;
@@ -839,7 +1184,6 @@
   let invertFlashTimer = 0;
   let currentQuarterBeat = 0;
 
-  // Steel Drum Pad visual state (tracks hammer glow & ripple when tapped)
   const steelPads = {
     up:    { label: 'C5',  dx: 0,  dy: -1, angle: -Math.PI / 2, pulse: 0, lastResult: 'on' },
     down:  { label: 'F4',  dx: 0,  dy: 1,  angle: Math.PI / 2,  pulse: 0, lastResult: 'on' },
@@ -849,9 +1193,9 @@
 
   const player = {
     x: 4,
-    y: 5,
+    y: 8,
     renderX: 4,
-    renderY: 5,
+    renderY: 8,
     hopAnim: 0,
     hp: 6,
     maxHp: 6,
@@ -866,6 +1210,8 @@
   };
 
   let enemies = [];
+  let obstacles = []; // Stage 2+: Vinyl Crates (solid) & Bass Woofer Traps (pulse every 4 beats)
+  let laserBeams = []; // Visual soundwave beams fired by Stage 4 Boss
   let coins = [];
   let portal = null;
   let floatingTexts = [];
@@ -888,34 +1234,46 @@
     player.streakSteps = 0;
     setupStage(stage);
     gameState = 'PLAYING';
-    audio.start();
+    audio.start(stage);
     triggerHaptic(20);
   }
 
+  function isSolidObstacleAt(gx, gy) {
+    return obstacles.some(o => o.type === 'crate' && o.x === gx && o.y === gy);
+  }
+
   function setupStage(stageNum) {
+    const theme = getStageTheme(stageNum);
+    setStageTempo(theme.bpm);
+
+    // Update steelpan pitch labels for current stage key
+    steelPads.up.label = theme.steelpanLabels.up;
+    steelPads.down.label = theme.steelpanLabels.down;
+    steelPads.left.label = theme.steelpanLabels.left;
+    steelPads.right.label = theme.steelpanLabels.right;
+
     player.x = 4;
     player.y = 8;
     player.renderX = 4;
     player.renderY = 8;
-    player.actedBeatIndex = Math.round(audio.getCurrentBeatFloat());
+    player.actedBeatIndex = 0;
     enemies = [];
+    obstacles = [];
+    laserBeams = [];
     coins = [];
     portal = null;
     floatingTexts = [];
     particles = [];
     shockwaves = [];
 
-    const numRoadies = 2 + stageNum;
-    const numSelectors = Math.floor(stageNum / 1);
-
-    const occupied = new Set([`${player.x},${player.y}`]);
+    const occupied = new Set([`${player.x},${player.y}`, '4,4', '5,4']); // keep portal center & player clear
 
     const getFreeTile = (minY = 0, maxY = 6) => {
-      for (let tries = 0; tries < 100; tries++) {
+      for (let tries = 0; tries < 120; tries++) {
         const tx = Math.floor(Math.random() * GRID_SIZE);
         const ty = minY + Math.floor(Math.random() * (maxY - minY + 1));
         const key = `${tx},${ty}`;
-        if (!occupied.has(key) && Math.hypot(tx - player.x, ty - player.y) >= 2.5) {
+        if (!occupied.has(key) && Math.hypot(tx - player.x, ty - player.y) >= 2.2) {
           occupied.add(key);
           return { x: tx, y: ty };
         }
@@ -923,50 +1281,140 @@
       return { x: 1, y: 1 };
     };
 
-    for (let i = 0; i < numRoadies; i++) {
-      const pos = getFreeTile(0, 6);
-      enemies.push({
-        type: 'roadie',
-        name: 'Soundboy Roadie',
-        x: pos.x,
-        y: pos.y,
-        renderX: pos.x,
-        renderY: pos.y,
-        hp: 2 + Math.floor((stageNum - 1) / 2),
-        maxHp: 2 + Math.floor((stageNum - 1) / 2),
-        beatCounter: i % 2,
-        period: 2,
-        hopAnim: 0,
-        flashTimer: 0,
-        facing: 1
+    // STAGE OBSTACLES & HAZARDS (Stages 2, 3, 4+)
+    if (stageNum === 2) {
+      // Stage 2 (Half-Way Tree): 4 Solid Vinyl Record Crates + 2 Bass Traps
+      const crateCoords = [{ x: 2, y: 3 }, { x: 7, y: 3 }, { x: 2, y: 6 }, { x: 7, y: 6 }];
+      crateCoords.forEach(c => {
+        occupied.add(`${c.x},${c.y}`);
+        obstacles.push({ type: 'crate', x: c.x, y: c.y });
+      });
+      const trapCoords = [{ x: 4, y: 5 }, { x: 5, y: 5 }];
+      trapCoords.forEach(t => {
+        occupied.add(`${t.x},${t.y}`);
+        obstacles.push({ type: 'bastrap', x: t.x, y: t.y, beatCounter: 0, period: 4 });
+      });
+    } else if (stageNum === 3) {
+      // Stage 3 (Harbour Beach 105 BPM): 4 Vinyl Crates + 4 Synchronized Subwoofer Bass Traps
+      const crateCoords = [{ x: 1, y: 4 }, { x: 8, y: 4 }, { x: 3, y: 2 }, { x: 6, y: 2 }];
+      crateCoords.forEach(c => {
+        occupied.add(`${c.x},${c.y}`);
+        obstacles.push({ type: 'crate', x: c.x, y: c.y });
+      });
+      const trapCoords = [{ x: 3, y: 5 }, { x: 6, y: 5 }, { x: 3, y: 7 }, { x: 6, y: 7 }];
+      trapCoords.forEach((t, idx) => {
+        occupied.add(`${t.x},${t.y}`);
+        obstacles.push({ type: 'bastrap', x: t.x, y: t.y, beatCounter: (idx % 2) * 2, period: 4 });
+      });
+    } else if (stageNum >= 4) {
+      // Stage 4 (Sting '04 Finals 110 BPM): Corner Amp Pillars + 4 Bass Traps around Boss Arena
+      const crateCoords = [{ x: 2, y: 2 }, { x: 7, y: 2 }, { x: 2, y: 7 }, { x: 7, y: 7 }];
+      crateCoords.forEach(c => {
+        occupied.add(`${c.x},${c.y}`);
+        obstacles.push({ type: 'crate', x: c.x, y: c.y });
+      });
+      const trapCoords = [{ x: 4, y: 3 }, { x: 5, y: 3 }, { x: 4, y: 6 }, { x: 5, y: 6 }];
+      trapCoords.forEach(t => {
+        occupied.add(`${t.x},${t.y}`);
+        obstacles.push({ type: 'bastrap', x: t.x, y: t.y, beatCounter: 0, period: 4 });
       });
     }
 
-    for (let i = 0; i < numSelectors; i++) {
-      const pos = getFreeTile(0, 5);
+    // SPAWN ENEMIES & STAGE 4 SOUND CLASH BOSS!
+    if (stageNum >= 4) {
+      // BOSS: KING SOUNDCLASH ("DON GORGON") + 2 Backup Roadies
+      const bossHp = 10 + (stageNum - 4) * 4;
+      occupied.add('4,1');
       enemies.push({
-        type: 'selector',
-        name: 'Selector Rival',
-        x: pos.x,
-        y: pos.y,
-        renderX: pos.x,
-        renderY: pos.y,
-        hp: 3 + Math.floor(stageNum / 2),
-        maxHp: 3 + Math.floor(stageNum / 2),
+        type: 'boss',
+        name: 'KING SOUNDCLASH',
+        x: 4,
+        y: 1,
+        renderX: 4,
+        renderY: 1,
+        hp: bossHp,
+        maxHp: bossHp,
         beatCounter: 0,
-        period: 4,
+        period: 4, // Beats 1-2: stalk, Beat 3: Aim Cross-Laser Telegraph, Beat 4: FIRE SOUNDWAVE BEAM!
         hopAnim: 0,
         flashTimer: 0,
         facing: 1
       });
+
+      for (let i = 0; i < 2; i++) {
+        const pos = getFreeTile(0, 5);
+        enemies.push({
+          type: 'roadie',
+          name: 'Soundboy Roadie',
+          x: pos.x,
+          y: pos.y,
+          renderX: pos.x,
+          renderY: pos.y,
+          hp: 3,
+          maxHp: 3,
+          beatCounter: i % 2,
+          period: 2,
+          hopAnim: 0,
+          flashTimer: 0,
+          facing: 1
+        });
+      }
+    } else {
+      const numRoadies = 2 + stageNum;
+      const numSelectors = stageNum;
+
+      for (let i = 0; i < numRoadies; i++) {
+        const pos = getFreeTile(0, 6);
+        enemies.push({
+          type: 'roadie',
+          name: 'Soundboy Roadie',
+          x: pos.x,
+          y: pos.y,
+          renderX: pos.x,
+          renderY: pos.y,
+          hp: 2 + Math.floor((stageNum - 1) / 2),
+          maxHp: 2 + Math.floor((stageNum - 1) / 2),
+          beatCounter: i % 2,
+          period: 2,
+          hopAnim: 0,
+          flashTimer: 0,
+          facing: 1
+        });
+      }
+
+      for (let i = 0; i < numSelectors; i++) {
+        const pos = getFreeTile(0, 5);
+        enemies.push({
+          type: 'selector',
+          name: 'Selector Rival',
+          x: pos.x,
+          y: pos.y,
+          renderX: pos.x,
+          renderY: pos.y,
+          hp: 3 + Math.floor(stageNum / 2),
+          maxHp: 3 + Math.floor(stageNum / 2),
+          beatCounter: 0,
+          period: 4,
+          hopAnim: 0,
+          flashTimer: 0,
+          facing: 1
+        });
+      }
     }
 
     spawnFloatingText(
       ARENA_OFFSET_X + (GRID_SIZE * TILE_SIZE) / 2,
-      ARENA_OFFSET_Y + (GRID_SIZE * TILE_SIZE) / 2,
-      `ARENA #${stageNum} — PON DI BEAT!`,
+      ARENA_OFFSET_Y + (GRID_SIZE * TILE_SIZE) / 2 - 12,
+      `STAGE ${stageNum}: ${theme.name}`,
       '#FFD700',
-      18
+      17
+    );
+    spawnFloatingText(
+      ARENA_OFFSET_X + (GRID_SIZE * TILE_SIZE) / 2,
+      ARENA_OFFSET_Y + (GRID_SIZE * TILE_SIZE) / 2 + 12,
+      `🎵 ${theme.riddimName.toUpperCase()} (${theme.bpm} BPM)`,
+      '#00E676',
+      14
     );
   }
 
@@ -979,8 +1427,8 @@
 
   function evaluateBeatTiming() {
     const elapsed = audio.getElapsedBeatTime();
-    const nearestBeatIndex = Math.round(elapsed / BEAT_DURATION);
-    const nearestBeatTime = nearestBeatIndex * BEAT_DURATION;
+    const nearestBeatIndex = Math.round(elapsed / beatDuration);
+    const nearestBeatTime = nearestBeatIndex * beatDuration;
     const deltaSeconds = elapsed - nearestBeatTime;
     const absDelta = Math.abs(deltaSeconds);
     const windowSec = getActiveTimingWindow();
@@ -1037,17 +1485,23 @@
     const targetX = player.x + dx;
     const targetY = player.y + dy;
 
+    // Check outer Speaker Wall boundary
     if (targetX < 0 || targetX >= GRID_SIZE || targetY < 0 || targetY >= GRID_SIZE) {
       player.hopAnim = 1.0;
-      audio.playSteelDrumStepSFX(dirKey, combo);
+      audio.playSteelDrumStepSFX(dirKey, stage);
       triggerHaptic(12);
-      spawnFloatingText(
-        tileCenterX(player.x),
-        tileCenterY(player.y) - 16,
-        'SPEAKER WALL!',
-        '#00F0FF',
-        13
-      );
+      spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 16, 'SPEAKER WALL!', '#00F0FF', 13);
+      return;
+    }
+
+    // Check solid Vinyl Crate obstacle
+    if (isSolidObstacleAt(targetX, targetY)) {
+      player.hopAnim = 1.0;
+      player.renderX = player.x + dx * 0.28;
+      player.renderY = player.y + dy * 0.28;
+      audio.playSteelDrumStepSFX(dirKey, stage);
+      triggerHaptic(12);
+      spawnFloatingText(tileCenterX(targetX), tileCenterY(targetY) - 14, 'VINYL CRATE!', '#FFD700', 13);
       return;
     }
 
@@ -1060,8 +1514,8 @@
       player.hopAnim = 1.0;
 
       increaseCombo(timing.absDelta < 0.045 ? 'PERFECT RIDDIM!' : 'ON BEAT!');
-      audio.playSteelDrumStepSFX(dirKey, combo);
-      triggerHaptic(12); // Crisp micro-pulse on valid step
+      audio.playSteelDrumStepSFX(dirKey, stage);
+      triggerHaptic(12);
 
       spawnParticles(tileCenterX(player.x), tileCenterY(player.y) + 10, '#00E676', 6);
 
@@ -1080,7 +1534,11 @@
       if (portal && player.x === portal.x && player.y === portal.y) {
         audio.playAirhornSFX();
         triggerHaptic([30, 40, 60]);
-        openPerkSelection();
+        if (stage === 4) {
+          triggerVictory();
+        } else {
+          openPerkSelection();
+        }
       }
     }
   }
@@ -1094,16 +1552,28 @@
     const dmg = 1 + (combo >= 8 ? 1 : 0);
     enemy.hp -= dmg;
     enemy.flashTimer = 0.25;
-    screenShake = 8;
+    screenShake = enemy.type === 'boss' ? 12 : 8;
 
     const slang = SLANG_HIT[Math.floor(Math.random() * SLANG_HIT.length)];
     spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 18, `${slang} -${dmg}`, '#FF1744', 16);
     spawnParticles(tileCenterX(enemy.x), tileCenterY(enemy.y), '#FFD700', 16);
 
     const hasAirhorn = player.perks.airhorn_dubplate > 0;
-    audio.playSteelDrumStepSFX(dirKey, combo);
+    audio.playSteelDrumStepSFX(dirKey, stage);
     audio.playAttackSFX(hasAirhorn);
-    triggerHaptic([28, 25, 40]); // Heavy bass haptic thump on bump-attack
+    triggerHaptic([28, 25, 40]);
+
+    // When Boss is hit, he teleports/hops away if crowded so the fight stays dynamic
+    if (enemy.type === 'boss' && enemy.hp > 0 && enemy.hp % 3 === 0) {
+      const recoilX = enemy.x + dx;
+      const recoilY = enemy.y + dy;
+      if (recoilX >= 0 && recoilX < GRID_SIZE && recoilY >= 0 && recoilY < GRID_SIZE &&
+          !isSolidObstacleAt(recoilX, recoilY) &&
+          !enemies.some(o => o !== enemy && o.x === recoilX && o.y === recoilY)) {
+        enemy.x = recoilX;
+        enemy.y = recoilY;
+      }
+    }
 
     if (hasAirhorn) {
       shockwaves.push({
@@ -1123,6 +1593,7 @@
           const ny = other.y + ky;
           if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE &&
               !(nx === player.x && ny === player.y) &&
+              !isSolidObstacleAt(nx, ny) &&
               !enemies.some(e => e.x === nx && e.y === ny)) {
             other.x = nx;
             other.y = ny;
@@ -1137,15 +1608,22 @@
     for (let i = enemies.length - 1; i >= 0; i--) {
       if (enemies[i].hp <= 0) {
         const dead = enemies[i];
-        score += 150 * Math.max(1, combo);
-        spawnParticles(tileCenterX(dead.x), tileCenterY(dead.y), '#00E676', 22);
-        spawnFloatingText(tileCenterX(dead.x), tileCenterY(dead.y) - 26, 'K.O. FORWARD!', '#00E676', 16);
+        const isBoss = dead.type === 'boss';
+        score += (isBoss ? 1000 : 150) * Math.max(1, combo);
+        spawnParticles(tileCenterX(dead.x), tileCenterY(dead.y), isBoss ? '#FFD700' : '#00E676', isBoss ? 40 : 22);
+        spawnFloatingText(
+          tileCenterX(dead.x),
+          tileCenterY(dead.y) - 26,
+          isBoss ? '👑 KING SOUNDCLASH DEFEATED!' : 'K.O. FORWARD!',
+          isBoss ? '#FFD700' : '#00E676',
+          isBoss ? 18 : 16
+        );
 
         const coinBonus = player.perks.fresh_clarks > 0 ? 2 : 1;
         coins.push({
           x: dead.x,
           y: dead.y,
-          value: (dead.type === 'selector' ? 3 : 1) * coinBonus,
+          value: (isBoss ? 15 : (dead.type === 'selector' ? 3 : 1)) * coinBonus,
           bobOffset: Math.random() * Math.PI * 2
         });
 
@@ -1179,7 +1657,7 @@
     player.streakSteps = 0;
     screenShake = 6;
     audio.playMissScratchSFX();
-    triggerHaptic([45, 40, 65]); // Double error buzz on off-beat miss
+    triggerHaptic([45, 40, 65]);
     triggerJudgementBanner(`${reason} (COMBO RESET)`, '#FF1744');
     spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 20, reason, '#FF1744', 15);
   }
@@ -1192,7 +1670,7 @@
     spawnFloatingText(
       tileCenterX(px),
       tileCenterY(py) - 22,
-      'DUBPLATE PORTAL OPEN!',
+      stage === 4 ? 'CHAMPION DUBPLATE OPEN!' : 'DUBPLATE PORTAL OPEN!',
       '#FFD700',
       17
     );
@@ -1207,7 +1685,7 @@
   }
 
   // ==========================================
-  // BEAT-SYNCHRONIZED ENEMY AI & QUARTER-NOTE PULSE
+  // BEAT-SYNCHRONIZED ENEMY AI, BOSS & FLOOR TRAPS
   // ==========================================
   function onQuarterNoteBeat(beatIndex) {
     currentQuarterBeat = beatIndex;
@@ -1220,6 +1698,28 @@
       triggerJudgementBanner('MISSED BEAT! COMBO 0x', '#FF9100');
     }
 
+    // 1. Update Floor Subwoofer Bass Traps (Stages 2, 3, 4)
+    obstacles.forEach(obs => {
+      if (obs.type === 'bastrap') {
+        obs.beatCounter = (obs.beatCounter + 1) % obs.period;
+        if (obs.beatCounter === 0) {
+          // Bass trap erupts on the 4th beat!
+          shockwaves.push({
+            x: tileCenterX(obs.x),
+            y: tileCenterY(obs.y),
+            radius: 4,
+            maxRadius: TILE_SIZE * 0.75,
+            alpha: 0.9,
+            color: '#FF1744'
+          });
+          if (player.x === obs.x && player.y === obs.y) {
+            damagePlayer('BASS TRAP! -1 HP');
+          }
+        }
+      }
+    });
+
+    // 2. Update Enemies & Stage 4 Boss
     enemies.forEach(enemy => {
       enemy.beatCounter = (enemy.beatCounter + 1) % enemy.period;
 
@@ -1235,8 +1735,59 @@
         } else {
           enemy.hopAnim = 0.65;
         }
+      } else if (enemy.type === 'boss') {
+        // BOSS AI: KING SOUNDCLASH
+        // Beats 1 & 2: Stalks 1 tile toward MC Ananas
+        // Beat 3 (beatCounter === 3): Locks position & projects Cross-Arena Laser Telegraph!
+        // Beat 4 (beatCounter === 0): FIRES row + column Soundwave Blast across the arena!
+        if (enemy.beatCounter === 1 || enemy.beatCounter === 2) {
+          stepEnemyTowardPlayer(enemy, 1);
+        } else if (enemy.beatCounter === 3) {
+          enemy.hopAnim = 0.8;
+          spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 24, 'SOUNDWAVE AIM!', '#FF1744', 14);
+        } else if (enemy.beatCounter === 0) {
+          fireBossSoundwaveBeam(enemy);
+        }
       }
     });
+  }
+
+  function fireBossSoundwaveBeam(boss) {
+    boss.hopAnim = 1.3;
+    screenShake = 12;
+    audio.playBossBeamSFX();
+
+    // Add visual beam flash along boss's entire row (y) and column (x)
+    laserBeams.push({
+      x: boss.x,
+      y: boss.y,
+      alpha: 1.0
+    });
+
+    // Check if player is caught in the row or column soundwave blast
+    if (player.x === boss.x || player.y === boss.y) {
+      // Check if a solid Vinyl Crate is shielding the player between boss and player!
+      let shielded = false;
+      if (player.x === boss.x) {
+        const minY = Math.min(player.y, boss.y);
+        const maxY = Math.max(player.y, boss.y);
+        for (let ty = minY + 1; ty < maxY; ty++) {
+          if (isSolidObstacleAt(boss.x, ty)) shielded = true;
+        }
+      } else if (player.y === boss.y) {
+        const minX = Math.min(player.x, boss.x);
+        const maxX = Math.max(player.x, boss.x);
+        for (let tx = minX + 1; tx < maxX; tx++) {
+          if (isSolidObstacleAt(tx, boss.y)) shielded = true;
+        }
+      }
+
+      if (!shielded) {
+        damagePlayer('SOUNDWAVE BLAST! -1 HP');
+      } else {
+        spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 20, 'CRATE SHIELDED!', '#00F0FF', 14);
+      }
+    }
   }
 
   function stepEnemyTowardPlayer(enemy, stepsCount) {
@@ -1259,7 +1810,7 @@
       const nextY = enemy.y + moveY;
 
       if (nextX === player.x && nextY === player.y) {
-        damagePlayer(enemy);
+        damagePlayer('CLASH HIT! -1 HP');
         enemy.hopAnim = 1.2;
         enemy.renderX = enemy.x + moveX * 0.45;
         enemy.renderY = enemy.y + moveY * 0.45;
@@ -1267,7 +1818,9 @@
       }
 
       const occupiedByEnemy = enemies.some(other => other !== enemy && other.x === nextX && other.y === nextY);
-      if (!occupiedByEnemy && nextX >= 0 && nextX < GRID_SIZE && nextY >= 0 && nextY < GRID_SIZE) {
+      const blockedByCrate = isSolidObstacleAt(nextX, nextY);
+
+      if (!occupiedByEnemy && !blockedByCrate && nextX >= 0 && nextX < GRID_SIZE && nextY >= 0 && nextY < GRID_SIZE) {
         enemy.x = nextX;
         enemy.y = nextY;
         enemy.hopAnim = 1.0;
@@ -1276,7 +1829,7 @@
         const altY = moveY === 0 ? Math.sign(dy) : 0;
         const nx2 = enemy.x + altX;
         const ny2 = enemy.y + altY;
-        const blockedAlt = enemies.some(other => other !== enemy && other.x === nx2 && other.y === ny2);
+        const blockedAlt = enemies.some(other => other !== enemy && other.x === nx2 && other.y === ny2) || isSolidObstacleAt(nx2, ny2);
         if ((altX !== 0 || altY !== 0) && !blockedAlt && nx2 >= 0 && nx2 < GRID_SIZE && ny2 >= 0 && ny2 < GRID_SIZE && !(nx2 === player.x && ny2 === player.y)) {
           enemy.x = nx2;
           enemy.y = ny2;
@@ -1286,7 +1839,7 @@
     }
   }
 
-  function damagePlayer() {
+  function damagePlayer(label = 'CLASH HIT! -1 HP') {
     player.hp -= 1;
     combo = 0;
     player.streakSteps = 0;
@@ -1294,7 +1847,7 @@
     audio.playHurtSFX();
     triggerHaptic([60, 30, 80]);
     spawnParticles(tileCenterX(player.x), tileCenterY(player.y), '#FF1744', 20);
-    spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 22, 'CLASH HIT! -1 HP', '#FF1744', 17);
+    spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 22, label, '#FF1744', 17);
 
     if (player.hp <= 0) {
       triggerGameOver();
@@ -1302,12 +1855,16 @@
   }
 
   // ==========================================
-  // PERK SELECTION, PAUSE & GAME OVER FLOW
+  // PERK SELECTION, PAUSE, VICTORY & GAME OVER FLOW
   // ==========================================
   function openPerkSelection() {
     gameState = 'PERK_SELECT';
     perkOverlay.classList.remove('hidden');
     perkCardsContainer.innerHTML = '';
+
+    const nextTheme = getStageTheme(stage + 1);
+    document.getElementById('perkSubtitle').textContent =
+      `NEXT UP: STAGE ${stage + 1} — ${nextTheme.name} (${nextTheme.bpm} BPM)`;
 
     PERK_POOL.forEach(perk => {
       const card = document.createElement('div');
@@ -1326,10 +1883,11 @@
           player.maxHp += 2;
           player.hp = Math.min(player.maxHp, player.hp + 2);
         }
-        player.hp = Math.min(player.maxHp, player.hp + 1);
+        player.hp = Math.min(player.maxHp, player.hp + 2);
         stage++;
         perkOverlay.classList.add('hidden');
         setupStage(stage);
+        audio.setRiddimForStage(stage);
         gameState = 'PLAYING';
         triggerHaptic(20);
       });
@@ -1337,19 +1895,35 @@
     });
   }
 
+  function triggerVictory() {
+    gameState = 'GAMEOVER';
+    audio.stop();
+    document.getElementById('endTitle').textContent = '👑 KINGSTON SOUND CLASH CHAMPION! 👑';
+    document.getElementById('endSubtitle').textContent = 'MC ANANAS RULED STING \'04 PON DI RIDDIM!';
+    gameOverOverlay.classList.remove('hidden');
+    document.getElementById('endStats').innerHTML = `
+      <p><span class="highlight-gold">TOUR COMPLETED:</span> All 4 Kingston Venues Conquered!</p>
+      <p><span class="highlight-green">FINAL SCORE:</span> ${score.toLocaleString()} PTS</p>
+      <p><span class="highlight-gold">MAX HYPE COMBO:</span> ${maxCombo}x STREAK</p>
+      <p><span class="highlight-green">BLING COLLECTED:</span> $${blingCoins} GOLD</p>
+    `;
+  }
+
   function triggerGameOver() {
     gameState = 'GAMEOVER';
     audio.stop();
+    const theme = getStageTheme(stage);
+    document.getElementById('endTitle').textContent = 'SOUND SYSTEM SHUT DOWN';
+    document.getElementById('endSubtitle').textContent = 'DROWNED OUT BY THE RIVAL CREW';
     gameOverOverlay.classList.remove('hidden');
     document.getElementById('endStats').innerHTML = `
-      <p><span class="highlight-gold">STAGE REACHED:</span> Kingston Arena #${stage}</p>
+      <p><span class="highlight-gold">STAGE REACHED:</span> Stage ${stage} — ${theme.name} (${theme.bpm} BPM)</p>
       <p><span class="highlight-green">TOTAL SCORE:</span> ${score.toLocaleString()} PTS</p>
       <p><span class="highlight-gold">MAX HYPE COMBO:</span> ${maxCombo}x STREAK</p>
       <p><span class="highlight-green">BLING COLLECTED:</span> $${blingCoins} GOLD</p>
     `;
   }
 
-  // Handle Mobile Backgrounding / Tab Switch cleanly
   function handleVisibilityPause() {
     if (document.hidden && gameState === 'PLAYING') {
       audio.pauseForBackground();
@@ -1413,14 +1987,14 @@
     }
   }
 
-  function drawSpeakerCabinet(x, y, size, beatPulse) {
-    ctx.fillStyle = '#181522';
+  function drawSpeakerCabinet(x, y, size, beatPulse, theme) {
+    ctx.fillStyle = theme.speakerCabinet;
     ctx.fillRect(x, y, size, size);
-    ctx.strokeStyle = '#352f47';
+    ctx.strokeStyle = theme.speakerTrim;
     ctx.lineWidth = 1.5;
     ctx.strokeRect(x + 1, y + 1, size - 2, size - 2);
 
-    ctx.fillStyle = '#b59410';
+    ctx.fillStyle = theme.speakerCorner;
     ctx.fillRect(x + 2, y + 2, 4, 4);
     ctx.fillRect(x + size - 6, y + 2, 4, 4);
     ctx.fillRect(x + 2, y + size - 6, 4, 4);
@@ -1435,13 +2009,70 @@
     ctx.fillStyle = '#09080d';
     ctx.fill();
     ctx.lineWidth = 1.5;
-    ctx.strokeStyle = beatPulse > 0.5 ? '#FFD700' : '#4a4363';
+    ctx.strokeStyle = beatPulse > 0.5 ? '#FFD700' : theme.speakerTrim;
     ctx.stroke();
 
     ctx.beginPath();
     ctx.arc(cx, cy, 3.5 + beatPulse * 1.5, 0, Math.PI * 2);
-    ctx.fillStyle = beatPulse > 0.6 ? '#00E676' : '#2c263d';
+    ctx.fillStyle = beatPulse > 0.6 ? theme.coneActive : '#2c263d';
     ctx.fill();
+  }
+
+  // Draw Stage Obstacles: Vinyl Crates & Pulsing Bass Traps
+  function drawObstacle(obs, beatPulse) {
+    const tx = ARENA_OFFSET_X + obs.x * TILE_SIZE;
+    const ty = ARENA_OFFSET_Y + obs.y * TILE_SIZE;
+    const cx = tx + TILE_SIZE / 2;
+    const cy = ty + TILE_SIZE / 2;
+
+    ctx.save();
+    if (obs.type === 'crate') {
+      // Wooden 45-RPM Dubplate Record Crate
+      ctx.fillStyle = '#4E342E';
+      ctx.fillRect(tx + 4, ty + 5, TILE_SIZE - 8, TILE_SIZE - 8);
+      ctx.strokeStyle = '#FFB300';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(tx + 4, ty + 5, TILE_SIZE - 8, TILE_SIZE - 8);
+
+      // Wooden slats
+      ctx.fillStyle = '#3E2723';
+      ctx.fillRect(tx + 6, ty + 13, TILE_SIZE - 12, 3);
+      ctx.fillRect(tx + 6, ty + 23, TILE_SIZE - 12, 3);
+
+      // Peeking vinyl record sleeves on top
+      ctx.fillStyle = '#00E676';
+      ctx.fillRect(tx + 9, ty + 3, 6, 5);
+      ctx.fillStyle = '#FF1744';
+      ctx.fillRect(tx + 17, ty + 2, 6, 6);
+      ctx.fillStyle = '#00F0FF';
+      ctx.fillRect(tx + 25, ty + 3, 6, 5);
+    } else if (obs.type === 'bastrap') {
+      // Floor Subwoofer Bass Trap (Warning on beat 3, Erupts on beat 4)
+      const isWarning = obs.beatCounter === obs.period - 1;
+      const isFiring = obs.beatCounter === 0 && invertFlashTimer > 0.3;
+
+      ctx.fillStyle = isFiring
+        ? 'rgba(255, 23, 68, 0.75)'
+        : (isWarning ? `rgba(255, 145, 0, ${0.3 + beatPulse * 0.45})` : 'rgba(20, 20, 30, 0.85)');
+      ctx.fillRect(tx + 3, ty + 3, TILE_SIZE - 6, TILE_SIZE - 6);
+
+      ctx.strokeStyle = isFiring || isWarning ? '#FF1744' : '#555';
+      ctx.lineWidth = isWarning ? 2.5 : 1.5;
+      ctx.strokeRect(tx + 3, ty + 3, TILE_SIZE - 6, TILE_SIZE - 6);
+
+      //Subwoofer cone rings
+      ctx.beginPath();
+      ctx.arc(cx, cy, 11 + (isWarning ? beatPulse * 3 : 0), 0, Math.PI * 2);
+      ctx.strokeStyle = isWarning ? '#FFD700' : '#00F0FF';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+      ctx.fillStyle = isWarning ? '#FF1744' : '#00F0FF';
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   function drawMCAnanas(cx, cy, hop, beatPulse, facing) {
@@ -1526,7 +2157,14 @@
 
     ctx.save();
 
-    if (isTelegraphing) {
+    // Boss Cross-Arena Aiming Telegraph on Beat 3!
+    if (enemy.type === 'boss' && isTelegraphing) {
+      ctx.fillStyle = `rgba(255, 23, 68, ${0.18 + beatPulse * 0.25})`;
+      // Horizontal row warning
+      ctx.fillRect(ARENA_OFFSET_X, ARENA_OFFSET_Y + enemy.y * TILE_SIZE + 4, GRID_SIZE * TILE_SIZE, TILE_SIZE - 8);
+      // Vertical column warning
+      ctx.fillRect(ARENA_OFFSET_X + enemy.x * TILE_SIZE + 4, ARENA_OFFSET_Y, TILE_SIZE - 8, GRID_SIZE * TILE_SIZE);
+    } else if (isTelegraphing) {
       const tx = ARENA_OFFSET_X + enemy.x * TILE_SIZE;
       const ty = ARENA_OFFSET_Y + enemy.y * TILE_SIZE;
       ctx.fillStyle = `rgba(255, 23, 68, ${0.28 + beatPulse * 0.35})`;
@@ -1538,7 +2176,7 @@
 
     const jumpY = -Math.sin(enemy.hopAnim * Math.PI) * 10 - beatPulse * 2;
     ctx.translate(cx, cy + jumpY);
-    ctx.scale(0.86, 0.86);
+    ctx.scale(enemy.type === 'boss' ? 1.05 : 0.86, enemy.type === 'boss' ? 1.05 : 0.86);
 
     ctx.fillStyle = 'rgba(0,0,0,0.45)';
     ctx.beginPath();
@@ -1562,7 +2200,7 @@
 
       ctx.fillStyle = '#FFD700';
       ctx.fillRect(-7, 3, 14, 6);
-    } else {
+    } else if (enemy.type === 'selector') {
       ctx.fillStyle = enemy.flashTimer > 0 ? '#FFFFFF' : '#4A148C';
       ctx.fillRect(-14, -12, 28, 24);
       ctx.strokeStyle = isTelegraphing ? '#FF1744' : '#00F0FF';
@@ -1581,20 +2219,54 @@
         ctx.fillStyle = b < enemy.beatCounter ? '#FFD700' : '#311B92';
         ctx.fillRect(-8 + b * 6, 4, 4, 4);
       }
+    } else if (enemy.type === 'boss') {
+      // STAGE 4 BOSS: KING SOUNDCLASH ("DON GORGON")
+      // Massive Twin Shoulder Subwoofers + Golden Crown + Laser Shades
+      ctx.fillStyle = enemy.flashTimer > 0 ? '#FFFFFF' : '#880E4F';
+      ctx.fillRect(-16, -13, 32, 26);
+      ctx.strokeStyle = '#FFD700';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(-16, -13, 32, 26);
+
+      // Shoulder Speaker Stacks
+      ctx.fillStyle = '#111';
+      ctx.fillRect(-21, -11, 6, 16);
+      ctx.fillRect(15, -11, 6, 16);
+
+      // Golden Dancehall Crown
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.moveTo(-13, -13);
+      ctx.lineTo(-15, -24 - beatPulse * 3);
+      ctx.lineTo(-5, -17);
+      ctx.lineTo(0, -26 - beatPulse * 4);
+      ctx.lineTo(5, -17);
+      ctx.lineTo(15, -24 - beatPulse * 3);
+      ctx.lineTo(13, -13);
+      ctx.closePath();
+      ctx.fill();
+
+      // Glowing Red Laser Visor
+      ctx.fillStyle = isTelegraphing ? '#00F0FF' : '#FF1744';
+      ctx.fillRect(-12, -8, 24, 6);
+
+      // Gold Sound System Medallion
+      ctx.fillStyle = '#FFD700';
+      ctx.fillRect(-9, 2, 18, 7);
     }
 
     if (isTelegraphing) {
       ctx.fillStyle = '#FF1744';
       ctx.font = '900 18px "Courier New", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('!', 0, -22 - beatPulse * 4);
+      ctx.fillText(enemy.type === 'boss' ? '⚡AIM⚡' : '!', 0, -24 - beatPulse * 4);
     }
 
-    const barW = 24;
+    const barW = enemy.type === 'boss' ? 34 : 24;
     const pipW = barW / enemy.maxHp;
     for (let h = 0; h < enemy.maxHp; h++) {
-      ctx.fillStyle = h < enemy.hp ? '#FF1744' : '#222';
-      ctx.fillRect(-barW / 2 + h * pipW, 15, pipW - 2, 4);
+      ctx.fillStyle = h < enemy.hp ? (enemy.type === 'boss' ? '#FFD700' : '#FF1744') : '#222';
+      ctx.fillRect(-barW / 2 + h * pipW, 15, Math.max(1.5, pipW - 1), 4);
     }
 
     ctx.restore();
@@ -1653,7 +2325,7 @@
     ctx.lineWidth = 2.5;
     ctx.strokeRect(barX, barY, barWidth, barHeight);
 
-    const windowRatio = getActiveTimingWindow() / BEAT_DURATION;
+    const windowRatio = getActiveTimingWindow() / beatDuration;
     const hitZoneHalfWidth = (barWidth / 2) * (windowRatio / 2);
     ctx.fillStyle = 'rgba(0, 230, 118, 0.2)';
     ctx.fillRect(centerX - hitZoneHalfWidth, barY + 3, hitZoneHalfWidth * 2, barHeight - 6);
@@ -1684,7 +2356,6 @@
       }
     }
 
-    // Center Pulsing Pineapple Target Icon
     const scale = 0.95 + beatPulse * 0.35;
     ctx.save();
     ctx.translate(centerX, centerY);
@@ -1719,7 +2390,6 @@
 
     ctx.restore();
 
-    // Timing Judgement Banner right above Beat Bar
     if (timingJudgement.alpha > 0.01) {
       ctx.save();
       ctx.globalAlpha = timingJudgement.alpha;
@@ -1737,21 +2407,19 @@
   // ==========================================
   // BOTTOM CARIBBEAN STEEL DRUM (STEELPAN) CONTROLLER DECK
   // ==========================================
-  function drawSteelDrumController(beatPulse) {
+  function drawSteelDrumController(beatPulse, theme) {
     const cx = DRUM_CENTER_X;
     const cy = DRUM_CENTER_Y;
     const outerR = DRUM_RADIUS;
 
     ctx.save();
 
-    // Decorative Deck Frame Backdrop
     ctx.fillStyle = 'rgba(14, 11, 24, 0.9)';
     ctx.fillRect(30, 634, 480, 274);
-    ctx.strokeStyle = '#2d2542';
+    ctx.strokeStyle = theme.speakerTrim;
     ctx.lineWidth = 2;
     ctx.strokeRect(30, 634, 480, 274);
 
-    // Rasta Trim Accent on Deck Top
     const stripeGrad = ctx.createLinearGradient(30, 0, 510, 0);
     stripeGrad.addColorStop(0, '#00E676');
     stripeGrad.addColorStop(0.5, '#FFD700');
@@ -1759,12 +2427,12 @@
     ctx.fillStyle = stripeGrad;
     ctx.fillRect(30, 634, 480, 4);
 
-    // Side Corner Dub Siren / Speaker Vents for visual flair
-    ctx.fillStyle = '#4a4163';
+    ctx.fillStyle = '#a89ec4';
     ctx.font = 'bold 11px "Courier New", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('KINGSTON STEELPAN', 42, 656);
-    ctx.fillText('TOUCH DECK \'04', 42, 670);
+    ctx.fillText(`RIDDIM: ${theme.riddimName.toUpperCase()}`, 42, 656);
+    ctx.fillStyle = '#00F0FF';
+    ctx.fillText(`STEELPAN KEY: ${theme.keyName.toUpperCase()}`, 42, 670);
 
     ctx.textAlign = 'right';
     ctx.fillStyle = '#00E676';
@@ -1772,29 +2440,26 @@
     ctx.fillStyle = '#FFD700';
     ctx.fillText('PON DI BEAT!', 498, 670);
 
-    // Outer Steel Drum Skirt / Chrome Rim Shadow
     ctx.beginPath();
     ctx.arc(cx, cy + 5, outerR + 8, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
     ctx.fill();
 
-    // Outer Rolled Steel Rim (Metallic Rasta-Tinted Chrome)
     const rimGrad = ctx.createRadialGradient(cx - 25, cy - 25, outerR * 0.7, cx, cy, outerR + 8);
     rimGrad.addColorStop(0, '#808b96');
     rimGrad.addColorStop(0.65, '#d5dbdb');
     rimGrad.addColorStop(0.9, '#2c3e50');
-    rimGrad.addColorStop(1, '#FFD700');
+    rimGrad.addColorStop(1, theme.speakerCorner);
 
     ctx.beginPath();
     ctx.arc(cx, cy, outerR + 6, 0, Math.PI * 2);
     ctx.fillStyle = rimGrad;
     ctx.fill();
 
-    // Concave Hammered Steel Bowl Interior
     const bowlGrad = ctx.createRadialGradient(cx - 18, cy - 20, 12, cx, cy, outerR);
     bowlGrad.addColorStop(0, '#3a4454');
     bowlGrad.addColorStop(0.55, '#222834');
-    bowlGrad.addColorStop(0.88, '#141821');
+    bowlGrad.addColorStop(0.88, theme.deckTint);
     bowlGrad.addColorStop(1, '#0b0e14');
 
     ctx.beginPath();
@@ -1802,7 +2467,6 @@
     ctx.fillStyle = bowlGrad;
     ctx.fill();
 
-    // Subtle Hammered Facet Rings inside the Steelpan bowl
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
@@ -1810,7 +2474,6 @@
     ctx.arc(cx, cy, outerR * 0.45, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Diagonal groove lines dividing the 4 directional Steelpan quadrants
     ctx.strokeStyle = 'rgba(255, 215, 0, 0.22)';
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -1821,7 +2484,6 @@
     ctx.lineTo(cx - diag, cy + diag);
     ctx.stroke();
 
-    // Draw the 4 Hammered Convex Note Dents (UP, DOWN, LEFT, RIGHT)
     const padDist = 74;
     const padOrder = [
       { key: 'up',    arrow: '▲', name: 'UP',    rx: 38, ry: 28, rot: 0 },
@@ -1840,7 +2502,6 @@
       ctx.translate(px, py);
       ctx.scale(activeScale, activeScale);
 
-      // Hammered Steel Note Dome Gradient
       const domeGrad = ctx.createRadialGradient(-6, -6, 3, 0, 0, Math.max(item.rx, item.ry));
       if (pad.pulse > 0.15) {
         if (pad.lastResult === 'on') {
@@ -1863,14 +2524,12 @@
       ctx.fillStyle = domeGrad;
       ctx.fill();
 
-      // Hammered acoustic groove border around the note dent
       ctx.lineWidth = 2.5;
       ctx.strokeStyle = pad.pulse > 0.15
         ? (pad.lastResult === 'on' ? '#FFD700' : '#FF1744')
         : (beatPulse > 0.65 ? 'rgba(255, 215, 0, 0.8)' : 'rgba(180, 200, 225, 0.45)');
       ctx.stroke();
 
-      // Acoustic ripple ring when struck
       if (pad.pulse > 0.05) {
         ctx.beginPath();
         const rippleScale = 1 + (1 - pad.pulse) * 0.45;
@@ -1882,7 +2541,6 @@
         ctx.stroke();
       }
 
-      // Direction Arrow & Steelpan Pitch Engraving
       ctx.fillStyle = pad.pulse > 0.2 ? '#08060c' : '#FFD700';
       ctx.font = '900 18px "Courier New", monospace';
       ctx.textAlign = 'center';
@@ -1895,20 +2553,21 @@
       ctx.restore();
     });
 
-    // Center Steelpan Boss Medallion (Pineapple Hub)
+    // Center Steelpan Boss Medallion (Shows Dynamic Stage BPM!)
     ctx.beginPath();
     ctx.arc(cx, cy, 24 + beatPulse * 2.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#141821';
+    ctx.fillStyle = theme.deckTint;
     ctx.fill();
     ctx.lineWidth = 2.5;
     ctx.strokeStyle = '#FFD700';
     ctx.stroke();
 
     ctx.fillStyle = '#FFD700';
-    ctx.font = 'bold 10px "Courier New", monospace';
+    ctx.font = 'bold 11px "Courier New", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('100', cx, cy - 1);
+    ctx.fillText(`${currentBPM}`, cx, cy - 1);
     ctx.fillStyle = '#00E676';
+    ctx.font = 'bold 9px "Courier New", monospace';
     ctx.fillText('BPM', cx, cy + 10);
 
     ctx.restore();
@@ -1917,14 +2576,13 @@
   // ==========================================
   // TOP HUD RENDERING (COMPACT PORTRAIT)
   // ==========================================
-  function drawHUD(beatPulse) {
+  function drawHUD(beatPulse, theme) {
     ctx.fillStyle = 'rgba(12, 10, 20, 0.92)';
     ctx.fillRect(16, 8, canvas.width - 32, 56);
-    ctx.strokeStyle = '#FFD700';
+    ctx.strokeStyle = theme.speakerCorner;
     ctx.lineWidth = 2;
     ctx.strokeRect(16, 8, canvas.width - 32, 56);
 
-    // Left: Hearts (Sound Vibes)
     ctx.font = 'bold 12px "Courier New", monospace';
     ctx.fillStyle = '#FFD700';
     ctx.textAlign = 'left';
@@ -1945,20 +2603,19 @@
       ctx.fill();
     }
 
-    // Center: Arena & Remaining Enemies
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#00E676';
-    ctx.font = '900 15px "Courier New", monospace';
-    ctx.fillText(`ARENA #${stage} • KINGSTON '04`, canvas.width / 2, 27);
+    ctx.fillStyle = theme.coneActive;
+    ctx.font = '900 14px "Courier New", monospace';
+    ctx.fillText(`STG ${stage}: ${theme.name} (${currentBPM} BPM)`, canvas.width / 2, 27);
 
     ctx.fillStyle = '#e0dce8';
-    ctx.font = 'bold 12px "Courier New", monospace';
-    const remainingText = enemies.length > 0
-      ? `RIVALS LEFT: ${enemies.length}`
-      : 'STEP ON DUBPLATE!';
+    ctx.font = 'bold 11.5px "Courier New", monospace';
+    const bossAlive = enemies.find(e => e.type === 'boss');
+    const remainingText = bossAlive
+      ? `👑 BOSS HP: ${bossAlive.hp}/${bossAlive.maxHp} | RIVALS: ${enemies.length}`
+      : (enemies.length > 0 ? `RIVALS LEFT: ${enemies.length}` : 'STEP ON DUBPLATE!');
     ctx.fillText(remainingText, canvas.width / 2, 48);
 
-    // Right: Combo & Bling
     ctx.textAlign = 'right';
     const comboScale = combo > 0 ? 1 + beatPulse * 0.14 : 1;
     ctx.save();
@@ -2023,6 +2680,11 @@
       timingJudgement.scale = 1.0 + (timingJudgement.scale - 1.0) * Math.pow(0.01, dt);
     }
 
+    for (let i = laserBeams.length - 1; i >= 0; i--) {
+      laserBeams[i].alpha -= dt * 3.2;
+      if (laserBeams[i].alpha <= 0) laserBeams.splice(i, 1);
+    }
+
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
       p.x += p.vx * dt;
@@ -2049,6 +2711,7 @@
   function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    const theme = getStageTheme(stage);
     const beatFloat = (audio.isPlaying && !audio.isPaused) ? audio.getCurrentBeatFloat() : 0;
     const frac = beatFloat - Math.floor(beatFloat);
     const beatPulse = (audio.isPlaying && !audio.isPaused) ? Math.pow(1 - frac, 3) : 0;
@@ -2060,18 +2723,18 @@
       ctx.translate(sx, sy);
     }
 
-    // 1. Draw Speaker Wall Perimeter around the 10x10 Arena
+    // 1. Draw Speaker Wall Perimeter around the 10x10 Arena (Stage-Themed)
     for (let gx = -1; gx <= GRID_SIZE; gx++) {
       for (let gy = -1; gy <= GRID_SIZE; gy++) {
         if (gx === -1 || gx === GRID_SIZE || gy === -1 || gy === GRID_SIZE) {
           const wx = ARENA_OFFSET_X + gx * TILE_SIZE;
           const wy = ARENA_OFFSET_Y + gy * TILE_SIZE;
-          drawSpeakerCabinet(wx, wy, TILE_SIZE, beatPulse);
+          drawSpeakerCabinet(wx, wy, TILE_SIZE, beatPulse, theme);
         }
       }
     }
 
-    // 2. Draw 10x10 Pulsing Checkerboard Dancefloor
+    // 2. Draw 10x10 Pulsing Checkerboard Dancefloor (Stage-Themed Colors)
     const parityInvert = currentQuarterBeat % 2;
     for (let gx = 0; gx < GRID_SIZE; gx++) {
       for (let gy = 0; gy < GRID_SIZE; gy++) {
@@ -2080,26 +2743,42 @@
         const isEvenTile = ((gx + gy + parityInvert) % 2 === 0);
 
         if (isEvenTile) {
-          ctx.fillStyle = invertFlashTimer > 0.5 ? '#261e3f' : '#161224';
+          ctx.fillStyle = invertFlashTimer > 0.5 ? theme.tileEvenFlash : theme.tileEven;
         } else {
-          ctx.fillStyle = invertFlashTimer > 0.5 ? '#122b24' : '#0d1b18';
+          ctx.fillStyle = invertFlashTimer > 0.5 ? theme.tileOddFlash : theme.tileOdd;
         }
         ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
 
         ctx.strokeStyle = isEvenTile
-          ? `rgba(255, 215, 0, ${0.16 + beatPulse * 0.28})`
-          : `rgba(0, 230, 118, ${0.16 + beatPulse * 0.28})`;
+          ? `rgba(${theme.borderEven}, ${0.16 + beatPulse * 0.28})`
+          : `rgba(${theme.borderOdd}, ${0.16 + beatPulse * 0.28})`;
         ctx.lineWidth = 1.25;
         ctx.strokeRect(tx + 1.5, ty + 1.5, TILE_SIZE - 3, TILE_SIZE - 3);
 
         ctx.fillStyle = isEvenTile
-          ? `rgba(255, 215, 0, ${0.12 + beatPulse * 0.25})`
-          : `rgba(0, 230, 118, ${0.12 + beatPulse * 0.25})`;
+          ? `rgba(${theme.borderEven}, ${0.12 + beatPulse * 0.25})`
+          : `rgba(${theme.borderOdd}, ${0.12 + beatPulse * 0.25})`;
         ctx.fillRect(tx + TILE_SIZE / 2 - 1.5, ty + TILE_SIZE / 2 - 1.5, 3, 3);
       }
     }
 
-    // 3. Draw Gold Coins / Bling Drops
+    // 3. Draw Stage Obstacles (Vinyl Crates & Bass Traps)
+    obstacles.forEach(obs => drawObstacle(obs, beatPulse));
+
+    // 4. Draw Boss Soundwave Laser Beams
+    laserBeams.forEach(b => {
+      ctx.save();
+      ctx.globalAlpha = b.alpha;
+      ctx.fillStyle = '#00F0FF';
+      ctx.fillRect(ARENA_OFFSET_X, ARENA_OFFSET_Y + b.y * TILE_SIZE + 8, GRID_SIZE * TILE_SIZE, TILE_SIZE - 16);
+      ctx.fillRect(ARENA_OFFSET_X + b.x * TILE_SIZE + 8, ARENA_OFFSET_Y, TILE_SIZE - 16, GRID_SIZE * TILE_SIZE);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(ARENA_OFFSET_X, ARENA_OFFSET_Y + b.y * TILE_SIZE + 15, GRID_SIZE * TILE_SIZE, TILE_SIZE - 30);
+      ctx.fillRect(ARENA_OFFSET_X + b.x * TILE_SIZE + 15, ARENA_OFFSET_Y, TILE_SIZE - 30, GRID_SIZE * TILE_SIZE);
+      ctx.restore();
+    });
+
+    // 5. Draw Gold Coins / Bling Drops
     coins.forEach(c => {
       c.bobOffset += 0.08;
       const cx = tileCenterX(c.x);
@@ -2117,12 +2796,12 @@
       ctx.fillText('$', cx, cy + 3);
     });
 
-    // 4. Draw Dubplate Portal if active
+    // 6. Draw Dubplate Portal if active
     if (portal) {
       drawDubplatePortal(portal, beatPulse);
     }
 
-    // 5. Draw Shockwaves
+    // 7. Draw Shockwaves
     shockwaves.forEach(sw => {
       ctx.save();
       ctx.globalAlpha = sw.alpha;
@@ -2134,10 +2813,10 @@
       ctx.restore();
     });
 
-    // 6. Draw Enemies
+    // 8. Draw Enemies & Stage 4 Boss
     enemies.forEach(enemy => drawEnemy(enemy, beatPulse));
 
-    // 7. Draw Protagonist: MC Ananas
+    // 9. Draw Protagonist: MC Ananas
     drawMCAnanas(
       tileCenterX(player.renderX),
       tileCenterY(player.renderY),
@@ -2146,7 +2825,7 @@
       player.facing
     );
 
-    // 8. Draw Particles
+    // 10. Draw Particles
     particles.forEach(p => {
       ctx.save();
       ctx.globalAlpha = Math.max(0, p.alpha);
@@ -2155,7 +2834,7 @@
       ctx.restore();
     });
 
-    // 9. Draw Jamaican Slang Floating Popups
+    // 11. Draw Jamaican Slang Floating Popups
     floatingTexts.forEach(ft => {
       ctx.save();
       ctx.globalAlpha = Math.max(0, ft.alpha);
@@ -2171,15 +2850,35 @@
 
     ctx.restore();
 
-    // 10. Draw Top HUD, Middle Beat Bar, and Bottom Steel Drum Controller Deck
-    drawHUD(beatPulse);
+    // 12. Draw Top HUD, Middle Beat Bar, and Bottom Steel Drum Controller Deck
+    drawHUD(beatPulse, theme);
     drawBeatBar(beatFloat, beatPulse);
-    drawSteelDrumController(beatPulse);
+    drawSteelDrumController(beatPulse, theme);
   }
 
   // ==========================================
-  // INPUT HANDLERS: KEYBOARD + INSTANT TOUCHSTART STEEL DRUM
+  // INPUT HANDLERS: KEYBOARD + INSTANT TOUCHSTART + iOS TAPTIC LABELS
   // ==========================================
+  let lastTouchInputTimestamp = 0;
+
+  document.querySelectorAll('.steelpan-pad-label').forEach((labelEl) => {
+    const dx = parseInt(labelEl.getAttribute('data-dx'), 10);
+    const dy = parseInt(labelEl.getAttribute('data-dy'), 10);
+
+    labelEl.addEventListener('touchstart', () => {
+      if (gameState !== 'PLAYING') return;
+      lastTouchInputTimestamp = performance.now();
+      handlePlayerInput(dx, dy);
+    }, { passive: true });
+
+    labelEl.addEventListener('mousedown', (e) => {
+      if (gameState !== 'PLAYING') return;
+      if (performance.now() - lastTouchInputTimestamp < 500) return;
+      e.preventDefault();
+      handlePlayerInput(dx, dy);
+    });
+  });
+
   function handleSteelDrumTouchOrClick(clientX, clientY) {
     if (gameState !== 'PLAYING') return;
 
@@ -2189,16 +2888,13 @@
     const x = (clientX - rect.left) * scaleX;
     const y = (clientY - rect.top) * scaleY;
 
-    // Check if tap is in the bottom Steel Drum Deck area (or anywhere around the Steelpan)
     if (y >= 615) {
       const dx = x - DRUM_CENTER_X;
       const dy = y - DRUM_CENTER_Y;
       const dist = Math.hypot(dx, dy);
 
-      // Ignore tiny deadzone right on the center hub bolt
       if (dist < 14) return;
 
-      // Determine which of the 4 Steelpan directional note zones was struck
       if (Math.abs(dx) > Math.abs(dy)) {
         if (dx > 0) {
           handlePlayerInput(1, 0);
@@ -2215,19 +2911,19 @@
     }
   }
 
-  // Instant zero-latency touchstart on the Steel Drum controller
   canvas.addEventListener('touchstart', (e) => {
     if (gameState !== 'PLAYING') return;
     e.preventDefault();
+    lastTouchInputTimestamp = performance.now();
     if (e.changedTouches && e.changedTouches.length > 0) {
       const t = e.changedTouches[0];
       handleSteelDrumTouchOrClick(t.clientX, t.clientY);
     }
   }, { passive: false });
 
-  // Also allow mouse click on the Steel Drum pads on desktop!
   canvas.addEventListener('mousedown', (e) => {
     if (gameState !== 'PLAYING') return;
+    if (performance.now() - lastTouchInputTimestamp < 500) return;
     handleSteelDrumTouchOrClick(e.clientX, e.clientY);
   });
 
