@@ -599,6 +599,7 @@
       <p>• <strong>CLASH ATTACK COMBOS:</strong> Bump-attack rivals strictly on the beat to rank up your <strong>Hype Multiplier</strong> (5x Handclaps, 10x Brass, 20x Fever Mode!). Moving maintains your rhythm &amp; charges your Special.</p>
       <p>• <strong>DANCEHALL DROPS:</strong> Defeated rivals drop <span class="highlight-green">Beef Patties (+HP)</span>, <span class="highlight-red">Scotch Bonnet (+2 DMG)</span>, <span class="highlight-cyan">Half-Time Tapes (Slow-Mo)</span> &amp; <span class="highlight-gold">Boombox Magnets</span>!</p>
       <p>• <strong>DUBPLATE SYNERGIES:</strong> Pair matching items in King Tubby's Bling Shop to evolve devastating <em>Legendary Sound System Weapons</em>!</p>
+      <p>• <span class="highlight-gold">ENCORE TOUR BOSSES:</span> Each Encore Loop boosts the BPM (+8 BPM) and summons legendary rival champions—from King Soundclash (+) to Queen di Riddim (X), Scientist Dub-Dr (AoE), and frantic Dual &amp; Triple Boss clashes!</p>
       <p><span class="highlight-cyan">CONTROLS:</span> Tap the 4 <strong>Steelpan Note Domes</strong> (or <span class="key-badge">WASD</span> / <span class="key-badge">ARROWS</span>) on the beat! Tap the <strong>Center Hub</strong> (<span class="key-badge">SPACE</span>) when charged for the <strong>PULL UP! Special</strong>!</p>
     </div>
 
@@ -1572,7 +1573,7 @@
     playBossBeamSFX() {
       if (!this.ctx) return;
       const now = this.ctx.currentTime;
-      // Heavy Dub Siren + Sub Bass Drop when Boss fires soundwave beams!
+      // Heavy Dub Siren + Sub Bass Drop when King Soundclash fires soundwave beams!
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'sawtooth';
@@ -1586,6 +1587,45 @@
       gain.connect(this.masterGain);
       osc.start(now);
       osc.stop(now + 0.31);
+    }
+
+    playBossQueenPulseSFX() {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      // High-energy dancehall siren flutter (chirp upward then down) for Queen di Riddim
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(540, now);
+      osc.frequency.exponentialRampToValueAtTime(1320, now + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(320, now + 0.28);
+
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.005, now + 0.3);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.31);
+    }
+
+    playBossDubMortarSFX() {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      // Heavy dub delay sub drop + resonant filter snap for Scientist Dub-Dr
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(150, now);
+      osc.frequency.exponentialRampToValueAtTime(34, now + 0.34);
+
+      gain.gain.setValueAtTime(0.52, now);
+      gain.gain.exponentialRampToValueAtTime(0.005, now + 0.38);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.4);
     }
 
     playAirhornSFX() {
@@ -2116,7 +2156,9 @@
 
   let enemies = [];
   let obstacles = []; // Stage 2+: Vinyl Crates (solid) & Bass Woofer Traps (pulse every 4 beats)
-  let laserBeams = []; // Visual soundwave beams fired by Stage 4 Boss & Hype Man
+  let laserBeams = []; // Visual cardinal soundwave beams fired by King Soundclash
+  let diagonalBeams = []; // Visual diagonal soundwave beams fired by Queen di Riddim
+  let bossMortarTargets = []; // Visual ground targets locked on by Scientist Dub-Dr
   let coins = [];
   let portal = null;
   let floatingTexts = [];
@@ -2163,6 +2205,9 @@
     floorPickups = [];
     playerBuffs = { pepperBeats: 0, slowMoBeats: 0 };
     dubEchoTiles = [];
+    laserBeams = [];
+    diagonalBeams = [];
+    bossMortarTargets = [];
     setupStage(stage);
     gameState = 'PLAYING';
     audio.start(stage, tourLoop);
@@ -2193,6 +2238,8 @@
     enemies = [];
     obstacles = [];
     laserBeams = [];
+    diagonalBeams = [];
+    bossMortarTargets = [];
     coins = [];
     floorPickups = [];
     dubEchoTiles = [];
@@ -2261,29 +2308,65 @@
     const hpScale = (tourLoop - 1) * 2;
     const loopBonus = tourLoop - 1; // More enemies spawn on each successive Encore Loop!
     if (venueStage === 4) {
-      // BOSS: KING SOUNDCLASH ("DON GORGON") + Backup Crew (Encore Loops scale rival crew size!)
-      const bossHp = 10 + (tourLoop - 1) * 6;
-      occupied.add('4,1');
-      enemies.push({
-        type: 'boss',
-        name: 'KING SOUNDCLASH',
-        x: 4,
-        y: 1,
-        renderX: 4,
-        renderY: 1,
-        hp: bossHp,
-        maxHp: bossHp,
-        beatCounter: 0,
-        period: 4,
-        hopAnim: 0,
-        flashTimer: 0,
-        facing: 1
+      // STAGE 4 BOSS ROSTER (ENCORE PROGRESSION):
+      // Loop 1: King Soundclash (Don Gorgon) - Solo Cardinal Laser Beams (+)
+      // Loop 2: Queen di Riddim (Lady Butterfly) - Solo Diagonal Sound Pulses (X)
+      // Loop 3: Scientist Dub-Dr (Subwoofer Alchemist) - Solo Ground Mortar Bass Drops (AoE)
+      // Loop 4: DUAL BOSS CLASH - King Soundclash + Queen di Riddim
+      // Loop 5+: TRIPLE SOUNDCLASH ROYALE - King + Queen + Scientist!
+      let stageBosses = [];
+      if (tourLoop === 1) {
+        stageBosses = [
+          { bossType: 'king', name: 'KING SOUNDCLASH', x: 4, y: 1, hp: 12 }
+        ];
+      } else if (tourLoop === 2) {
+        stageBosses = [
+          { bossType: 'queen', name: 'QUEEN DI RIDDIM', x: 4, y: 1, hp: 14 }
+        ];
+      } else if (tourLoop === 3) {
+        stageBosses = [
+          { bossType: 'scientist', name: 'SCIENTIST DUB-DR', x: 4, y: 1, hp: 15 }
+        ];
+      } else if (tourLoop === 4) {
+        stageBosses = [
+          { bossType: 'king', name: 'KING SOUNDCLASH', x: 3, y: 1, hp: 10 },
+          { bossType: 'queen', name: 'QUEEN DI RIDDIM', x: 6, y: 1, hp: 10 }
+        ];
+      } else {
+        // Loop 5+ Triple Boss Royale
+        const scale = (tourLoop - 5) * 2;
+        stageBosses = [
+          { bossType: 'king', name: 'KING SOUNDCLASH', x: 4, y: 1, hp: 9 + scale },
+          { bossType: 'queen', name: 'QUEEN DI RIDDIM', x: 1, y: 2, hp: 9 + scale },
+          { bossType: 'scientist', name: 'SCIENTIST DUB-DR', x: 8, y: 2, hp: 9 + scale }
+        ];
+      }
+
+      stageBosses.forEach(b => {
+        occupied.add(`${b.x},${b.y}`);
+        enemies.push({
+          type: 'boss',
+          bossType: b.bossType,
+          name: b.name,
+          x: b.x,
+          y: b.y,
+          renderX: b.x,
+          renderY: b.y,
+          hp: b.hp,
+          maxHp: b.hp,
+          beatCounter: 0,
+          period: 4,
+          hopAnim: 0,
+          flashTimer: 0,
+          facing: 1
+        });
       });
 
-      const numBossRoadies = 1 + loopBonus;
-      const numBossBogles = 1 + Math.floor(loopBonus / 2);
-      const numBossSelectors = loopBonus >= 1 ? 1 : 0;
-      const numBossHypemen = loopBonus >= 2 ? 1 : 0;
+      const isMultiBoss = stageBosses.length > 1;
+      const numBossRoadies = isMultiBoss ? 1 : 1 + loopBonus;
+      const numBossBogles = isMultiBoss ? (stageBosses.length === 2 ? 1 : 0) : 1 + Math.floor(loopBonus / 2);
+      const numBossSelectors = isMultiBoss ? 0 : (loopBonus >= 1 ? 1 : 0);
+      const numBossHypemen = isMultiBoss ? 0 : (loopBonus >= 2 ? 1 : 0);
 
       for (let i = 0; i < numBossRoadies; i++) {
         const posR = getFreeTile(0, 5);
@@ -3006,14 +3089,21 @@
         const dead = enemies[i];
         const isBoss = dead.type === 'boss';
         score += (isBoss ? 1000 : 150) * Math.max(1, combo);
-        spawnParticles(tileCenterX(dead.x), tileCenterY(dead.y), isBoss ? '#FFD700' : '#00E676', isBoss ? 40 : 22);
+        const bossColor = dead.bossType === 'queen' ? '#FF007F' : (dead.bossType === 'scientist' ? '#00E5FF' : '#FFD700');
+        const bossIcon = dead.bossType === 'queen' ? '🦋' : (dead.bossType === 'scientist' ? '⚡' : '👑');
+        spawnParticles(tileCenterX(dead.x), tileCenterY(dead.y), isBoss ? bossColor : '#00E676', isBoss ? 45 : 22);
         spawnFloatingText(
           tileCenterX(dead.x),
           tileCenterY(dead.y) - 26,
-          isBoss ? '👑 KING SOUNDCLASH DEFEATED!' : 'K.O. FORWARD!',
-          isBoss ? '#FFD700' : '#00E676',
+          isBoss ? `${bossIcon} ${dead.name} DEFEATED!` : 'K.O. FORWARD!',
+          isBoss ? bossColor : '#00E676',
           isBoss ? 18 : 16
         );
+
+        // Clear active mortar targets if scientist defeated
+        if (dead.bossType === 'scientist') {
+          bossMortarTargets = bossMortarTargets.filter(t => t.boss !== dead);
+        }
 
         // Spawn Tangible Dancehall Floor Pickup!
         maybeSpawnFloorPickup(dead.x, dead.y, isBoss, dead.type);
@@ -3192,14 +3282,37 @@
           fireHypemanSonicWave(enemy);
         }
       } else if (enemy.type === 'boss') {
-        // BOSS AI: KING SOUNDCLASH
-        if (enemy.beatCounter === 1 || enemy.beatCounter === 2) {
-          stepEnemyTowardPlayer(enemy, 1);
-        } else if (enemy.beatCounter === 3) {
-          enemy.hopAnim = 0.8;
-          spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 24, 'SOUNDWAVE AIM!', '#FF1744', 14);
-        } else if (enemy.beatCounter === 0) {
-          fireBossSoundwaveBeam(enemy);
+        if (!enemy.bossType || enemy.bossType === 'king') {
+          // BOSS AI: KING SOUNDCLASH (Cardinal Cross Soundwave)
+          if (enemy.beatCounter === 1 || enemy.beatCounter === 2) {
+            stepEnemyTowardPlayer(enemy, 1);
+          } else if (enemy.beatCounter === 3) {
+            enemy.hopAnim = 0.8;
+            spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 24, 'SOUNDWAVE AIM!', '#FF1744', 14);
+          } else if (enemy.beatCounter === 0) {
+            fireBossSoundwaveBeam(enemy);
+          }
+        } else if (enemy.bossType === 'queen') {
+          // BOSS AI: QUEEN DI RIDDIM (Diagonal Bogle Steps & 4-Way Diagonal Sound Pulses)
+          if (enemy.beatCounter === 1 || enemy.beatCounter === 2) {
+            stepBogleDiagonal(enemy);
+          } else if (enemy.beatCounter === 3) {
+            enemy.hopAnim = 0.9;
+            spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 24, 'RIDDIM PULSE!', '#FF007F', 14);
+          } else if (enemy.beatCounter === 0) {
+            fireBossQueenDiagonalPulse(enemy);
+          }
+        } else if (enemy.bossType === 'scientist') {
+          // BOSS AI: SCIENTIST DUB-DR (Tactical Repositioning & Sub-Bass Mortar Drops)
+          if (enemy.beatCounter === 1 || enemy.beatCounter === 2) {
+            stepScientistTactical(enemy);
+          } else if (enemy.beatCounter === 3) {
+            enemy.hopAnim = 0.85;
+            spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 24, 'BASS DROP LOCK!', '#00E5FF', 14);
+            targetDubMortarSites(enemy);
+          } else if (enemy.beatCounter === 0) {
+            detonateDubMortarSites(enemy);
+          }
         }
       }
     });
@@ -3300,6 +3413,158 @@
       } else {
         spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 20, 'CRATE SHIELDED!', '#00F0FF', 14);
       }
+    }
+  }
+
+  function fireBossQueenDiagonalPulse(boss) {
+    boss.hopAnim = 1.3;
+    screenShake = 12;
+    audio.playBossQueenPulseSFX();
+
+    // Add visual diagonal beam flash along Queen's 4 diagonal axes
+    diagonalBeams.push({
+      originX: boss.x,
+      originY: boss.y,
+      alpha: 1.0,
+      color: '#FF007F'
+    });
+
+    // Check if player is on Queen's diagonal
+    const dx = player.x - boss.x;
+    const dy = player.y - boss.y;
+    if (Math.abs(dx) === Math.abs(dy) && dx !== 0) {
+      const stepX = Math.sign(dx);
+      const stepY = Math.sign(dy);
+      let shielded = false;
+      const steps = Math.abs(dx);
+      for (let s = 1; s < steps; s++) {
+        if (isSolidObstacleAt(boss.x + stepX * s, boss.y + stepY * s)) {
+          shielded = true;
+          break;
+        }
+      }
+
+      if (!shielded) {
+        damagePlayer('RIDDIM DIAGONAL PULSE! -1 HP');
+      } else {
+        spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 20, 'CRATE SHIELDED!', '#00F0FF', 14);
+      }
+    }
+  }
+
+  function targetDubMortarSites(boss) {
+    // Clear old targets belonging to this boss
+    bossMortarTargets = bossMortarTargets.filter(t => t.boss !== boss);
+
+    const targets = [{ x: player.x, y: player.y }];
+    const offsets = [
+      { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 },
+      { x: 1, y: 1 }, { x: -1, y: -1 }, { x: 1, y: -1 }, { x: -1, y: 1 }
+    ];
+
+    const validOffsets = offsets.filter(o => {
+      const tx = player.x + o.x;
+      const ty = player.y + o.y;
+      return tx >= 0 && tx < GRID_SIZE && ty >= 0 && ty < GRID_SIZE && !isSolidObstacleAt(tx, ty);
+    });
+
+    for (let i = 0; i < Math.min(2, validOffsets.length); i++) {
+      const off = validOffsets[i];
+      targets.push({ x: player.x + off.x, y: player.y + off.y });
+    }
+
+    targets.forEach(t => {
+      bossMortarTargets.push({
+        x: t.x,
+        y: t.y,
+        boss: boss,
+        alpha: 1.0
+      });
+    });
+
+    audio.playAttackSFX(false);
+  }
+
+  function detonateDubMortarSites(boss) {
+    const targetsToDetonate = bossMortarTargets.filter(t => t.boss === boss);
+    bossMortarTargets = bossMortarTargets.filter(t => t.boss !== boss);
+
+    if (targetsToDetonate.length === 0) return;
+
+    boss.hopAnim = 1.35;
+    screenShake = 14;
+    audio.playBossDubMortarSFX();
+
+    let playerHit = false;
+    targetsToDetonate.forEach(t => {
+      const cx = tileCenterX(t.x);
+      const cy = tileCenterY(t.y);
+      shockwaves.push({
+        x: cx,
+        y: cy,
+        radius: 6,
+        maxRadius: TILE_SIZE * 0.85,
+        alpha: 1.0,
+        color: '#00E5FF'
+      });
+      spawnParticles(cx, cy, '#76FF03', 14);
+
+      if (player.x === t.x && player.y === t.y) {
+        playerHit = true;
+      }
+    });
+
+    if (playerHit) {
+      damagePlayer('BASS DROP MORTAR! -1 HP');
+    }
+  }
+
+  function stepScientistTactical(enemy) {
+    const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+    let dx = 0;
+    let dy = 0;
+
+    if (dist < 2.5) {
+      // Too close! Step away from player
+      dx = -Math.sign(player.x - enemy.x);
+      dy = -Math.sign(player.y - enemy.y);
+    } else if (dist > 5.5) {
+      // Too far! Step closer
+      dx = Math.sign(player.x - enemy.x);
+      dy = Math.sign(player.y - enemy.y);
+    } else {
+      // Mid-range: strafe laterally
+      const lateralX = player.y > enemy.y ? -1 : 1;
+      dx = enemy.x + lateralX >= 1 && enemy.x + lateralX <= 8 ? lateralX : -lateralX;
+      dy = 0;
+    }
+
+    let nx = enemy.x + dx;
+    let ny = enemy.y + dy;
+    const isBlocked = (x, y) => x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE || isSolidObstacleAt(x, y) || enemies.some(o => o !== enemy && o.x === x && o.y === y);
+
+    if (isBlocked(nx, ny)) {
+      if (dx !== 0 && !isBlocked(enemy.x, enemy.y + Math.sign(dy || 1))) {
+        nx = enemy.x;
+        ny = enemy.y + Math.sign(dy || 1);
+      } else if (dy !== 0 && !isBlocked(enemy.x + Math.sign(dx || 1), enemy.y)) {
+        nx = enemy.x + Math.sign(dx || 1);
+        ny = enemy.y;
+      } else {
+        return;
+      }
+    }
+
+    if (!isBlocked(nx, ny)) {
+      if (nx === player.x && ny === player.y) {
+        damagePlayer('DUB-DR BUMP! -1 HP');
+        enemy.hopAnim = 1.1;
+        return;
+      }
+      enemy.x = nx;
+      enemy.y = ny;
+      enemy.hopAnim = 1.05;
+      if (dx !== 0) enemy.facing = Math.sign(dx);
     }
   }
 
@@ -3718,7 +3983,20 @@
       ? `👑 ENCORE LOOP ${tourLoop} CHAMPION! 👑`
       : '👑 KINGSTON SOUND CLASH CHAMPION! 👑';
     titleEl.className = 'game-title champion-title';
-    document.getElementById('endSubtitle').textContent = 'MC ANANAS RULED STING \'04 PON DI RIDDIM!';
+
+    let bossVictorySubtitle = "MC ANANAS RULED STING '04 PON DI RIDDIM!";
+    if (tourLoop === 1) {
+      bossVictorySubtitle = "MC ANANAS DETHRONED KING SOUNDCLASH AT STING '04!";
+    } else if (tourLoop === 2) {
+      bossVictorySubtitle = "MC ANANAS OUT-DANCED QUEEN DI RIDDIM IN ENCORE 2!";
+    } else if (tourLoop === 3) {
+      bossVictorySubtitle = "MC ANANAS DEFUSED SCIENTIST DUB-DR'S BASS BOMBS IN ENCORE 3!";
+    } else if (tourLoop === 4) {
+      bossVictorySubtitle = "MC ANANAS CRUSHED DI DUAL BOSS CLASH IN ENCORE 4!";
+    } else if (tourLoop >= 5) {
+      bossVictorySubtitle = `MC ANANAS CONQUERED DI TRIPLE SOUNDCLASH ROYALE IN ENCORE ${tourLoop}!`;
+    }
+    document.getElementById('endSubtitle').textContent = bossVictorySubtitle;
     gameOverOverlay.classList.remove('hidden');
     document.getElementById('endStats').innerHTML = `
       <p><span class="highlight-gold">TOUR COMPLETED:</span> Loop ${tourLoop} Conquered! (All 4 Venues)</p>
@@ -3988,13 +4266,28 @@
 
     ctx.save();
 
-    // Boss Cross-Arena Aiming Telegraph on Beat 3!
+    // Boss Telegraph on Beat 3!
     if (enemy.type === 'boss' && isTelegraphing) {
-      ctx.fillStyle = `rgba(255, 23, 68, ${0.18 + beatPulse * 0.25})`;
-      // Horizontal row warning
-      ctx.fillRect(ARENA_OFFSET_X, ARENA_OFFSET_Y + enemy.y * TILE_SIZE + 4, GRID_SIZE * TILE_SIZE, TILE_SIZE - 8);
-      // Vertical column warning
-      ctx.fillRect(ARENA_OFFSET_X + enemy.x * TILE_SIZE + 4, ARENA_OFFSET_Y, TILE_SIZE - 8, GRID_SIZE * TILE_SIZE);
+      if (!enemy.bossType || enemy.bossType === 'king') {
+        ctx.fillStyle = `rgba(255, 23, 68, ${0.18 + beatPulse * 0.25})`;
+        // Horizontal row warning
+        ctx.fillRect(ARENA_OFFSET_X, ARENA_OFFSET_Y + enemy.y * TILE_SIZE + 4, GRID_SIZE * TILE_SIZE, TILE_SIZE - 8);
+        // Vertical column warning
+        ctx.fillRect(ARENA_OFFSET_X + enemy.x * TILE_SIZE + 4, ARENA_OFFSET_Y, TILE_SIZE - 8, GRID_SIZE * TILE_SIZE);
+      } else if (enemy.bossType === 'queen') {
+        // Diagonal warning corridors along all 4 diagonals!
+        ctx.fillStyle = `rgba(255, 0, 127, ${0.22 + beatPulse * 0.28})`;
+        const dirs = [[1, 1], [-1, 1], [1, -1], [-1, -1]];
+        dirs.forEach(([dx, dy]) => {
+          for (let step = 1; step < GRID_SIZE; step++) {
+            const tx = enemy.x + dx * step;
+            const ty = enemy.y + dy * step;
+            if (tx < 0 || tx >= GRID_SIZE || ty < 0 || ty >= GRID_SIZE) break;
+            ctx.fillRect(ARENA_OFFSET_X + tx * TILE_SIZE + 5, ARENA_OFFSET_Y + ty * TILE_SIZE + 5, TILE_SIZE - 10, TILE_SIZE - 10);
+            if (isSolidObstacleAt(tx, ty)) break;
+          }
+        });
+      }
     } else if (enemy.type === 'hypeman' && isTelegraphing) {
       // Mic Hype Man 3-Tile Directional Sonic Wave Telegraph!
       const dx = player.x - enemy.x;
@@ -4121,39 +4414,129 @@
       ctx.arc(13, -4, 4, 0, Math.PI * 2);
       ctx.fill();
     } else if (enemy.type === 'boss') {
-      // STAGE 4 BOSS: KING SOUNDCLASH ("DON GORGON")
-      // Massive Twin Shoulder Subwoofers + Golden Crown + Laser Shades
-      ctx.fillStyle = enemy.flashTimer > 0 ? '#FFFFFF' : '#880E4F';
-      ctx.fillRect(-16, -13, 32, 26);
-      ctx.strokeStyle = '#FFD700';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(-16, -13, 32, 26);
+      if (!enemy.bossType || enemy.bossType === 'king') {
+        // STAGE 4 BOSS 1: KING SOUNDCLASH ("DON GORGON")
+        // Massive Twin Shoulder Subwoofers + Golden Crown + Laser Shades
+        ctx.fillStyle = enemy.flashTimer > 0 ? '#FFFFFF' : '#880E4F';
+        ctx.fillRect(-16, -13, 32, 26);
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-16, -13, 32, 26);
 
-      // Shoulder Speaker Stacks
-      ctx.fillStyle = '#111';
-      ctx.fillRect(-21, -11, 6, 16);
-      ctx.fillRect(15, -11, 6, 16);
+        // Shoulder Speaker Stacks
+        ctx.fillStyle = '#111';
+        ctx.fillRect(-21, -11, 6, 16);
+        ctx.fillRect(15, -11, 6, 16);
 
-      // Golden Dancehall Crown
-      ctx.fillStyle = '#FFD700';
-      ctx.beginPath();
-      ctx.moveTo(-13, -13);
-      ctx.lineTo(-15, -24 - beatPulse * 3);
-      ctx.lineTo(-5, -17);
-      ctx.lineTo(0, -26 - beatPulse * 4);
-      ctx.lineTo(5, -17);
-      ctx.lineTo(15, -24 - beatPulse * 3);
-      ctx.lineTo(13, -13);
-      ctx.closePath();
-      ctx.fill();
+        // Golden Dancehall Crown
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.moveTo(-13, -13);
+        ctx.lineTo(-15, -24 - beatPulse * 3);
+        ctx.lineTo(-5, -17);
+        ctx.lineTo(0, -26 - beatPulse * 4);
+        ctx.lineTo(5, -17);
+        ctx.lineTo(15, -24 - beatPulse * 3);
+        ctx.lineTo(13, -13);
+        ctx.closePath();
+        ctx.fill();
 
-      // Glowing Red Laser Visor
-      ctx.fillStyle = isTelegraphing ? '#00F0FF' : '#FF1744';
-      ctx.fillRect(-12, -8, 24, 6);
+        // Glowing Red Laser Visor
+        ctx.fillStyle = isTelegraphing ? '#00F0FF' : '#FF1744';
+        ctx.fillRect(-12, -8, 24, 6);
 
-      // Gold Sound System Medallion
-      ctx.fillStyle = '#FFD700';
-      ctx.fillRect(-9, 2, 18, 7);
+        // Gold Sound System Medallion
+        ctx.fillStyle = '#FFD700';
+        ctx.fillRect(-9, 2, 18, 7);
+      } else if (enemy.bossType === 'queen') {
+        // STAGE 4 BOSS 2: QUEEN DI RIDDIM ("LADY BUTTERFLY")
+        // Magenta/Cyan Dancehall Queen Suit + Boombox Hair Buns + Butterfly Visor
+        ctx.fillStyle = enemy.flashTimer > 0 ? '#FFFFFF' : '#AD1457';
+        ctx.fillRect(-15, -13, 30, 26);
+        ctx.strokeStyle = '#00F0FF';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-15, -13, 30, 26);
+
+        // Neon Boombox Earphone Buns (pulsating with beat)
+        ctx.fillStyle = '#FF007F';
+        ctx.beginPath();
+        ctx.arc(-18, -10, 6 + beatPulse * 2, 0, Math.PI * 2);
+        ctx.arc(18, -10, 6 + beatPulse * 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(-18, -10, 2.5, 0, Math.PI * 2);
+        ctx.arc(18, -10, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Butterfly Visor / Shades
+        ctx.fillStyle = isTelegraphing ? '#FFE600' : '#00F0FF';
+        ctx.beginPath();
+        ctx.moveTo(-13, -8);
+        ctx.lineTo(-3, -12);
+        ctx.lineTo(0, -6);
+        ctx.lineTo(3, -12);
+        ctx.lineTo(13, -8);
+        ctx.lineTo(10, -2);
+        ctx.lineTo(0, -4);
+        ctx.lineTo(-10, -2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Golden Dancehall Queen Tiara
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.moveTo(-10, -13);
+        ctx.lineTo(-5, -20 - beatPulse * 2.5);
+        ctx.lineTo(0, -15);
+        ctx.lineTo(5, -20 - beatPulse * 2.5);
+        ctx.lineTo(10, -13);
+        ctx.closePath();
+        ctx.fill();
+
+        // Gold Bangles & Belt
+        ctx.fillStyle = '#FFD700';
+        ctx.fillRect(-8, 3, 16, 5);
+      } else if (enemy.bossType === 'scientist') {
+        // STAGE 4 BOSS 3: SCIENTIST DUB-DR ("SUBWOOFER ALCHEMIST")
+        // Deep Teal/Obsidian Audio Engineer Vest + Glowing Tubes + Oscilloscope Visor
+        ctx.fillStyle = enemy.flashTimer > 0 ? '#FFFFFF' : '#004D40';
+        ctx.fillRect(-16, -13, 32, 26);
+        ctx.strokeStyle = '#76FF03';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-16, -13, 32, 26);
+
+        // Vacuum Tube Backpack (3 Glowing Tubes)
+        ctx.fillStyle = '#111';
+        ctx.fillRect(-13, -22, 26, 9);
+        [-7, 0, 7].forEach(tx => {
+          ctx.fillStyle = '#FFA000';
+          ctx.fillRect(tx - 2, -21 - beatPulse * 2, 4, 7);
+          ctx.fillStyle = '#00E5FF';
+          ctx.fillRect(tx - 1, -20, 2, 3);
+        });
+
+        // Twin Analog VU-Meters
+        ctx.fillStyle = '#000';
+        ctx.fillRect(-12, -1, 10, 7);
+        ctx.fillRect(2, -1, 10, 7);
+        ctx.fillStyle = '#76FF03';
+        ctx.fillRect(-11, 0, 8 * (0.4 + beatPulse * 0.5), 5);
+        ctx.fillRect(3, 0, 8 * (0.5 + beatPulse * 0.4), 5);
+
+        // Oscilloscope Visor
+        ctx.fillStyle = '#111';
+        ctx.fillRect(-12, -8, 24, 6);
+        ctx.fillStyle = isTelegraphing ? '#00E5FF' : '#76FF03';
+        ctx.fillRect(-10, -6, 20, 2);
+
+        // Studio Monitor Headband
+        ctx.strokeStyle = '#00E5FF';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(0, -13, 15, Math.PI, 0);
+        ctx.stroke();
+      }
     }
 
     // PULL UP! Freeze Overlay on Enemy
@@ -4166,17 +4549,22 @@
       ctx.textAlign = 'center';
       ctx.fillText('❄REWIND', 0, -22);
     } else if (isTelegraphing) {
-      ctx.fillStyle = enemy.type === 'hypeman' ? '#00E676' : '#FF1744';
+      ctx.fillStyle = enemy.type === 'boss'
+        ? (enemy.bossType === 'queen' ? '#FF007F' : (enemy.bossType === 'scientist' ? '#00E5FF' : '#FF1744'))
+        : (enemy.type === 'hypeman' ? '#00E676' : '#FF1744');
       ctx.font = '900 16px "Courier New", monospace';
       ctx.textAlign = 'center';
-      const warnIcon = enemy.type === 'boss' ? '⚡AIM⚡' : (enemy.type === 'bogle' ? '⤡' : (enemy.type === 'hypeman' ? '🎤' : '!'));
+      const warnIcon = enemy.type === 'boss'
+        ? (enemy.bossType === 'queen' ? '🦋PULSE🦋' : (enemy.bossType === 'scientist' ? '💣DROP💣' : '⚡AIM⚡'))
+        : (enemy.type === 'bogle' ? '⤡' : (enemy.type === 'hypeman' ? '🎤' : '!'));
       ctx.fillText(warnIcon, 0, -23 - beatPulse * 4);
     }
 
     const barW = enemy.type === 'boss' ? 34 : 24;
     const pipW = barW / enemy.maxHp;
+    const bossColor = enemy.bossType === 'queen' ? '#FF007F' : (enemy.bossType === 'scientist' ? '#00E5FF' : '#FFD700');
     for (let h = 0; h < enemy.maxHp; h++) {
-      ctx.fillStyle = h < enemy.hp ? (enemy.type === 'boss' ? '#FFD700' : '#FF1744') : '#222';
+      ctx.fillStyle = h < enemy.hp ? (enemy.type === 'boss' ? bossColor : '#FF1744') : '#222';
       ctx.fillRect(-barW / 2 + h * pipW, 15, Math.max(1.5, pipW - 1), 4);
     }
 
@@ -4669,12 +5057,26 @@
 
     ctx.fillStyle = globalFreezeBeats > 0 ? '#00F0FF' : '#e0dce8';
     ctx.font = 'bold 11.5px "Courier New", monospace';
-    const bossAlive = enemies.find(e => e.type === 'boss');
-    const remainingText = globalFreezeBeats > 0
-      ? `❄ PULL UP REWIND FREEZE: ${globalFreezeBeats} BEATS! ❄`
-      : (bossAlive
-          ? `👑 BOSS HP: ${bossAlive.hp}/${bossAlive.maxHp} | RIVALS: ${enemies.length}`
-          : (enemies.length > 0 ? `RIVALS LEFT: ${enemies.length}` : 'STEP ON DUBPLATE!'));
+    const bossesAlive = enemies.filter(e => e.type === 'boss');
+    let remainingText = '';
+    if (globalFreezeBeats > 0) {
+      remainingText = `❄ PULL UP REWIND FREEZE: ${globalFreezeBeats} BEATS! ❄`;
+    } else if (bossesAlive.length > 0) {
+      if (bossesAlive.length === 1) {
+        const b = bossesAlive[0];
+        const icon = b.bossType === 'queen' ? '🦋' : (b.bossType === 'scientist' ? '⚡' : '👑');
+        remainingText = `${icon} ${b.name}: ${b.hp}/${b.maxHp} | RIVALS: ${enemies.length}`;
+      } else {
+        const bossStatuses = bossesAlive.map(b => {
+          const icon = b.bossType === 'queen' ? '🦋' : (b.bossType === 'scientist' ? '⚡' : '👑');
+          const shortName = b.bossType === 'queen' ? 'QUEEN' : (b.bossType === 'scientist' ? 'DUB-DR' : 'KING');
+          return `${icon} ${shortName}: ${b.hp}/${b.maxHp}`;
+        }).join('  |  ');
+        remainingText = `${bossStatuses} | CREW: ${enemies.length - bossesAlive.length}`;
+      }
+    } else {
+      remainingText = enemies.length > 0 ? `RIVALS LEFT: ${enemies.length}` : 'STEP ON DUBPLATE!';
+    }
     ctx.fillText(remainingText, canvas.width / 2, 48);
 
     ctx.textAlign = 'right';
@@ -4775,6 +5177,11 @@
     for (let i = laserBeams.length - 1; i >= 0; i--) {
       laserBeams[i].alpha -= dt * 3.2;
       if (laserBeams[i].alpha <= 0) laserBeams.splice(i, 1);
+    }
+
+    for (let i = diagonalBeams.length - 1; i >= 0; i--) {
+      diagonalBeams[i].alpha -= dt * 3.2;
+      if (diagonalBeams[i].alpha <= 0) diagonalBeams.splice(i, 1);
     }
 
     for (let i = particles.length - 1; i >= 0; i--) {
@@ -4878,7 +5285,7 @@
     // 3. Draw Stage Obstacles (Vinyl Crates & Bass Traps)
     obstacles.forEach(obs => drawObstacle(obs, beatPulse));
 
-    // 4. Draw Boss Soundwave Laser Beams
+    // 4. Draw Boss Soundwave Laser Beams (King Soundclash)
     laserBeams.forEach(b => {
       ctx.save();
       ctx.globalAlpha = b.alpha;
@@ -4888,6 +5295,59 @@
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(ARENA_OFFSET_X, ARENA_OFFSET_Y + b.y * TILE_SIZE + 15, GRID_SIZE * TILE_SIZE, TILE_SIZE - 30);
       ctx.fillRect(ARENA_OFFSET_X + b.x * TILE_SIZE + 15, ARENA_OFFSET_Y, TILE_SIZE - 30, GRID_SIZE * TILE_SIZE);
+      ctx.restore();
+    });
+
+    // 4.1 Draw Boss Diagonal Laser Beams (Queen di Riddim)
+    diagonalBeams.forEach(b => {
+      ctx.save();
+      ctx.globalAlpha = b.alpha;
+      const dirs = [[1, 1], [-1, 1], [1, -1], [-1, -1]];
+      dirs.forEach(([dx, dy]) => {
+        for (let s = 1; s < GRID_SIZE; s++) {
+          const tx = b.originX + dx * s;
+          const ty = b.originY + dy * s;
+          if (tx < 0 || tx >= GRID_SIZE || ty < 0 || ty >= GRID_SIZE) break;
+          const cx = tileCenterX(tx);
+          const cy = tileCenterY(ty);
+          ctx.fillStyle = b.color || '#FF007F';
+          ctx.beginPath();
+          ctx.arc(cx, cy, TILE_SIZE * 0.36, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(cx, cy, TILE_SIZE * 0.16, 0, Math.PI * 2);
+          ctx.fill();
+          if (isSolidObstacleAt(tx, ty)) break;
+        }
+      });
+      ctx.restore();
+    });
+
+    // 4.2 Draw Boss Mortar Danger Targets (Scientist Dub-Dr)
+    bossMortarTargets.forEach(t => {
+      const cx = tileCenterX(t.x);
+      const cy = tileCenterY(t.y);
+      ctx.save();
+      ctx.strokeStyle = `rgba(0, 229, 255, ${0.7 + beatPulse * 0.3})`;
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(ARENA_OFFSET_X + t.x * TILE_SIZE + 4, ARENA_OFFSET_Y + t.y * TILE_SIZE + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, TILE_SIZE * (0.26 + beatPulse * 0.1), 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(cx - 10, cy);
+      ctx.lineTo(cx + 10, cy);
+      ctx.moveTo(cx, cy - 10);
+      ctx.lineTo(cx, cy + 10);
+      ctx.stroke();
+
+      ctx.fillStyle = '#00E5FF';
+      ctx.font = '900 9.5px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('💣BASS DROP', cx, cy - 14);
       ctx.restore();
     });
 
