@@ -200,48 +200,212 @@
     box-shadow: 0 2px 0 #b26a00;
   }
 
-  /* Perk / Bling Shop Cards */
+  /* King Tubby's Bling Shop Overlay & Cards */
+  #perkOverlay {
+    justify-content: flex-start;
+    padding: 12px 14px 14px 14px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  #perkOverlay .rasta-stripe {
+    flex-shrink: 0;
+    margin: 4px 0 6px 0;
+  }
+
+  #perkOverlay .game-title {
+    flex-shrink: 0;
+    font-size: clamp(18px, 4.4vw, 24px);
+  }
+
+  #perkOverlay .game-subtitle {
+    flex-shrink: 0;
+    font-size: clamp(10px, 2.4vw, 12px);
+    margin: 2px 0 6px 0;
+  }
+
+  #shopWalletDisplay {
+    flex-shrink: 0;
+    padding: 5px 14px;
+    font-size: 13.5px;
+    margin-bottom: 4px;
+  }
+
   .perk-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 8px;
+    margin-top: 4px;
     width: 100%;
-    max-width: 440px;
+    max-width: 460px;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 520px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    padding: 4px 6px 16px 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) rgba(20, 16, 34, 0.6);
+  }
+
+  .perk-container,
+  .perk-card,
+  .perk-card * {
+    touch-action: pan-y;
   }
 
   .perk-card {
+    box-sizing: border-box;
+    width: 100%;
+    flex-shrink: 0;
     background: linear-gradient(180deg, #1b162a 0%, #0f0b18 100%);
     border: 2px solid var(--gold);
     border-radius: 8px;
-    padding: 12px 14px;
+    padding: 9px 12px;
     cursor: pointer;
-    transition: transform 0.1s, border-color 0.1s, box-shadow 0.1s;
+    transition: transform 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
     display: flex;
     align-items: center;
     justify-content: space-between;
     text-align: left;
-    gap: 12px;
+    gap: 10px;
+    position: relative;
   }
 
-  .perk-card:hover, .perk-card:active {
-    transform: scale(1.02);
+  .perk-card:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(180deg, #251d38 0%, #150f24 100%);
     border-color: var(--green);
-    box-shadow: 0 0 18px rgba(0, 230, 118, 0.55);
+    box-shadow: 0 4px 16px rgba(0, 230, 118, 0.45);
+  }
+
+  .perk-card:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0, 230, 118, 0.3);
+  }
+
+  .perk-card.locked, .perk-card.unaffordable {
+    opacity: 0.55;
+    border-color: #555;
+    filter: grayscale(0.4);
+    cursor: not-allowed;
+  }
+
+  .perk-card.locked:hover, .perk-card.unaffordable:hover {
+    transform: none;
+    border-color: #555;
+    box-shadow: none;
+    background: linear-gradient(180deg, #1b162a 0%, #0f0b18 100%);
+  }
+
+  #nextStageBtn {
+    flex-shrink: 0;
+    margin-top: 8px;
+    padding: 10px 22px;
+    font-size: 15px;
+    box-shadow: 0 4px 0 #b26a00, 0 0 20px rgba(255, 215, 0, 0.6);
+  }
+
+  @media (max-height: 720px) {
+    #perkOverlay {
+      padding: 6px 10px 10px 10px;
+    }
+    #perkOverlay .rasta-stripe {
+      margin: 2px 0 4px 0;
+      height: 4px;
+    }
+    #shopWalletDisplay {
+      padding: 3px 10px;
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+    .perk-container {
+      gap: 6px;
+      padding: 2px 4px 14px 2px;
+    }
+    .perk-card {
+      padding: 7px 10px;
+      gap: 8px;
+    }
+    .perk-title {
+      font-size: 13px;
+    }
+    .perk-desc {
+      font-size: 10px;
+    }
+    .synergy-hint {
+      font-size: 9.5px;
+    }
+    .perk-tag {
+      font-size: 10px;
+      padding: 4px 7px;
+    }
+    #nextStageBtn {
+      padding: 8px 18px;
+      font-size: 13.5px;
+      margin-top: 6px;
+    }
+  }
+
+  .perk-card.synergy-card {
+    background: linear-gradient(135deg, #2b1035 0%, #15092a 50%, #291c06 100%);
+    border: 2px solid #FF007F;
+    box-shadow: 0 0 20px rgba(255, 0, 127, 0.5), inset 0 0 15px rgba(255, 215, 0, 0.25);
+    animation: synergyPulse 2s infinite alternate ease-in-out;
+  }
+
+  @keyframes synergyPulse {
+    0% { border-color: #FF007F; box-shadow: 0 0 15px rgba(255, 0, 127, 0.5); }
+    50% { border-color: #FFD700; box-shadow: 0 0 24px rgba(255, 215, 0, 0.7); }
+    100% { border-color: #00F0FF; box-shadow: 0 0 18px rgba(0, 240, 255, 0.6); }
+  }
+
+  .synergy-badge {
+    display: inline-block;
+    background: linear-gradient(90deg, #FF007F, #FFD700);
+    color: #000;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-right: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .synergy-hint {
+    display: block;
+    font-size: 10.5px;
+    color: #FFD700;
+    margin-top: 3px;
+    font-weight: bold;
+  }
+
+  .synergy-ready-tag {
+    background: linear-gradient(90deg, #FF007F 0%, #FFD700 100%) !important;
+    color: #000 !important;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
   }
 
   .perk-title {
     color: var(--gold);
-    font-size: 15px;
+    font-size: 14.5px;
     font-weight: 900;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
   }
 
   .perk-desc {
     color: #d8d4e8;
-    font-size: 12px;
-    line-height: 1.3;
+    font-size: 11.5px;
+    line-height: 1.32;
   }
 
   .perk-tag {
@@ -432,9 +596,10 @@
 
     <div class="instructions-card">
       <p><span class="highlight-gold">THE 4-STAGE KINGSTON TOUR:</span> Guide <strong>MC Ananas</strong> through 4 dancehall venues—each with its own '04 Riddim, obstacles &amp; dynamic combo music!</p>
-      <p>• <strong>Rivals:</strong> <em>Soundboy Roadie</em> (2-beat hop), <em>Selector Rival</em> (4-beat rush), <em>Bogle Dancer</em> (diagonal sidestep), &amp; <em>Mic Hype Man</em> (sonic wave).<br>
-         • <strong>PULL UP! SPECIAL:</strong> Build 12 steps of Hype to charge the <strong>Center Steelpan Hub</strong>—tap it (or press <span class="key-badge">SPACE</span>) on the beat to freeze all rivals &amp; blast adjacent foes!</p>
-      <p><span class="highlight-cyan">CONTROLS:</span> Tap the 4 hammered <strong>Steelpan Note Domes</strong> at the bottom (or use <span class="key-badge">WASD</span> / <span class="key-badge">ARROWS</span>) strictly on the beat!</p>
+      <p>• <strong>CLASH ATTACK COMBOS:</strong> Bump-attack rivals strictly on the beat to rank up your <strong>Hype Multiplier</strong> (5x Handclaps, 10x Brass, 20x Fever Mode!). Moving maintains your rhythm &amp; charges your Special.</p>
+      <p>• <strong>DANCEHALL DROPS:</strong> Defeated rivals drop <span class="highlight-green">Beef Patties (+HP)</span>, <span class="highlight-red">Scotch Bonnet (+2 DMG)</span>, <span class="highlight-cyan">Half-Time Tapes (Slow-Mo)</span> &amp; <span class="highlight-gold">Boombox Magnets</span>!</p>
+      <p>• <strong>DUBPLATE SYNERGIES:</strong> Pair matching items in King Tubby's Bling Shop to evolve devastating <em>Legendary Sound System Weapons</em>!</p>
+      <p><span class="highlight-cyan">CONTROLS:</span> Tap the 4 <strong>Steelpan Note Domes</strong> (or <span class="key-badge">WASD</span> / <span class="key-badge">ARROWS</span>) on the beat! Tap the <strong>Center Hub</strong> (<span class="key-badge">SPACE</span>) when charged for the <strong>PULL UP! Special</strong>!</p>
     </div>
 
     <button id="startBtn" class="btn-clash">🔥 Start Sound Clash 🔥</button>
@@ -454,11 +619,11 @@
   <!-- KING TUBBY'S DUBPLATE CRATE & BLING SHOP OVERLAY -->
   <div id="perkOverlay" class="overlay hidden">
     <div class="rasta-stripe"></div>
-    <h1 class="game-title" style="font-size: 25px;">KING TUBBY'S BLING SHOP</h1>
-    <h2 id="perkSubtitle" class="game-subtitle" style="font-size: 12.5px; margin-bottom: 6px;">SPEND YOUR GOLD BLING BEFORE THE NEXT CLASH</h2>
+    <h1 class="game-title">KING TUBBY'S BLING SHOP</h1>
+    <h2 id="perkSubtitle" class="game-subtitle">SPEND YOUR GOLD BLING BEFORE THE NEXT CLASH</h2>
     <div id="shopWalletDisplay" class="shop-wallet-banner">💰 BLING WALLET: $0 GOLD</div>
     <div class="perk-container" id="perkCardsContainer"></div>
-    <button id="nextStageBtn" class="btn-clash" style="margin-top: 12px; font-size: 16px; padding: 10px 24px;">➡️ Forward To Next Arena</button>
+    <button id="nextStageBtn" class="btn-clash">➡️ Forward To Next Arena</button>
   </div>
 
   <!-- GAME OVER / VICTORY OVERLAY -->
@@ -589,6 +754,28 @@
     currentBPM = bpm;
     beatDuration = 60 / currentBPM;
     sixteenthDuration = beatDuration / 4;
+  }
+
+  const CHROMATIC_SCALE = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+  function transposeNoteLabel(noteStr, semitones) {
+    if (!semitones || semitones <= 0) return noteStr;
+    const match = noteStr.match(/^([A-G][b#]?)(\d)$/);
+    if (!match) return noteStr;
+    const note = match[1];
+    let oct = parseInt(match[2], 10);
+    let idx = CHROMATIC_SCALE.indexOf(note);
+    if (idx === -1) {
+      if (note === 'Db') idx = 1;
+      else if (note === 'D#') idx = 3;
+      else if (note === 'Gb') idx = 6;
+      else if (note === 'G#') idx = 8;
+      else if (note === 'A#') idx = 10;
+    }
+    if (idx === -1) return noteStr;
+    const targetIdx = idx + semitones;
+    oct += Math.floor(targetIdx / 12);
+    const newNote = CHROMATIC_SCALE[((targetIdx % 12) + 12) % 12];
+    return `${newNote}${oct}`;
   }
 
   // Persistent High Score & Tour Records (localStorage)
@@ -781,6 +968,7 @@
     }
 
     setRiddimForStage(stageNum, loopNum = 1) {
+      this.loopNum = loopNum;
       this.riddimIndex = (stageNum - 1) % this.riddims.length;
       setStageTempo(getStageBPM(stageNum, loopNum));
 
@@ -791,6 +979,12 @@
         this.nextNoteTime = this.startTime;
         this.lastProcessedBeatIndex = -1;
       }
+    }
+
+    getPitchMultiplier() {
+      const loop = (typeof tourLoop !== 'undefined') ? tourLoop : (this.loopNum || 1);
+      // Each Encore Loop steps up the music pitch by 1 semitone (+1 musical step)
+      return Math.pow(2, (loop - 1) / 12);
     }
 
     start(stageNum = 1, loopNum = 1) {
@@ -873,6 +1067,37 @@
       // Tier 2 (10-19x): Full Organ Skank / Reed / Brass Leads + Open Resonant Bass
       // Tier 3 (20x+):   FEVER MODE! High-Octave Steelpan Descant + Driving Shaker
       const hypeTier = combo >= 20 ? 3 : (combo >= 10 ? 2 : (combo >= 5 ? 1 : 0));
+      const pitchMult = this.getPitchMultiplier();
+
+      // DUBSTEP HALF-TIME DROP: When rivals are slowed to half-rate, riddim drops to heavy dubstep!
+      const isSlowMo = (typeof playerBuffs !== 'undefined' && playerBuffs.slowMoBeats > 0);
+      if (isSlowMo) {
+        const bassNotes = (bar % 2 === 0) ? r.bassA : r.bassB;
+        const rootFreq = (bassNotes[0] || 43.65) * pitchMult;
+
+        // Step 0 (Beat 1): Heavy Sub Kick + 8th-note Wobble Bass
+        if (step === 0) {
+          this.playKick(time, 1.25);
+          const wobbleRate = 1.0 / (sixteenthDuration * 2);
+          this.playDubstepWobbleBass(time, rootFreq, sixteenthDuration * 7.4, wobbleRate);
+        } else if (step === 4) {
+          // Step 4 (Beat 2): Airy Dub Echo Hi-Hat
+          this.playHiHat(time, true);
+        } else if (step === 8) {
+          // Step 8 (Beat 3): Massive Half-Time Snare / Rimshot Crack + Triplet Wobble
+          this.playRimSnare(time, 1.35);
+          const dropFreq = (bassNotes[8] || bassNotes[0] || 43.65) * pitchMult;
+          const wobbleRate = 1.0 / (sixteenthDuration * 1.5);
+          this.playDubstepWobbleBass(time, dropFreq, sixteenthDuration * 7.4, wobbleRate);
+        } else if (step === 10) {
+          // Step 10: Syncopated Dubstep Punch Kick
+          this.playKick(time, 0.88);
+        } else if (step === 12) {
+          // Step 12 (Beat 4): Airy Dub Echo Hi-Hat
+          this.playHiHat(time, true);
+        }
+        return;
+      }
 
       // Core Drums (Always active)
       if (r.kick[step]) {
@@ -906,19 +1131,19 @@
       const bassNotes = (bar % 2 === 0) ? r.bassA : r.bassB;
       const freq = bassNotes[step];
       if (freq > 0) {
-        this.playStageBass(time, freq, sixteenthDuration * 0.92, r.bassStyle, hypeTier);
+        this.playStageBass(time, freq * pitchMult, sixteenthDuration * 0.92, r.bassStyle, hypeTier);
       }
 
       // Layer 2 (10x+ Hype Combo): Unlocks Punchy Organ Skanks / Reed / Brass Leads!
       const leadFreq = r.lead[step];
       if (hypeTier >= 2 && leadFreq > 0) {
-        this.playStageLead(time, leadFreq, sixteenthDuration * 0.88, r.leadStyle);
+        this.playStageLead(time, leadFreq * pitchMult, sixteenthDuration * 0.88, r.leadStyle);
       }
 
       // Layer 3 (20x+ HYPE FEVER MODE!): Continuous High-Octave Steelpan Descant Melody!
       const feverFreq = r.fever ? r.fever[step] : 0;
       if (hypeTier >= 3 && feverFreq > 0) {
-        this.playFeverDescant(time, feverFreq, sixteenthDuration * 0.78);
+        this.playFeverDescant(time, feverFreq * pitchMult, sixteenthDuration * 0.78);
       }
     }
 
@@ -951,7 +1176,7 @@
       if (!this.ctx) return;
       const now = this.ctx.currentTime;
       const theme = getStageTheme(stage);
-      const root = theme.steelpanNotes.down || 349.23;
+      const root = (theme.steelpanNotes.down || 349.23) * this.getPitchMultiplier();
       // Ascending celebratory chord arpeggio when unlocking 4x HYPE or 10x FEVER!
       const notes = tier === 2
         ? [root, root * 1.25, root * 1.5, root * 2.0, root * 2.5, root * 3.0]
@@ -980,12 +1205,13 @@
     }
 
     playKick(time, velocity = 1.0) {
+      const pitchMult = this.getPitchMultiplier();
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(145, time);
-      osc.frequency.exponentialRampToValueAtTime(42, time + 0.085);
-      osc.frequency.exponentialRampToValueAtTime(28, time + 0.24);
+      osc.frequency.setValueAtTime(145 * pitchMult, time);
+      osc.frequency.exponentialRampToValueAtTime(42 * pitchMult, time + 0.085);
+      osc.frequency.exponentialRampToValueAtTime(28 * pitchMult, time + 0.24);
 
       gain.gain.setValueAtTime(0.95 * velocity, time);
       gain.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
@@ -997,11 +1223,12 @@
     }
 
     playRimSnare(time, velocity = 0.85) {
+      const pitchMult = this.getPitchMultiplier();
       const osc = this.ctx.createOscillator();
       const oscGain = this.ctx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(390, time);
-      osc.frequency.exponentialRampToValueAtTime(155, time + 0.045);
+      osc.frequency.setValueAtTime(390 * pitchMult, time);
+      osc.frequency.exponentialRampToValueAtTime(155 * pitchMult, time + 0.045);
 
       oscGain.gain.setValueAtTime(0.65 * velocity, time);
       oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.06);
@@ -1130,6 +1357,60 @@
       sub.stop(time + duration + 0.01);
     }
 
+    playDubstepWobbleBass(time, freq, duration, wobbleHz = 4.0) {
+      if (!this.ctx) return;
+      // Dubstep Wobble Sub-Bass:
+      // Heavy sub-sine oscillator + harmonically rich low-saw oscillator
+      // passed through a resonant Lowpass BiquadFilter (Q = 7.0) modulated by an LFO!
+      const sub = this.ctx.createOscillator();
+      const osc = this.ctx.createOscillator();
+      const filter = this.ctx.createBiquadFilter();
+      const gain = this.ctx.createGain();
+
+      // Ensure root pitch is grounded in heavy sub range (~35-78 Hz)
+      let bassFreq = freq;
+      while (bassFreq > 78) bassFreq *= 0.5;
+      while (bassFreq < 34) bassFreq *= 2;
+
+      sub.type = 'sine';
+      sub.frequency.setValueAtTime(bassFreq, time);
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(bassFreq * 2, time);
+
+      filter.type = 'lowpass';
+      filter.Q.setValueAtTime(4.2, time);
+      filter.frequency.setValueAtTime(310, time);
+
+      // Wobble LFO: tight low-mid sweep between ~130 Hz and ~490 Hz (tight, punchy sub pressure)
+      const lfo = this.ctx.createOscillator();
+      const lfoGain = this.ctx.createGain();
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(wobbleHz, time);
+      lfoGain.gain.setValueAtTime(180, time);
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      gain.gain.setValueAtTime(0.001, time);
+      gain.gain.linearRampToValueAtTime(0.58, time + 0.015);
+      gain.gain.setValueAtTime(0.52, time + duration * 0.75);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+
+      sub.connect(filter);
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+
+      lfo.start(time);
+      sub.start(time);
+      osc.start(time);
+
+      lfo.stop(time + duration + 0.02);
+      sub.stop(time + duration + 0.02);
+      osc.stop(time + duration + 0.02);
+    }
+
     playStageLead(time, rootFreq, duration, style) {
       if (style === 'phrygian_reed') {
         // Stage 2: Diwali Snake-Charmer Phrygian Reed Pluck (Boosted presence!)
@@ -1216,7 +1497,7 @@
       if (!this.ctx) return;
       const now = this.ctx.currentTime;
       const theme = getStageTheme(stageNum);
-      const baseFreq = theme.steelpanNotes[dirKey] || 415.30;
+      const baseFreq = (theme.steelpanNotes[dirKey] || 415.30) * this.getPitchMultiplier();
 
       // Base harmonics (0-9x combo: pure single note)
       const harmonics = [
@@ -1365,6 +1646,130 @@
       osc.stop(now + 0.19);
     }
 
+    // Dancehall Floor Pickup Sound Effects (Patty, Pepper, Halftime Slow-Mo, Magnet)
+    playPickupSFX(type) {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      if (type === 'patty') {
+        // Warm Caribbean Health Chime
+        [523.25, 659.25, 783.99, 1046.50].forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, now + idx * 0.04);
+          gain.gain.setValueAtTime(0.001, now + idx * 0.04);
+          gain.gain.linearRampToValueAtTime(0.28, now + idx * 0.04 + 0.005);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.04 + 0.18);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now + idx * 0.04);
+          osc.stop(now + idx * 0.04 + 0.2);
+        });
+      } else if (type === 'pepper') {
+        // Spicy Sizzling Fire Sweep
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.25);
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(400, now);
+        filter.frequency.exponentialRampToValueAtTime(2400, now + 0.25);
+        filter.Q.setValueAtTime(4.0, now);
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'halftime') {
+        // Authentic Dub Tape-Stop / Half-Speed Brake
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(380, now);
+        osc.frequency.exponentialRampToValueAtTime(65, now + 0.38);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1400, now);
+        filter.frequency.exponentialRampToValueAtTime(180, now + 0.38);
+        gain.gain.setValueAtTime(0.45, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.42);
+      } else if (type === 'magnet') {
+        // Rapid 5-tone vacuum arpeggio
+        [659.25, 783.99, 987.77, 1318.51, 1567.98].forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, now + idx * 0.03);
+          gain.gain.setValueAtTime(0.26, now + idx * 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.03 + 0.14);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now + idx * 0.03);
+          osc.stop(now + idx * 0.03 + 0.15);
+        });
+      }
+    }
+
+    // Legendary Synergy Evolution Fanfare with Heavy Bass Drop & Dub Horns
+    playSynergyUnlockSFX() {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      // Majestic reggae brass triad chords
+      const chords = [
+        [329.63, 392.00, 493.88], // Em
+        [392.00, 493.88, 587.33], // G
+        [523.25, 659.25, 783.99]  // C Major triumph!
+      ];
+      chords.forEach((chord, cIdx) => {
+        const ct = now + cIdx * 0.14;
+        chord.forEach(f => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(f, ct);
+          gain.gain.setValueAtTime(0.001, ct);
+          gain.gain.linearRampToValueAtTime(0.18, ct + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, ct + (cIdx === 2 ? 0.6 : 0.22));
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(ct);
+          osc.stop(ct + (cIdx === 2 ? 0.65 : 0.24));
+        });
+      });
+      // Plus triumphant airhorn blast at chord climax!
+      setTimeout(() => { this.playAirhornSFX(); }, 280);
+    }
+
+    // DJ Razor Crossfader Scratch SFX for Double Strike
+    playDoubleStrikeSFX() {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = this.noiseBuffer;
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(2600, now);
+      filter.frequency.exponentialRampToValueAtTime(600, now + 0.09);
+      filter.Q.setValueAtTime(8.0, now);
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.42, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+      noise.start(now);
+      noise.stop(now + 0.11);
+    }
+
     playHurtSFX() {
       if (!this.ctx) return;
       const now = this.ctx.currentTime;
@@ -1479,6 +1884,7 @@
       if (!this.ctx) return;
       this.stopEndgameLoop();
       const now = this.ctx.currentTime;
+      const pitchMult = this.getPitchMultiplier();
 
       // Triple Airhorn Salute + Major Steelpan Arpeggio
       this.playAirhornSFX();
@@ -1488,7 +1894,7 @@
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(f, t);
+        osc.frequency.setValueAtTime(f * pitchMult, t);
         gain.gain.setValueAtTime(0.32, t);
         gain.gain.exponentialRampToValueAtTime(0.002, t + 0.35);
         osc.connect(gain);
@@ -1498,7 +1904,7 @@
       });
 
       let step = 0;
-      const winNotes = [65.41, 77.78, 87.31, 98.00];
+      const winNotes = [65.41 * pitchMult, 77.78 * pitchMult, 87.31 * pitchMult, 98.00 * pitchMult];
       this.endgameTimerID = setInterval(() => {
         if (gameState !== 'GAMEOVER' || !this.ctx) {
           this.stopEndgameLoop();
@@ -1531,42 +1937,124 @@
       name: 'Ting & Beef Patty',
       desc: 'Hot Kingston street fuel! Instantly restores +4 Vibes (2 Full Hearts).',
       cost: 4,
-      tag: 'Heal +4 HP'
+      tag: 'Heal +4 HP',
+      synergyWith: null
     },
     {
       id: 'gold_medallion',
       name: 'Gold Medallion',
       desc: 'Widens your on-beat timing window by +25% and adds +1 Max Heart container.',
       cost: 6,
-      tag: '+25% Window'
+      tag: '+25% Window & +1 Heart',
+      synergyWith: 'subwoofer_chain',
+      synergyResult: 'evo_bass_overdrive',
+      synergyName: 'Bass Heavyweight Overdrive'
     },
     {
       id: 'airhorn_dubplate',
       name: 'Airhorn Dubplate',
       desc: 'Bump-attacking blasts a bass shockwave that knocks back & damages adjacent foes!',
       cost: 7,
-      tag: 'AOE Knockback'
+      tag: 'AOE Knockback',
+      synergyWith: 'dub_siren_battery',
+      synergyResult: 'evo_soundwall_cannon',
+      synergyName: 'King Soundwall Cannon'
+    },
+    {
+      id: 'dub_siren_battery',
+      name: 'Megaphone Siren Mod',
+      desc: 'Center Steelpan PULL UP! Special charges in 8 steps (instead of 12) & freezes rivals longer!',
+      cost: 7,
+      tag: 'Fast Pull-Up Special',
+      synergyWith: 'airhorn_dubplate',
+      synergyResult: 'evo_soundwall_cannon',
+      synergyName: 'King Soundwall Cannon'
+    },
+    {
+      id: 'subwoofer_chain',
+      name: 'Cuban Link Amp',
+      desc: 'Permanent +1 Bump-Attack damage & lowers Hype Combo needed for Crits to 8x (instead of 14x)!',
+      cost: 8,
+      tag: '+1 Attack Power',
+      synergyWith: 'gold_medallion',
+      synergyResult: 'evo_bass_overdrive',
+      synergyName: 'Bass Heavyweight Overdrive'
     },
     {
       id: 'fresh_clarks',
       name: 'Fresh Clarks Kicks',
       desc: 'Stepping on-beat heals +1 HP every 20-combo streak & doubles gold coin drops!',
       cost: 7,
-      tag: 'Combo Heal + 2x $'
+      tag: 'Streak Heal + 2x Bling',
+      synergyWith: 'space_echo_tape',
+      synergyResult: 'evo_ghost_skank',
+      synergyName: 'Ghost Skankin\' Trail'
     },
     {
-      id: 'subwoofer_chain',
-      name: 'Cuban Link Amp',
-      desc: 'Permanent +1 Bump-Attack damage and lowers Hype Combo needed for Double Damage to 8x (instead of 14x)!',
-      cost: 9,
-      tag: '+1 Attack Power'
+      id: 'space_echo_tape',
+      name: 'Kingston Space Echo',
+      desc: 'Stepping on-beat leaves resonant dub trails on tiles that damage rivals who walk on them!',
+      cost: 7,
+      tag: 'Dub Echo Floor Traps',
+      synergyWith: 'fresh_clarks',
+      synergyResult: 'evo_ghost_skank',
+      synergyName: 'Ghost Skankin\' Trail'
     },
     {
-      id: 'dub_siren_battery',
-      name: ' Megaphone Siren Mod',
-      desc: 'Your Center Steelpan PULL UP! Special charges in 9 steps (instead of 12) & freezes for +1 beat!',
-      cost: 8,
-      tag: 'Fast Pull-Up Special'
+      id: 'scotch_sauce',
+      name: 'Scotch Bonnet Pepper Sauce',
+      desc: 'Attacks ignite rivals with spicy burns for damage-over-time and doubles floor pickup buff durations!',
+      cost: 6,
+      tag: 'Burn Rivals + Buffs',
+      synergyWith: 'soundboy_crossfader',
+      synergyResult: 'evo_red_stripe_berserk',
+      synergyName: 'Red Stripe Berserker'
+    },
+    {
+      id: 'soundboy_crossfader',
+      name: 'Soundboy Crossfader',
+      desc: 'Grants 30% chance on any bump attack to strike twice instantly with a razor scratch cut!',
+      cost: 7,
+      tag: '30% Double Strike',
+      synergyWith: 'scotch_sauce',
+      synergyResult: 'evo_red_stripe_berserk',
+      synergyName: 'Red Stripe Berserker'
+    }
+  ];
+
+  // Vampire Survivors Style Evolved Dubplates (Available once both prerequisites are owned!)
+  const EVOLVED_DUBPLATES = [
+    {
+      id: 'evo_soundwall_cannon',
+      name: '👑 King Soundwall Cannon',
+      prereq: ['airhorn_dubplate', 'dub_siren_battery'],
+      desc: 'SYNERGY EVOLUTION! Bump attacks fire a screen-wide 4-way sonic shockwave cannon that obliterates rivals & projectiles!',
+      cost: 11,
+      tag: '★ MEGA 4-WAY CANNON ★'
+    },
+    {
+      id: 'evo_bass_overdrive',
+      name: '⚡ Bass Heavyweight Overdrive',
+      prereq: ['subwoofer_chain', 'gold_medallion'],
+      desc: 'SYNERGY EVOLUTION! +2 Base Damage, Crits trigger at only 5x Combo, and attacks arc high-voltage lightning across the entire arena!',
+      cost: 12,
+      tag: '★ ARENA LIGHTNING ARCS ★'
+    },
+    {
+      id: 'evo_ghost_skank',
+      name: '👟 Ghost Skankin\' Trail',
+      prereq: ['fresh_clarks', 'space_echo_tape'],
+      desc: 'SYNERGY EVOLUTION! Stepping drops high-voltage neon dance steps that stun rivals for 1 beat, and vacuums all items from anywhere on the floor!',
+      cost: 11,
+      tag: '★ DANCE STUN & PERMA-VACUUM ★'
+    },
+    {
+      id: 'evo_red_stripe_berserk',
+      name: '🌶️ Red Stripe Berserker',
+      prereq: ['scotch_sauce', 'soundboy_crossfader'],
+      desc: 'SYNERGY EVOLUTION! Bump attacks cleave in a 360° circle around MC Ananas, triggering firestorms and doubling attack combo gains!',
+      cost: 11,
+      tag: '★ 360° CLEAVE & 2X COMBO ★'
     }
   ];
 
@@ -1580,9 +2068,17 @@
   let screenShake = 0;
   let invertFlashTimer = 0;
   let currentQuarterBeat = 0;
-  let hypeCharge = 0; // Charges up to 12 (or 9 with Megaphone mod) to unleash PULL UP! REWIND Special!
+  let hypeCharge = 0; // Charges up to 12 (or 8 with Megaphone mod) to unleash PULL UP! REWIND Special!
   let globalFreezeBeats = 0; // Freeze duration on enemies when PULL UP! is triggered
   let afterimages = []; // Golden pineapple motion trails during 20x+ FEVER MODE!
+
+  // Active Floor Drops & Powerups System
+  let floorPickups = []; // Tangible floor items: patty, pepper, halftime, magnet
+  let playerBuffs = {
+    pepperBeats: 0, // +2 Attack Damage buff remaining beats
+    slowMoBeats: 0  // Half-rate slow-motion on enemies remaining beats
+  };
+  let dubEchoTiles = []; // Stepped tiles with active dub traps: { x, y, beatsLeft, damage }
 
   const steelPads = {
     up:    { label: 'C5',  dx: 0,  dy: -1, angle: -Math.PI / 2, pulse: 0, lastResult: 'on' },
@@ -1607,7 +2103,14 @@
       airhorn_dubplate: 0,
       fresh_clarks: 0,
       subwoofer_chain: 0,
-      dub_siren_battery: 0
+      dub_siren_battery: 0,
+      space_echo_tape: 0,
+      scotch_sauce: 0,
+      soundboy_crossfader: 0,
+      evo_soundwall_cannon: 0,
+      evo_bass_overdrive: 0,
+      evo_ghost_skank: 0,
+      evo_red_stripe_berserk: 0
     }
   };
 
@@ -1622,7 +2125,7 @@
   let timingJudgement = { text: '', color: '#FFD700', alpha: 0, scale: 1 };
 
   function getMaxHypeCharge() {
-    return player.perks.dub_siren_battery > 0 ? 9 : 12;
+    return player.perks.dub_siren_battery > 0 ? 8 : 12;
   }
 
   // ==========================================
@@ -1643,13 +2146,23 @@
         airhorn_dubplate: 0,
         fresh_clarks: 0,
         subwoofer_chain: 0,
-        dub_siren_battery: 0
+        dub_siren_battery: 0,
+        space_echo_tape: 0,
+        scotch_sauce: 0,
+        soundboy_crossfader: 0,
+        evo_soundwall_cannon: 0,
+        evo_bass_overdrive: 0,
+        evo_ghost_skank: 0,
+        evo_red_stripe_berserk: 0
       };
       player.streakSteps = 0;
       hypeCharge = 0;
     }
     globalFreezeBeats = 0;
     afterimages = [];
+    floorPickups = [];
+    playerBuffs = { pepperBeats: 0, slowMoBeats: 0 };
+    dubEchoTiles = [];
     setupStage(stage);
     gameState = 'PLAYING';
     audio.start(stage, tourLoop);
@@ -1665,11 +2178,12 @@
     const venueStage = ((stageNum - 1) % 4) + 1;
     setStageTempo(getStageBPM(stageNum, tourLoop));
 
-    // Update steelpan pitch labels for current stage key
-    steelPads.up.label = theme.steelpanLabels.up;
-    steelPads.down.label = theme.steelpanLabels.down;
-    steelPads.left.label = theme.steelpanLabels.left;
-    steelPads.right.label = theme.steelpanLabels.right;
+    // Update steelpan pitch labels for current stage key & Encore Loop pitch transpose!
+    const semitones = tourLoop - 1;
+    steelPads.up.label = transposeNoteLabel(theme.steelpanLabels.up, semitones);
+    steelPads.down.label = transposeNoteLabel(theme.steelpanLabels.down, semitones);
+    steelPads.left.label = transposeNoteLabel(theme.steelpanLabels.left, semitones);
+    steelPads.right.label = transposeNoteLabel(theme.steelpanLabels.right, semitones);
 
     player.x = 4;
     player.y = 8;
@@ -1680,6 +2194,9 @@
     obstacles = [];
     laserBeams = [];
     coins = [];
+    floorPickups = [];
+    dubEchoTiles = [];
+    playerBuffs = { pepperBeats: 0, slowMoBeats: 0 };
     portal = null;
     floatingTexts = [];
     particles = [];
@@ -1742,8 +2259,9 @@
 
     // SPAWN ENEMIES (Roadies, Selectors, Bogle Dancers, Mic Hype Men, & Stage 4 Boss!)
     const hpScale = (tourLoop - 1) * 2;
+    const loopBonus = tourLoop - 1; // More enemies spawn on each successive Encore Loop!
     if (venueStage === 4) {
-      // BOSS: KING SOUNDCLASH ("DON GORGON") + Backup Crew
+      // BOSS: KING SOUNDCLASH ("DON GORGON") + Backup Crew (Encore Loops scale rival crew size!)
       const bossHp = 10 + (tourLoop - 1) * 6;
       occupied.add('4,1');
       enemies.push({
@@ -1762,44 +2280,91 @@
         facing: 1
       });
 
-      const posR = getFreeTile(0, 5);
-      enemies.push({
-        type: 'roadie',
-        name: 'Soundboy Roadie',
-        x: posR.x,
-        y: posR.y,
-        renderX: posR.x,
-        renderY: posR.y,
-        hp: 3 + hpScale,
-        maxHp: 3 + hpScale,
-        beatCounter: 0,
-        period: 2,
-        hopAnim: 0,
-        flashTimer: 0,
-        facing: 1
-      });
+      const numBossRoadies = 1 + loopBonus;
+      const numBossBogles = 1 + Math.floor(loopBonus / 2);
+      const numBossSelectors = loopBonus >= 1 ? 1 : 0;
+      const numBossHypemen = loopBonus >= 2 ? 1 : 0;
 
-      const posB = getFreeTile(0, 5);
-      enemies.push({
-        type: 'bogle',
-        name: 'Bogle Dancer',
-        x: posB.x,
-        y: posB.y,
-        renderX: posB.x,
-        renderY: posB.y,
-        hp: 3 + hpScale,
-        maxHp: 3 + hpScale,
-        beatCounter: 1,
-        period: 2,
-        hopAnim: 0,
-        flashTimer: 0,
-        facing: 1
-      });
+      for (let i = 0; i < numBossRoadies; i++) {
+        const posR = getFreeTile(0, 5);
+        enemies.push({
+          type: 'roadie',
+          name: 'Soundboy Roadie',
+          x: posR.x,
+          y: posR.y,
+          renderX: posR.x,
+          renderY: posR.y,
+          hp: 3 + hpScale,
+          maxHp: 3 + hpScale,
+          beatCounter: i % 2,
+          period: 2,
+          hopAnim: 0,
+          flashTimer: 0,
+          facing: 1
+        });
+      }
+
+      for (let i = 0; i < numBossBogles; i++) {
+        const posB = getFreeTile(0, 5);
+        enemies.push({
+          type: 'bogle',
+          name: 'Bogle Dancer',
+          x: posB.x,
+          y: posB.y,
+          renderX: posB.x,
+          renderY: posB.y,
+          hp: 3 + hpScale,
+          maxHp: 3 + hpScale,
+          beatCounter: (i + 1) % 2,
+          period: 2,
+          hopAnim: 0,
+          flashTimer: 0,
+          facing: 1
+        });
+      }
+
+      for (let i = 0; i < numBossSelectors; i++) {
+        const posS = getFreeTile(0, 5);
+        enemies.push({
+          type: 'selector',
+          name: 'Selector Rival',
+          x: posS.x,
+          y: posS.y,
+          renderX: posS.x,
+          renderY: posS.y,
+          hp: 4 + hpScale,
+          maxHp: 4 + hpScale,
+          beatCounter: 0,
+          period: 4,
+          hopAnim: 0,
+          flashTimer: 0,
+          facing: 1
+        });
+      }
+
+      for (let i = 0; i < numBossHypemen; i++) {
+        const posH = getFreeTile(0, 4);
+        enemies.push({
+          type: 'hypeman',
+          name: 'Mic Hype Man',
+          x: posH.x,
+          y: posH.y,
+          renderX: posH.x,
+          renderY: posH.y,
+          hp: 3 + hpScale,
+          maxHp: 3 + hpScale,
+          beatCounter: 0,
+          period: 3,
+          hopAnim: 0,
+          flashTimer: 0,
+          facing: 1
+        });
+      }
     } else {
-      const numRoadies = 2 + Math.floor(venueStage / 2);
-      const numSelectors = venueStage >= 2 ? 1 : 1;
-      const numBogles = venueStage >= 2 ? 1 + (venueStage === 3 ? 1 : 0) : 0;
-      const numHypemen = venueStage >= 3 ? 1 : 0;
+      const numRoadies = 2 + Math.floor(venueStage / 2) + loopBonus;
+      const numSelectors = (venueStage >= 2 ? 1 : 1) + Math.floor(loopBonus / 2);
+      const numBogles = (venueStage >= 2 ? 1 + (venueStage === 3 ? 1 : 0) : 0) + loopBonus;
+      const numHypemen = (venueStage >= 3 ? 1 : 0) + Math.floor(loopBonus / 2);
 
       for (let i = 0; i < numRoadies; i++) {
         const pos = getFreeTile(0, 6);
@@ -1888,10 +2453,11 @@
       '#FFD700',
       16
     );
+    const pitchTag = tourLoop > 1 ? ` • +${tourLoop - 1} PITCH` : '';
     spawnFloatingText(
       ARENA_OFFSET_X + (GRID_SIZE * TILE_SIZE) / 2,
       ARENA_OFFSET_Y + (GRID_SIZE * TILE_SIZE) / 2 + 12,
-      `🎵 ${theme.riddimName.toUpperCase()} (${currentBPM} BPM)`,
+      `🎵 ${theme.riddimName.toUpperCase()} (${currentBPM} BPM${pitchTag})`,
       '#00E676',
       14
     );
@@ -1967,7 +2533,7 @@
     audio.playBossBeamSFX();
     triggerHaptic([35, 30, 50, 30, 65]);
 
-    increaseCombo('🔥 WHEEL & COME AGAIN! 🔥');
+    increaseAttackCombo('🔥 WHEEL & COME AGAIN! 🔥', true);
     spawnFloatingText(
       ARENA_OFFSET_X + (GRID_SIZE * TILE_SIZE) / 2,
       ARENA_OFFSET_Y + (GRID_SIZE * TILE_SIZE) / 2,
@@ -2051,7 +2617,7 @@
 
     const targetEnemy = enemies.find(e => e.x === targetX && e.y === targetY);
     if (targetEnemy) {
-      performBumpAttack(targetEnemy, dx, dy, dirKey);
+      performBumpAttack(targetEnemy, dx, dy, dirKey, timing);
     } else {
       // Leave golden pineapple afterimage trail in 20x+ FEVER MODE!
       if (combo >= 20) {
@@ -2067,23 +2633,13 @@
       player.y = targetY;
       player.hopAnim = 1.0;
 
-      increaseCombo(timing.absDelta < 0.045 ? 'PERFECT RIDDIM!' : 'ON BEAT!');
+      onOnBeatStep(timing, dirKey);
       audio.playSteelDrumStepSFX(dirKey, stage);
       triggerHaptic(12);
 
       spawnParticles(tileCenterX(player.x), tileCenterY(player.y) + 10, '#00E676', 6);
 
-      for (let i = coins.length - 1; i >= 0; i--) {
-        if (coins[i].x === player.x && coins[i].y === player.y) {
-          const val = coins[i].value;
-          blingCoins += val;
-          score += val * 25 * Math.max(1, combo);
-          audio.playCoinSFX();
-          triggerHaptic([15, 25, 20]);
-          spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 18, `+$${val} BLING!`, '#FFD700', 15);
-          coins.splice(i, 1);
-        }
-      }
+      checkAndCollectTileDrops();
 
       if (portal && player.x === portal.x && player.y === portal.y) {
         audio.playAirhornSFX();
@@ -2098,28 +2654,136 @@
     }
   }
 
-  function performBumpAttack(enemy, dx, dy, dirKey) {
-    increaseCombo('BRAP! +HYPE');
+  // ==========================================
+  // ON-BEAT STEP (SUSTAINS RHYTHM & CHARGES SPECIAL)
+  // ==========================================
+  function onOnBeatStep(timing, dirKey) {
+    player.streakSteps++;
+    const stepPts = 10 * Math.max(1, combo);
+    score += stepPts;
+    audio.playSteelDrumStepSFX(dirKey, stage);
+    triggerHaptic(12);
+
+    // Charge Center Steelpan PULL UP! Special
+    const maxCharge = getMaxHypeCharge();
+    if (hypeCharge < maxCharge) {
+      hypeCharge++;
+      if (hypeCharge === maxCharge) {
+        spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 46, '⚡ PULL UP SPECIAL READY! ⚡', '#FFD700', 15);
+      }
+    }
+
+    // Fresh Clarks streak heal
+    if (player.perks.fresh_clarks > 0 && player.streakSteps % 20 === 0) {
+      if (player.hp < player.maxHp) {
+        player.hp = Math.min(player.maxHp, player.hp + 1);
+        spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 28, 'FRESH CLARKS! +1 HP', '#00E676', 15);
+      }
+    }
+
+    // Space Echo Dub Traps or Ghost Skankin' Trail
+    if (player.perks.evo_ghost_skank > 0 || player.perks.space_echo_tape > 0) {
+      const isEvo = player.perks.evo_ghost_skank > 0;
+      dubEchoTiles.push({
+        x: player.x,
+        y: player.y,
+        beatsLeft: isEvo ? 8 : 5,
+        alpha: 1.0,
+        isEvo
+      });
+    }
+
+    const isPerfect = timing.absDelta < 0.045;
+    const stepLabel = isPerfect ? 'PERFECT STEP!' : 'ON BEAT!';
+    const banner = combo > 0 ? `${stepLabel} (${combo}x HYPE)` : stepLabel;
+    triggerJudgementBanner(banner, combo >= 20 ? '#FFD700' : '#00E676');
+  }
+
+  // ==========================================
+  // ATTACK-DRIVEN COMBO & SOUND SYSTEM HYPE
+  // ==========================================
+  function increaseAttackCombo(bannerLabel, isCrit) {
+    const isBerserk = player.perks.evo_red_stripe_berserk > 0;
+    const comboGain = (isCrit ? 2 : 1) * (isBerserk ? 2 : 1);
+    const oldCombo = combo;
+    combo += comboGain;
+    if (combo > maxCombo) maxCombo = combo;
+    player.streakSteps++;
+    score += 50 * combo;
+    saveRecords();
+
+    // 4-Stage Audible & Visual Tier-Up Celebration:
+    // 5x  -> Syncopated Handclap Groove & Full 16th Hi-Hats
+    // 10x -> Organ Skanks / Brass Leads + Power Chord Harmonies
+    // 20x -> FEVER MODE! High-Octave Steelpan Descant + Golden Afterimages
+    if (combo >= 5 && oldCombo < 5) {
+      audio.playComboTierUpSFX(1);
+      spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 30, '👏 5x HANDCLAP GROOVE!', '#00E676', 15);
+    } else if (combo >= 10 && oldCombo < 10) {
+      audio.playComboTierUpSFX(1);
+      spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 30, '🔊 10x FULL RIDDIM UNLOCKED!', '#00F0FF', 16);
+    } else if (combo >= 20 && oldCombo < 20) {
+      audio.playComboTierUpSFX(2);
+      screenShake = 9;
+      spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 34, '🔥 20x FEVER DESCANT! 🔥', '#FFD700', 18, true);
+    }
+
+    const feverSuffix = combo >= 20 ? ' 🔥FEVER!🔥' : '';
+    triggerJudgementBanner(`${bannerLabel} (${combo}x CLASH)${feverSuffix}`, combo >= 20 ? '#FFD700' : '#00E676');
+  }
+
+  function performBumpAttack(enemy, dx, dy, dirKey, timing) {
     player.hopAnim = 1.25;
     player.renderX = player.x + dx * 0.45;
     player.renderY = player.y + dy * 0.45;
 
-    const doubleComboThreshold = player.perks.subwoofer_chain > 0 ? 8 : 14;
-    const dmg = 1 + player.perks.subwoofer_chain + (combo >= doubleComboThreshold ? 1 : 0);
-    enemy.hp -= dmg;
-    enemy.flashTimer = 0.25;
-    screenShake = enemy.type === 'boss' ? 12 : 8;
+    // Crit Threshold
+    const isEvoBass = player.perks.evo_bass_overdrive > 0;
+    const doubleComboThreshold = isEvoBass ? 5 : (player.perks.subwoofer_chain > 0 ? 8 : 14);
+    const isCrit = combo >= doubleComboThreshold;
 
-    const slang = SLANG_HIT[Math.floor(Math.random() * SLANG_HIT.length)];
-    spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 18, `${slang} -${dmg}`, '#FF1744', 16);
-    spawnParticles(tileCenterX(enemy.x), tileCenterY(enemy.y), '#FFD700', 16);
+    increaseAttackCombo(isCrit ? '💥 CRIT CLASH!' : 'BRAP! +HYPE', isCrit);
+
+    // Calculate Total Damage
+    let dmg = 1 + player.perks.subwoofer_chain;
+    if (playerBuffs.pepperBeats > 0) dmg += 2; // Scotch Bonnet floor pickup buff
+    if (isEvoBass) dmg += 2; // Evolved Bass Heavyweight buff
+    if (isCrit) dmg += (isEvoBass ? 2 : 1);
+
+    enemy.hp -= dmg;
+    enemy.flashTimer = 0.28;
+
+    // Scotch Bonnet Sauce burns target
+    if (player.perks.scotch_sauce > 0) {
+      enemy.burnTicks = 3;
+    }
+
+    if (isCrit) {
+      screenShake = enemy.type === 'boss' ? 16 : 10;
+      spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 20, `💥 CRIT! -${dmg}`, '#FFD700', 18);
+    } else {
+      screenShake = enemy.type === 'boss' ? 12 : 8;
+      const slang = SLANG_HIT[Math.floor(Math.random() * SLANG_HIT.length)];
+      spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 18, `${slang} -${dmg}`, '#FF1744', 16);
+    }
+
+    spawnParticles(tileCenterX(enemy.x), tileCenterY(enemy.y), isCrit ? '#FFD700' : '#FF1744', isCrit ? 22 : 14);
+
+    // Soundboy Crossfader 30% Double-Strike Slice
+    if (player.perks.soundboy_crossfader > 0 && Math.random() < 0.30) {
+      const extraDmg = Math.max(1, Math.floor(dmg * 0.8));
+      enemy.hp -= extraDmg;
+      audio.playDoubleStrikeSFX();
+      spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 34, `✂️ DOUBLE STRIKE! -${extraDmg}`, '#00F0FF', 14, true);
+      spawnParticles(tileCenterX(enemy.x), tileCenterY(enemy.y), '#00F0FF', 14);
+    }
 
     const hasAirhorn = player.perks.airhorn_dubplate > 0;
     audio.playSteelDrumStepSFX(dirKey, stage);
-    audio.playAttackSFX(hasAirhorn);
-    triggerHaptic([28, 25, 40]);
+    audio.playAttackSFX(hasAirhorn || player.perks.evo_soundwall_cannon > 0);
+    triggerHaptic(isCrit ? [35, 25, 45] : [28, 25, 40]);
 
-    // When Boss is hit, he teleports/hops away if crowded so the fight stays dynamic
+    // Boss recoil step
     if (enemy.type === 'boss' && enemy.hp > 0 && enemy.hp % 3 === 0) {
       const recoilX = enemy.x + dx;
       const recoilY = enemy.y + dy;
@@ -2131,7 +2795,28 @@
       }
     }
 
-    if (hasAirhorn) {
+    // SYNERGY 1: King Soundwall Cannon (4-Way Cross Seismic Blast)
+    if (player.perks.evo_soundwall_cannon > 0) {
+      audio.playAirhornSFX();
+      screenShake = 16;
+      laserBeams.push({ x: enemy.x, y: enemy.y, alpha: 1.0, color: '#00F0FF' });
+      shockwaves.push({
+        x: tileCenterX(enemy.x),
+        y: tileCenterY(enemy.y),
+        radius: 10,
+        maxRadius: TILE_SIZE * 4.5,
+        alpha: 1.0,
+        color: '#00F0FF'
+      });
+      enemies.forEach(other => {
+        if (other !== enemy && (other.x === enemy.x || other.y === enemy.y)) {
+          other.hp -= 3;
+          other.flashTimer = 0.3;
+          spawnFloatingText(tileCenterX(other.x), tileCenterY(other.y) - 14, '🔊 CANNON! -3', '#00F0FF', 16, true);
+        }
+      });
+    } else if (hasAirhorn) {
+      // Base Airhorn Dubplate shockwave
       shockwaves.push({
         x: tileCenterX(enemy.x),
         y: tileCenterY(enemy.y),
@@ -2140,7 +2825,6 @@
         alpha: 1.0,
         color: '#00F0FF'
       });
-
       enemies.forEach(other => {
         if (other !== enemy && Math.abs(other.x - enemy.x) <= 1 && Math.abs(other.y - enemy.y) <= 1) {
           const kx = Math.sign(other.x - enemy.x);
@@ -2161,7 +2845,159 @@
       });
     }
 
+    // SYNERGY 2: Bass Heavyweight Overdrive (Arena-Wide Shockwave Zaps)
+    if (isEvoBass) {
+      enemies.forEach(other => {
+        if (other !== enemy && other.hp > 0) {
+          other.hp -= 1;
+          other.flashTimer = 0.25;
+          shockwaves.push({
+            x: tileCenterX(other.x),
+            y: tileCenterY(other.y),
+            radius: 4,
+            maxRadius: TILE_SIZE * 0.8,
+            alpha: 0.9,
+            color: '#FFD700'
+          });
+          spawnFloatingText(tileCenterX(other.x), tileCenterY(other.y) - 12, '⚡ BASS ZAP! -1', '#FFD700', 13);
+        }
+      });
+    }
+
+    // SYNERGY 4: Red Stripe Berserker (360° Cleave)
+    if (player.perks.evo_red_stripe_berserk > 0) {
+      enemies.forEach(other => {
+        if (other !== enemy && Math.abs(other.x - player.x) <= 1 && Math.abs(other.y - player.y) <= 1) {
+          other.hp -= 2;
+          other.flashTimer = 0.3;
+          spawnFloatingText(tileCenterX(other.x), tileCenterY(other.y) - 16, '🌶️ CLEAVE! -2', '#FF1744', 15, true);
+          spawnParticles(tileCenterX(other.x), tileCenterY(other.y), '#FF1744', 12);
+        }
+      });
+    }
+
     checkAndCleanupDefeatedEnemies();
+  }
+
+  // ==========================================
+  // DANCEHALL FLOOR PICKUPS SPAWNING & UPDATE
+  // ==========================================
+  function maybeSpawnFloorPickup(gx, gy, isBoss, enemyType) {
+    let dropChance = 0.25;
+    if (isBoss) dropChance = 1.0;
+    else if (enemyType === 'selector' || enemyType === 'hypeman') dropChance = 0.45;
+
+    if (Math.random() > dropChance) return;
+
+    let pType = 'patty';
+    const roll = Math.random();
+    if (isBoss) {
+      pType = roll < 0.6 ? 'patty' : 'magnet';
+    } else {
+      if (roll < 0.35) pType = 'patty';        // 35% Health Patty
+      else if (roll < 0.65) pType = 'pepper';  // 30% Scotch Bonnet (+2 DMG)
+      else if (roll < 0.88) pType = 'halftime';// 23% Half-Rate Cassette (Slow-Mo)
+      else pType = 'magnet';                   // 12% Boombox Magnet
+    }
+
+    floorPickups.push({
+      type: pType,
+      x: gx,
+      y: gy,
+      bobOffset: Math.random() * Math.PI * 2
+    });
+  }
+
+  function checkAndCollectTileDrops() {
+    const px = tileCenterX(player.x);
+    const py = tileCenterY(player.y);
+
+    // If Ghost Skankin' synergy is active, vacuum all coins & drops across the entire arena!
+    if (player.perks.evo_ghost_skank > 0) {
+      vacuumAllFloorDrops();
+      return;
+    }
+
+    // Collect coins on player's tile
+    for (let i = coins.length - 1; i >= 0; i--) {
+      if (coins[i].x === player.x && coins[i].y === player.y) {
+        const val = coins[i].value;
+        blingCoins += val;
+        score += val * 25 * Math.max(1, combo);
+        audio.playCoinSFX();
+        triggerHaptic([15, 25, 20]);
+        spawnFloatingText(px, py - 18, `+$${val} BLING!`, '#FFD700', 15);
+        coins.splice(i, 1);
+      }
+    }
+
+    // Collect floor pickups on player's tile
+    for (let i = floorPickups.length - 1; i >= 0; i--) {
+      if (floorPickups[i].x === player.x && floorPickups[i].y === player.y) {
+        const p = floorPickups[i];
+        collectSinglePickup(p, px, py);
+        floorPickups.splice(i, 1);
+      }
+    }
+  }
+
+  function collectSinglePickup(p, px, py) {
+    audio.playPickupSFX(p.type);
+    triggerHaptic(18);
+
+    if (p.type === 'patty') {
+      const heal = player.hp <= 2 ? 2 : 1;
+      player.hp = Math.min(player.maxHp, player.hp + heal);
+      spawnFloatingText(px, py - 24, `🥩 HOT PATTY! +${heal} HP`, '#00E676', 16, true);
+    } else if (p.type === 'pepper') {
+      const dur = player.perks.scotch_sauce > 0 ? 20 : 12;
+      playerBuffs.pepperBeats = dur;
+      spawnFloatingText(px, py - 26, `🌶️ SCOTCH BONNET! +2 DMG (${dur} BEATS)`, '#FF9100', 16, true, true);
+      spawnParticles(px, py, '#FF1744', 18);
+    } else if (p.type === 'halftime') {
+      const dur = player.perks.scotch_sauce > 0 ? 16 : 10;
+      playerBuffs.slowMoBeats = dur;
+      spawnFloatingText(px, py - 26, `⏳ HALF-RATE RIDDIM! (${dur} BEATS)`, '#00F0FF', 16, true, true);
+      shockwaves.push({
+        x: px,
+        y: py,
+        radius: 8,
+        maxRadius: TILE_SIZE * 3.5,
+        alpha: 1.0,
+        color: '#00F0FF'
+      });
+    } else if (p.type === 'magnet') {
+      spawnFloatingText(px, py - 26, '🧲 BOOMBOX VACUUM ALL!', '#FFD700', 17, true, true);
+      vacuumAllFloorDrops();
+    }
+  }
+
+  function vacuumAllFloorDrops() {
+    let collectedAny = false;
+    const px = tileCenterX(player.x);
+    const py = tileCenterY(player.y);
+
+    for (let i = coins.length - 1; i >= 0; i--) {
+      const val = coins[i].value;
+      blingCoins += val;
+      score += val * 25 * Math.max(1, combo);
+      coins.splice(i, 1);
+      collectedAny = true;
+    }
+
+    for (let i = floorPickups.length - 1; i >= 0; i--) {
+      const p = floorPickups[i];
+      if (p.type !== 'magnet') {
+        collectSinglePickup(p, px, py);
+      }
+      floorPickups.splice(i, 1);
+      collectedAny = true;
+    }
+
+    if (collectedAny) {
+      audio.playCoinSFX();
+      triggerHaptic([20, 25, 35]);
+    }
   }
 
   function checkAndCleanupDefeatedEnemies() {
@@ -2179,6 +3015,9 @@
           isBoss ? 18 : 16
         );
 
+        // Spawn Tangible Dancehall Floor Pickup!
+        maybeSpawnFloorPickup(dead.x, dead.y, isBoss, dead.type);
+
         const coinBonus = player.perks.fresh_clarks > 0 ? 2 : 1;
         const baseVal = isBoss ? 15 : (dead.type === 'selector' || dead.type === 'hypeman' ? 3 : 2);
         coins.push({
@@ -2195,47 +3034,6 @@
     if (enemies.length === 0 && !portal) {
       spawnDubplatePortal();
     }
-  }
-
-  function increaseCombo(bannerLabel) {
-    combo++;
-    if (combo > maxCombo) maxCombo = combo;
-    player.streakSteps++;
-    score += 10 * combo;
-    saveRecords();
-
-    // 4-Stage Audible & Visual Tier-Up Celebration:
-    // 5x  -> Percussion & Handclap Bounce
-    // 10x -> Full Organ Skanks / Reed / Brass Leads + Fifth Power-Chords
-    // 20x -> FEVER MODE! High-Octave Steelpan Descant + Golden Afterimages!
-    if (combo === 5) {
-      spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 30, '👏 5x HANDCLAP GROOVE!', '#00E676', 14);
-    } else if (combo === 10) {
-      audio.playComboTierUpSFX(1);
-      spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 30, '🔊 10x FULL RIDDIM UNLOCKED!', '#00F0FF', 15);
-    } else if (combo === 20) {
-      audio.playComboTierUpSFX(2);
-      screenShake = 7;
-      spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 32, '🔥 20x FEVER DESCANT! 🔥', '#FFD700', 16);
-    }
-
-    const maxCharge = getMaxHypeCharge();
-    if (hypeCharge < maxCharge) {
-      hypeCharge++;
-      if (hypeCharge === maxCharge) {
-        spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 46, '⚡ PULL UP SPECIAL READY! ⚡', '#FFD700', 15);
-      }
-    }
-
-    if (player.perks.fresh_clarks > 0 && player.streakSteps % 20 === 0) {
-      if (player.hp < player.maxHp) {
-        player.hp = Math.min(player.maxHp, player.hp + 1);
-        spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 28, 'FRESH CLARKS! +1 HP', '#00E676', 15);
-      }
-    }
-
-    const feverSuffix = combo >= 20 ? ' 🔥FEVER!🔥' : '';
-    triggerJudgementBanner(`${bannerLabel} (${combo}x HYPE)${feverSuffix}`, combo >= 20 ? '#FFD700' : '#00E676');
   }
 
   function onBeatMiss(reason) {
@@ -2284,6 +3082,50 @@
       triggerJudgementBanner('MISSED BEAT! COMBO 0x', '#FF9100');
     }
 
+    // Decrement active floor pickup buffs
+    if (playerBuffs.pepperBeats > 0) {
+      playerBuffs.pepperBeats--;
+      if (playerBuffs.pepperBeats === 0) {
+        spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 18, 'PEPPER FADED', '#aaa', 12);
+      }
+    }
+    if (playerBuffs.slowMoBeats > 0) {
+      playerBuffs.slowMoBeats--;
+      if (playerBuffs.slowMoBeats === 0) {
+        spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 18, 'TEMPO RESTORED', '#aaa', 12);
+      }
+    }
+
+    // Update Dub Echo Floor Traps
+    for (let d = dubEchoTiles.length - 1; d >= 0; d--) {
+      const dtile = dubEchoTiles[d];
+      dtile.beatsLeft--;
+      // Check if any enemy stepped on this dub trap
+      enemies.forEach(e => {
+        if (e.x === dtile.x && e.y === dtile.y) {
+          const trapDmg = dtile.isEvo ? 2 : 1;
+          e.hp -= trapDmg;
+          e.flashTimer = 0.25;
+          if (dtile.isEvo) e.hopAnim = 0.2; // Stun!
+          spawnFloatingText(tileCenterX(e.x), tileCenterY(e.y) - 14, dtile.isEvo ? '⚡ NEON STUN! -2' : '🔊 DUB ECHO! -1', '#00F0FF', 14, true);
+        }
+      });
+      if (dtile.beatsLeft <= 0) {
+        dubEchoTiles.splice(d, 1);
+      }
+    }
+
+    // Process enemy burn ticks (from Scotch Bonnet Sauce)
+    enemies.forEach(e => {
+      if (e.burnTicks && e.burnTicks > 0) {
+        e.burnTicks--;
+        e.hp -= 1;
+        e.flashTimer = 0.25;
+        spawnFloatingText(tileCenterX(e.x), tileCenterY(e.y) - 16, '🔥 BURN -1', '#FF9100', 13, true);
+      }
+    });
+    checkAndCleanupDefeatedEnemies();
+
     // 1. Update Floor Subwoofer Bass Traps (Stages 2, 3, 4)
     obstacles.forEach(obs => {
       if (obs.type === 'bastrap') {
@@ -2310,6 +3152,11 @@
       globalFreezeBeats--;
       enemies.forEach(e => { e.hopAnim = 0.25; });
       return;
+    }
+
+    // HALF-RATE SLOW-MO RIDDIM: Rivals move at half-rate (only on even beats!)
+    if (playerBuffs.slowMoBeats > 0 && (beatIndex % 2 !== 0)) {
+      return; // Gracefully continue 2-beat hop arc on skipped beats
     }
 
     // 2. Update Enemies & Stage 4 Boss
@@ -2527,19 +3374,50 @@
   const encoreBtn = document.getElementById('encoreBtn');
   const shopWalletDisplay = document.getElementById('shopWalletDisplay');
 
+  function getPerkName(id) {
+    const it = SHOP_ITEMS.find(x => x.id === id);
+    return it ? it.name : id;
+  }
+
   function openBlingShop() {
     gameState = 'PERK_SELECT';
     perkOverlay.classList.remove('hidden');
+    triggerHaptic([20, 20, 40]);
 
     const nextTheme = getStageTheme(stage + 1);
     const nextBpm = getStageBPM(stage + 1, tourLoop);
     document.getElementById('perkSubtitle').textContent =
       `NEXT UP: STAGE ${stage + 1} — ${nextTheme.name} (${nextBpm} BPM)`;
 
-    // Pick 3 shop items: always offer Ting & Beef Patty if injured, plus 2 random upgrades
+    // Check for Vampire Survivors style ready synergies!
+    const readyEvolutions = EVOLVED_DUBPLATES.filter(evo =>
+      (player.perks[evo.prereq[0]] || 0) > 0 &&
+      (player.perks[evo.prereq[1]] || 0) > 0 &&
+      (player.perks[evo.id] || 0) === 0
+    );
+
+    // Filter available base shop items
     const upgradeItems = SHOP_ITEMS.filter(it => it.id !== 'ting_patty');
-    const shuffled = [...upgradeItems].sort(() => Math.random() - 0.5);
-    const offered = [SHOP_ITEMS[0], shuffled[0], shuffled[1]];
+    // Prioritize base items that complete a synergy with an item already owned!
+    upgradeItems.sort((a, b) => {
+      const aPartnerOwned = a.synergyWith && (player.perks[a.synergyWith] || 0) > 0 && (player.perks[a.id] || 0) === 0;
+      const bPartnerOwned = b.synergyWith && (player.perks[b.synergyWith] || 0) > 0 && (player.perks[b.id] || 0) === 0;
+      if (aPartnerOwned && !bPartnerOwned) return -1;
+      if (!aPartnerOwned && bPartnerOwned) return 1;
+      return Math.random() - 0.5;
+    });
+
+    // Build offered item list:
+    // 1. Ready Evolved Dubplates (featured at top!)
+    // 2. Ting & Beef Patty (health recovery)
+    // 3. 2-3 standard upgrades
+    const offered = [];
+    readyEvolutions.forEach(evo => offered.push({ ...evo, isEvolution: true }));
+    offered.push(SHOP_ITEMS[0]); // Ting & Patty
+    offered.push(upgradeItems[0]);
+    if (upgradeItems[1]) offered.push(upgradeItems[1]);
+    if (offered.length < 4 && upgradeItems[2]) offered.push(upgradeItems[2]);
+
     const boughtThisVisit = new Set();
 
     function renderShopCards() {
@@ -2554,14 +3432,40 @@
         const alreadyBought = boughtThisVisit.has(item.id);
         const canAfford = blingCoins >= item.cost && !alreadyBought;
 
-        card.className = 'perk-card' + (!canAfford ? ' locked' : '');
-        card.innerHTML = `
-          <div>
-            <div class="perk-title">${item.name} ${currentStacks > 0 ? `(Lv.${currentStacks + 1})` : ''}</div>
-            <div class="perk-desc">${item.desc}</div>
-          </div>
-          <div class="perk-tag">${alreadyBought ? 'SOLD ✓' : `$${item.cost} BLING`}</div>
-        `;
+        if (item.isEvolution) {
+          card.className = 'perk-card synergy-card' + (!canAfford ? ' locked' : '');
+          card.innerHTML = `
+            <div>
+              <div class="perk-title">
+                <span class="synergy-badge">★ LEGENDARY EVOLUTION ★</span>
+                ${item.name}
+              </div>
+              <div class="perk-desc">${item.desc}</div>
+              <span class="synergy-hint" style="color: #FF007F;">Prerequisites: ${getPerkName(item.prereq[0])} + ${getPerkName(item.prereq[1])} ✓</span>
+            </div>
+            <div class="perk-tag synergy-ready-tag">${alreadyBought ? 'UNLOCKED ✓' : `$${item.cost} BLING`}</div>
+          `;
+        } else {
+          card.className = 'perk-card' + (!canAfford ? ' locked' : '');
+          let synHtml = '';
+          if (item.synergyWith) {
+            const partnerOwned = (player.perks[item.synergyWith] || 0) > 0;
+            if (partnerOwned) {
+              synHtml = `<span class="synergy-hint">✨ PAIRS WITH YOUR ${getPerkName(item.synergyWith).toUpperCase()} ➔ ${item.synergyName.toUpperCase()}!</span>`;
+            } else {
+              synHtml = `<span class="synergy-hint" style="color:#aaa;">Pairs with ${getPerkName(item.synergyWith)} ➔ ${item.synergyName}</span>`;
+            }
+          }
+
+          card.innerHTML = `
+            <div>
+              <div class="perk-title">${item.name} ${currentStacks > 0 ? `(Lv.${currentStacks + 1})` : ''}</div>
+              <div class="perk-desc">${item.desc}</div>
+              ${synHtml}
+            </div>
+            <div class="perk-tag">${alreadyBought ? 'SOLD ✓' : `$${item.cost} BLING`}</div>
+          `;
+        }
 
         if (canAfford) {
           card.addEventListener('click', () => {
@@ -2569,17 +3473,23 @@
             blingCoins -= item.cost;
             boughtThisVisit.add(item.id);
 
-            if (item.id === 'ting_patty') {
+            if (item.isEvolution) {
+              player.perks[item.id] = 1;
+              audio.playSynergyUnlockSFX();
+              triggerHaptic([30, 40, 60]);
+            } else if (item.id === 'ting_patty') {
               player.hp = Math.min(player.maxHp, player.hp + 4);
+              audio.playCoinSFX();
+              triggerHaptic([15, 25, 20]);
             } else {
               player.perks[item.id] = (player.perks[item.id] || 0) + 1;
               if (item.id === 'gold_medallion') {
                 player.maxHp += 2;
                 player.hp = Math.min(player.maxHp, player.hp + 2);
               }
+              audio.playCoinSFX();
+              triggerHaptic([15, 25, 20]);
             }
-            audio.playCoinSFX();
-            triggerHaptic([15, 25, 20]);
             renderShopCards();
           });
         }
@@ -3117,6 +4027,13 @@
     ctx.ellipse(0, 17 - jumpY * 0.5, 13, 5, 0, 0, Math.PI * 2);
     ctx.fill();
 
+    if (playerBuffs.slowMoBeats > 0) {
+      ctx.fillStyle = `rgba(0, 240, 255, ${0.2 + beatPulse * 0.3})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 17 - jumpY * 0.5, 16, 6.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
     if (enemy.type === 'roadie') {
       ctx.fillStyle = enemy.flashTimer > 0 ? '#FFFFFF' : '#263238';
       ctx.fillRect(-12, -10, 24, 22);
@@ -3592,6 +4509,128 @@
   }
 
   // ==========================================
+  // DUB ECHO FLOOR TILES & DANCEHALL PICKUPS RENDERING
+  // ==========================================
+  function drawDubEchoTiles(beatPulse) {
+    dubEchoTiles.forEach(dt => {
+      const tx = ARENA_OFFSET_X + dt.x * TILE_SIZE;
+      const ty = ARENA_OFFSET_Y + dt.y * TILE_SIZE;
+      ctx.save();
+      ctx.globalAlpha = Math.min(1.0, 0.4 + (dt.beatsLeft / 6) * 0.6);
+
+      ctx.strokeStyle = dt.isEvo ? '#FF007F' : '#00F0FF';
+      ctx.lineWidth = 2.0;
+      ctx.strokeRect(tx + 4, ty + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+
+      ctx.fillStyle = dt.isEvo ? 'rgba(255, 0, 127, 0.22)' : 'rgba(0, 240, 255, 0.16)';
+      ctx.fillRect(tx + 4, ty + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+
+      ctx.beginPath();
+      ctx.arc(tx + TILE_SIZE / 2, ty + TILE_SIZE / 2, 7 + beatPulse * 4, 0, Math.PI * 2);
+      ctx.strokeStyle = dt.isEvo ? '#FFD700' : '#00E676';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.restore();
+    });
+  }
+
+  function drawFloorPickups(beatPulse) {
+    floorPickups.forEach(p => {
+      p.bobOffset = (p.bobOffset || 0) + 0.08;
+      const px = tileCenterX(p.x);
+      const py = tileCenterY(p.y) + Math.sin(p.bobOffset) * 2.5;
+
+      ctx.save();
+      const auraColor = p.type === 'patty' ? '#00E676' : (p.type === 'pepper' ? '#FF1744' : (p.type === 'halftime' ? '#00F0FF' : '#FFD700'));
+      ctx.shadowColor = auraColor;
+      ctx.shadowBlur = 8 + beatPulse * 6;
+
+      if (p.type === 'patty') {
+        // Golden Jamaican Turnover Patty
+        ctx.fillStyle = '#FFA000';
+        ctx.beginPath();
+        ctx.arc(px, py + 2, 9, Math.PI, 0);
+        ctx.lineTo(px + 9, py + 4);
+        ctx.lineTo(px - 9, py + 4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.strokeStyle = '#B26A00';
+        ctx.lineWidth = 1;
+        [-5, -2, 1, 4].forEach(ox => {
+          ctx.beginPath();
+          ctx.moveTo(px + ox, py + 2);
+          ctx.lineTo(px + ox, py + 5);
+          ctx.stroke();
+        });
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.beginPath();
+        ctx.moveTo(px - 2, py - 4);
+        ctx.quadraticCurveTo(px, py - 7, px - 2, py - 10);
+        ctx.stroke();
+      } else if (p.type === 'pepper') {
+        // Fiery Scotch Bonnet Chili Pepper
+        ctx.fillStyle = '#FF1744';
+        ctx.beginPath();
+        ctx.ellipse(px, py + 1, 6.5, 9, 0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FF9100';
+        ctx.beginPath();
+        ctx.ellipse(px - 1.5, py, 3, 5, 0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#00E676';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(px, py - 7);
+        ctx.quadraticCurveTo(px + 4, py - 11, px + 2, py - 13);
+        ctx.stroke();
+      } else if (p.type === 'halftime') {
+        // Neon Cyan Cassette Tape
+        ctx.fillStyle = '#181226';
+        ctx.fillRect(px - 10, py - 7, 20, 14);
+        ctx.strokeStyle = '#00F0FF';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(px - 10, py - 7, 20, 14);
+
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath();
+        ctx.arc(px - 4.5, py, 2.5, 0, Math.PI * 2);
+        ctx.arc(px + 4.5, py, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#00F0FF';
+        ctx.font = 'bold 7.5px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('½', px, py + 2.5);
+      } else if (p.type === 'magnet') {
+        // Red & White Horseshoe Magnet with sparks
+        ctx.strokeStyle = '#FF1744';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(px, py - 1, 6.5, 0, Math.PI);
+        ctx.stroke();
+
+        ctx.fillStyle = '#FFF';
+        ctx.fillRect(px - 8.5, py - 6, 4, 5);
+        ctx.fillRect(px + 4.5, py - 6, 4, 5);
+
+        ctx.fillStyle = '#FFD700';
+        ctx.font = 'bold 8px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚡', px, py + 8);
+      }
+
+      ctx.restore();
+    });
+  }
+
+  // ==========================================
   // TOP HUD RENDERING (COMPACT PORTRAIT)
   // ==========================================
   function drawHUD(beatPulse, theme) {
@@ -3625,7 +4664,8 @@
     ctx.fillStyle = theme.coneActive;
     ctx.font = '900 13.5px "Courier New", monospace';
     const loopPrefix = tourLoop > 1 ? `L${tourLoop}•` : '';
-    ctx.fillText(`${loopPrefix}STG ${stage}: ${theme.name} (${currentBPM} BPM)`, canvas.width / 2, 27);
+    const pitchSuffix = tourLoop > 1 ? ` +${tourLoop - 1}P` : '';
+    ctx.fillText(`${loopPrefix}STG ${stage}: ${theme.name} (${currentBPM} BPM${pitchSuffix})`, canvas.width / 2, 27);
 
     ctx.fillStyle = globalFreezeBeats > 0 ? '#00F0FF' : '#e0dce8';
     ctx.font = 'bold 11.5px "Courier New", monospace';
@@ -3642,14 +4682,34 @@
     ctx.save();
     ctx.translate(canvas.width - 26, 27);
     ctx.scale(comboScale, comboScale);
-    ctx.fillStyle = combo >= 20 ? '#00E676' : (combo >= 10 ? '#FFD700' : '#00F0FF');
-    ctx.font = '900 14.5px "Courier New", monospace';
-    ctx.fillText(combo >= 20 ? `🔥FEVER ${combo}x` : `HYPE: ${combo}x`, 0, 0);
+    ctx.fillStyle = combo >= 20 ? '#00E676' : (combo >= 10 ? '#FFD700' : (combo > 0 ? '#00F0FF' : '#888'));
+    ctx.font = '900 14px "Courier New", monospace';
+    ctx.fillText(combo >= 20 ? `🔥FEVER ${combo}x` : `CLASH: ${combo}x`, 0, 0);
     ctx.restore();
 
     ctx.fillStyle = '#FFD700';
     ctx.font = 'bold 12px "Courier New", monospace';
     ctx.fillText(`$${blingCoins} | ${score}`, canvas.width - 26, 48);
+
+    // Active Dancehall Floor Buff Ribbon (shown underneath HUD if Pepper or Half-Rate active!)
+    if (playerBuffs.pepperBeats > 0 || playerBuffs.slowMoBeats > 0) {
+      let buffBadges = [];
+      if (playerBuffs.pepperBeats > 0) buffBadges.push(`🌶️ FIRE +2 DMG (${playerBuffs.pepperBeats}b)`);
+      if (playerBuffs.slowMoBeats > 0) buffBadges.push(`⏳ HALF-TEMPO (${playerBuffs.slowMoBeats}b)`);
+      const buffText = buffBadges.join('  •  ');
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.font = '900 11px "Courier New", monospace';
+      const tw = ctx.measureText(buffText).width;
+      ctx.fillStyle = 'rgba(20, 10, 30, 0.9)';
+      ctx.fillRect(canvas.width / 2 - tw / 2 - 8, 67, tw + 16, 17);
+      ctx.strokeStyle = playerBuffs.pepperBeats > 0 ? '#FF9100' : '#00F0FF';
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(canvas.width / 2 - tw / 2 - 8, 67, tw + 16, 17);
+      ctx.fillStyle = playerBuffs.pepperBeats > 0 ? '#FFD700' : '#00F0FF';
+      ctx.fillText(buffText, canvas.width / 2, 80);
+      ctx.restore();
+    }
   }
 
   // ==========================================
@@ -3685,10 +4745,13 @@
     player.renderY += (player.y - player.renderY) * Math.min(1, dt * 18);
     player.hopAnim = Math.max(0, player.hopAnim - dt * 4.5);
 
+    const isEnemySlowMo = playerBuffs.slowMoBeats > 0;
+    const enemyHopSpeed = isEnemySlowMo ? 2.0 : 4.0;
+    const enemyMoveSpeed = isEnemySlowMo ? 8 : 16;
     enemies.forEach(e => {
-      e.renderX += (e.x - e.renderX) * Math.min(1, dt * 16);
-      e.renderY += (e.y - e.renderY) * Math.min(1, dt * 16);
-      e.hopAnim = Math.max(0, e.hopAnim - dt * 4.0);
+      e.renderX += (e.x - e.renderX) * Math.min(1, dt * enemyMoveSpeed);
+      e.renderY += (e.y - e.renderY) * Math.min(1, dt * enemyMoveSpeed);
+      e.hopAnim = Math.max(0, e.hopAnim - dt * enemyHopSpeed);
       e.flashTimer = Math.max(0, e.flashTimer - dt);
     });
 
@@ -3729,6 +4792,21 @@
       if (sw.alpha <= 0) shockwaves.splice(i, 1);
     }
 
+    // Scotch Bonnet Pepper flame embers
+    if (playerBuffs.pepperBeats > 0 && Math.random() < 0.4) {
+      particles.push({
+        x: tileCenterX(player.renderX) + (Math.random() - 0.5) * 16,
+        y: tileCenterY(player.renderY) + (Math.random() - 0.5) * 16,
+        vx: (Math.random() - 0.5) * 18,
+        vy: -25 - Math.random() * 25,
+        size: 2.5 + Math.random() * 2.5,
+        color: Math.random() < 0.6 ? '#FF1744' : '#FF9100',
+        alpha: 0.9,
+        gravity: 0,
+        drag: 0.92
+      });
+    }
+
     for (let i = floatingTexts.length - 1; i >= 0; i--) {
       const ft = floatingTexts[i];
       ft.y += ft.vy * dt;
@@ -3744,6 +4822,9 @@
     const beatFloat = (audio.isPlaying && !audio.isPaused) ? audio.getCurrentBeatFloat() : 0;
     const frac = beatFloat - Math.floor(beatFloat);
     const beatPulse = (audio.isPlaying && !audio.isPaused) ? Math.pow(1 - frac, 3) : 0;
+    const halfBeatFrac = (beatFloat * 0.5) - Math.floor(beatFloat * 0.5);
+    const halfBeatPulse = (audio.isPlaying && !audio.isPaused) ? Math.pow(1 - halfBeatFrac, 3) : 0;
+    const enemyPulse = (playerBuffs.slowMoBeats > 0) ? halfBeatPulse : beatPulse;
 
     ctx.save();
     if (screenShake > 0.5) {
@@ -3791,6 +4872,9 @@
       }
     }
 
+    // 2.5 Draw Space Echo / Ghost Skankin' Dub Traps
+    drawDubEchoTiles(beatPulse);
+
     // 3. Draw Stage Obstacles (Vinyl Crates & Bass Traps)
     obstacles.forEach(obs => drawObstacle(obs, beatPulse));
 
@@ -3825,6 +4909,9 @@
       ctx.fillText('$', cx, cy + 3);
     });
 
+    // 5.5 Draw Tangible Dancehall Floor Pickups (Patty, Scotch Bonnet, Half-Rate Tape, Magnet)
+    drawFloorPickups(beatPulse);
+
     // 6. Draw Dubplate Portal if active
     if (portal) {
       drawDubplatePortal(portal, beatPulse);
@@ -3842,8 +4929,8 @@
       ctx.restore();
     });
 
-    // 8. Draw Enemies & Stage 4 Boss
-    enemies.forEach(enemy => drawEnemy(enemy, beatPulse));
+    // 8. Draw Enemies & Stage 4 Boss (Dances at half-rate when Slow-Mo Riddim is active!)
+    enemies.forEach(enemy => drawEnemy(enemy, enemyPulse));
 
     // 8.5 Draw Golden Pineapple Fever Mode Afterimages
     afterimages.forEach(a => {
@@ -3852,6 +4939,23 @@
       drawMCAnanas(tileCenterX(a.x), tileCenterY(a.y), 0.3, 0, a.facing);
       ctx.restore();
     });
+
+    // 8.8 Fiery Scotch Bonnet Pepper Aura on MC Ananas
+    if (playerBuffs.pepperBeats > 0) {
+      ctx.save();
+      const px = tileCenterX(player.renderX);
+      const py = tileCenterY(player.renderY);
+      ctx.shadowColor = '#FF1744';
+      ctx.shadowBlur = 18 + beatPulse * 10;
+      ctx.beginPath();
+      ctx.arc(px, py, 18, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 23, 68, 0.25)';
+      ctx.fill();
+      ctx.strokeStyle = '#FF9100';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
 
     // 9. Draw Protagonist: MC Ananas
     drawMCAnanas(
