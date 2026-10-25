@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pineapple Riddim: Kingston Clash '04</title>
+<style>
+  :root {
+    --gold: #FFD700;
+    --green: #00E676;
+    --black: #0B0A10;
+    --red: #FF1744;
+    --neon-pink: #FF007F;
+    --neon-cyan: #00F0FF;
+    --panel-bg: rgba(15, 12, 24, 0.92);
+  }
+
+  * {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #060509;
+    background-image: 
+      radial-gradient(circle at 50% 45%, #1f1135 0%, #060509 75%);
+    color: #fff;
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #game-wrapper {
+    position: relative;
+    width: 820px;
+    height: 760px;
+    max-width: 98vw;
+    max-height: 98vh;
+    aspect-ratio: 820 / 760;
+    box-shadow: 
+      0 0 0 4px #222,
+      0 0 0 8px var(--gold),
+      0 0 40px rgba(255, 215, 0, 0.35),
+      0 0 80px rgba(0, 230, 118, 0.2);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #09070d;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+  }
+
+  /* Scanline & CRT Retro Overlay */
+  .crt-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: 
+      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%),
+      radial-gradient(circle at center, transparent 65%, rgba(0, 0, 0, 0.55) 100%);
+    background-size: 100% 4px, 100% 100%;
+    z-index: 5;
+  }
+
+  /* Overlays */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 6, 14, 0.91);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    padding: 28px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .overlay.hidden {
+    display: none;
+  }
+
+  .rasta-stripe {
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(90deg, #00E676 0%, #00E676 33.3%, #FFD700 33.3%, #FFD700 66.6%, #FF1744 66.6%, #FF1744 100%);
+    margin: 12px 0;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+  }
+
+  h1.game-title {
+    font-size: 40px;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-shadow: 
+      4px 4px 0px #FF1744,
+      -2px -2px 0px #00E676,
+      0 0 20px rgba(255, 215, 0, 0.6);
+  }
+
+  h2.game-subtitle {
+    font-size: 20px;
+    margin: 6px 0 14px 0;
+    color: var(--green);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0px #000;
+  }
+
+  .instructions-card {
+    background: rgba(22, 18, 36, 0.95);
+    border: 2px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 24px;
+    max-width: 620px;
+    margin: 10px 0 20px 0;
+    text-align: left;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+  }
+
+  .instructions-card p {
+    margin: 8px 0;
+    font-size: 14px;
+    line-height: 1.45;
+    color: #e8e6f0;
+  }
+
+  .key-badge {
+    display: inline-block;
+    background: #2b2340;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 13px;
+    box-shadow: 0 2px 0 #000;
+  }
+
+  .highlight-green { color: var(--green); font-weight: bold; }
+  .highlight-gold { color: var(--gold); font-weight: bold; }
+  .highlight-red { color: var(--red); font-weight: bold; }
+
+  .btn-clash {
+    background: linear-gradient(180deg, #FFD700 0%, #FFA000 100%);
+    color: #0b0812;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 22px;
+    font-weight: 900;
+    padding: 14px 36px;
+    border: 3px solid #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 
+      0 6px 0 #b26a00,
+      0 0 25px rgba(255, 215, 0, 0.8);
+    transition: transform 0.08s, box-shadow 0.08s;
+  }
+
+  .btn-clash:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 
+      0 8px 0 #b26a00,
+      0 0 35px rgba(0, 230, 118, 0.9);
+    background: linear-gradient(180deg, #FFEE58 0%, #FFB300 100%);
+  }
+
+  .btn-clash:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #b26a00;
+  }
+
+  /* Perk / Bling Shop Cards */
+  .perk-container {
+    display: flex;
+    gap: 16px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .perk-card {
+    background: linear-gradient(180deg, #1b162a 0%, #0f0b18 100%);
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    width: 215px;
+    padding: 16px 14px;
+    cursor: pointer;
+    transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+  }
+
+  .perk-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--green);
+    box-shadow: 0 0 22px rgba(0, 230, 118, 0.55);
+  }
+
+  .perk-title {
+    color: var(--gold);
+    font-size: 16px;
+    font-weight: 900;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .perk-desc {
+    color: #d8d4e8;
+    font-size: 13px;
+    line-height: 1.35;
+    margin-bottom: 12px;
+  }
+
+  .perk-tag {
+    background: #00E676;
+    color: #050505;
+    font-weight: 900;
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div id="game-wrapper">
+  <canvas id="gameCanvas" width="820" height="760"></canvas>
+  <div class="crt-overlay"></div>
+
+  <!-- START CLASH OVERLAY -->
+  <div id="startOverlay" class="overlay">
+    <div class="rasta-stripe"></div>
+    <h1 class="game-title">Pineapple Riddim</h1>
+    <h2 class="game-subtitle">Kingston Clash '04</h2>
+    <div class="rasta-stripe"></div>
+
+    <div class="instructions-card">
+      <p><span class="highlight-gold">PROTAGONIST:</span> You are <strong>MC Ananas</strong>—crowned in a fresh golden pineapple suit, dark shades &amp; heavyweight Cuban links.</p>
+      <p><span class="highlight-green">STRICT ON-BEAT MOVEMENT:</span> Move or bump-attack using <span class="key-badge">WASD</span> or <span class="key-badge">ARROW KEYS</span> strictly when the sliding bass bars hit the center Pineapple on the <strong>100 BPM Dancehall Riddim</strong> (±120ms window).</p>
+      <p><span class="highlight-red">WATCH THE FLOOR:</span> Only <strong>1 action per beat</strong>! Stepping off-beat or missing a beat drops your Hype Combo. Watch enemy telegraphs:</p>
+      <p>• <strong>Soundboy Roadie (Green/Red Cap):</strong> Hops 1 tile toward you every <strong>2 beats</strong> (flashes warning on beat 1).<br>
+         • <strong>Selector Rival (Turntable Shades):</strong> Winds up for <strong>3 beats</strong>, then dashes <strong>2 tiles</strong> on beat 4!</p>
+      <p><span class="highlight-gold">DUBPLATE PROGRESSION:</span> Clear all soundboys in the arena to drop the spinning <strong>Golden Dubplate Portal</strong> and claim Bling Perks!</p>
+    </div>
+
+    <button id="startBtn" class="btn-clash">🔥 Start Sound Clash 🔥</button>
+  </div>
+
+  <!-- PERK / STAGE CLEAR OVERLAY -->
+  <div id="perkOverlay" class="overlay hidden">
+    <div class="rasta-stripe"></div>
+    <h1 class="game-title" style="font-size: 32px;">PULL UP! STAGE CLEARED!</h1>
+    <h2 id="perkSubtitle" class="game-subtitle" style="font-size: 16px;">SELECT YOUR BLING UPGRADE FOR THE NEXT CLASH</h2>
+    <div class="perk-container" id="perkCardsContainer"></div>
+  </div>
+
+  <!-- GAME OVER OVERLAY -->
+  <div id="gameOverOverlay" class="overlay hidden">
+    <div class="rasta-stripe"></div>
+    <h1 id="endTitle" class="game-title">SOUND SYSTEM SHUT DOWN</h1>
+    <h2 id="endSubtitle" class="game-subtitle">YOU GOT DROWNED OUT BY THE RIVAL CREW</h2>
+    <div class="instructions-card" id="endStats" style="text-align:center; font-size:16px;"></div>
+    <button id="restartBtn" class="btn-clash">🔄 Run It Back (Rewind)</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ==========================================
+  // CONFIGURATION & CONSTANTS
+  // ==========================================
+  const BPM = 100;
+  const BEAT_DURATION = 60 / BPM; // 0.600 seconds per quarter note
+  const SIXTEENTH_DURATION = BEAT_DURATION / 4; // 0.150s per 16th note
+  const BASE_TIMING_WINDOW = 0.120; // ±120ms around each beat
+
+  const GRID_SIZE = 10; // 10x10 total arena (outer ring = speaker walls, 8x8 inner dancefloor or 10x10 playable surrounded by speaker wall border)
+  // Let's make a full 10x10 playable dancefloor surrounded by a perimeter ring of massive Sound System Speaker Walls!
+  const TILE_SIZE = 48;
+  const ARENA_OFFSET_X = 170;
+  const ARENA_OFFSET_Y = 96;
+
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const startOverlay = document.getElementById('startOverlay');
+  const perkOverlay = document.getElementById('perkOverlay');
+  const gameOverOverlay = document.getElementById('gameOverOverlay');
+  const startBtn = document.getElementById('startBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const perkCardsContainer = document.getElementById('perkCardsContainer');
+
+  // ==========================================
+  // WEB AUDIO API: 2004 DANCEHALL RIDDIM SYNTH
+  // ==========================================
+  class DancehallSoundSystem {
+    constructor() {
+      this.ctx = null;
+      this.isPlaying = false;
+      this.startTime = 0;
+      this.current16thStep = 0;
+      this.nextNoteTime = 0;
+      this.lookahead = 25.0; // ms
+      this.scheduleAheadTime = 0.12; // sec
+      this.timerID = null;
+      this.lastProcessedBeatIndex = -1;
+      this.masterGain = null;
+      this.noiseBuffer = null;
+
+      // 16-step Dancehall Riddim Pattern (1 bar of 16th notes at 100 BPM)
+      // Kick on 1 (step 0), classic Dem Bow / Dancehall syncopated bass & snare on step 3, 6, 8, 11, 14
+      // Explicit requirement: Kick on beats 1 and 3 (steps 0 and 8) + syncopated off-beat snare/rimshot + syncopated bassline
+      this.kickPattern  = [1, 0, 0, 0,  0, 0, 0, 1,  1, 0, 0, 0,  0, 0, 1, 0];
+      this.snarePattern = [0, 0, 0, 1,  0, 0, 1, 0,  0, 0, 0, 1,  0, 0, 1, 0];
+      this.hatPattern   = [1, 0, 1, 1,  1, 0, 1, 0,  1, 0, 1, 1,  1, 0, 1, 1];
+      // Bassline in F minor (Kingston 2004 low-end sub + FM pluck): F1=43.65, Ab1=51.91, Bb1=58.27, C2=65.41, Eb2=77.78
+      this.bassPatternA = [
+        43.65, 0, 43.65, 51.91,
+        0, 58.27, 65.41, 0,
+        43.65, 0, 43.65, 77.78,
+        0, 65.41, 51.91, 0
+      ];
+      this.bassPatternB = [
+        43.65, 0, 43.65, 51.91,
+        0, 65.41, 77.78, 0,
+        58.27, 0, 58.27, 65.41,
+        0, 51.91, 43.65, 87.31
+      ];
+      // Staccato brass/organ skank chords on offbeats
+      this.skankPattern = [0, 0, 1, 0,  0, 0, 1, 0,  0, 0, 1, 0,  0, 0, 1, 0];
+    }
+
+    init() {
+      if (!this.ctx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioCtx();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.value = 0.8;
+
+        // Subtle compressor for punchy club sound
+        const compressor = this.ctx.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-14, this.ctx.currentTime);
+        compressor.knee.setValueAtTime(20, this.ctx.currentTime);
+        compressor.ratio.setValueAtTime(6, this.ctx.currentTime);
+        compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
+        compressor.release.setValueAtTime(0.15, this.ctx.currentTime);
+
+        this.masterGain.connect(compressor);
+        compressor.connect(this.ctx.destination);
+
+        this.createNoiseBuffer();
+      }
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+    }
+
+    createNoiseBuffer() {
+      const bufferSize = this.ctx.sampleRate * 1.0;
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const output = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      this.noiseBuffer = buffer;
+    }
+
+    start() {
+      this.init();
+      this.isPlaying = true;
+      this.current16thStep = 0;
+      // Add slight lead-in so beat 0 lands cleanly
+      this.startTime = this.ctx.currentTime + 0.08;
+      this.nextNoteTime = this.startTime;
+      this.lastProcessedBeatIndex = -1;
+      if (this.timerID) clearInterval(this.timerID);
+      this.timerID = setInterval(() => this.scheduler(), this.lookahead);
+    }
+
+    stop() {
+      this.isPlaying = false;
+      if (this.timerID) {
+        clearInterval(this.timerID);
+        this.timerID = null;
+      }
+    }
+
+    getElapsedBeatTime() {
+      if (!this.ctx || !this.isPlaying) return 0;
+      return Math.max(0, this.ctx.currentTime - this.startTime);
+    }
+
+    getCurrentBeatFloat() {
+      return this.getElapsedBeatTime() / BEAT_DURATION;
+    }
+
+    scheduler() {
+      while (this.nextNoteTime < this.ctx.currentTime + this.scheduleAheadTime) {
+        this.scheduleStep(this.current16thStep, this.nextNoteTime);
+        this.nextNoteTime += SIXTEENTH_DURATION;
+        this.current16thStep++;
+      }
+    }
+
+    scheduleStep(stepCounter, time) {
+      const step = stepCounter % 16;
+      const bar = Math.floor(stepCounter / 16);
+
+      if (this.kickPattern[step]) {
+        const isMainBeat = (step === 0 || step === 8);
+        this.playKick(time, isMainBeat ? 1.0 : 0.75);
+      }
+
+      if (this.snarePattern[step]) {
+        this.playRimSnare(time, step === 6 || step === 14 ? 0.9 : 0.8);
+      }
+
+      if (this.hatPattern[step]) {
+        const openHat = (step === 2 || step === 10);
+        this.playHiHat(time, openHat);
+      }
+
+      const bassNotes = (bar % 2 === 0) ? this.bassPatternA : this.bassPatternB;
+      const freq = bassNotes[step];
+      if (freq > 0) {
+        this.playDancehallBass(time, freq, SIXTEENTH_DURATION * 0.92);
+      }
+
+      if (this.skankPattern[step]) {
+        this.playClavSkank(time, bar % 4 === 3 ? 311.13 : 261.63);
+      }
+    }
+
+    playKick(time, velocity = 1.0) {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(145, time);
+      osc.frequency.exponentialRampToValueAtTime(42, time + 0.085);
+      osc.frequency.exponentialRampToValueAtTime(28, time + 0.24);
+
+      gain.gain.setValueAtTime(0.95 * velocity, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(time);
+      osc.stop(time + 0.26);
+    }
+
+    playRimSnare(time, velocity = 0.85) {
+      // Sharp woodblock/rimshot + crisp dancehall snare noise
+      const osc = this.ctx.createOscillator();
+      const oscGain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(390, time);
+      osc.frequency.exponentialRampToValueAtTime(155, time + 0.045);
+
+      oscGain.gain.setValueAtTime(0.65 * velocity, time);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.06);
+      osc.connect(oscGain);
+      oscGain.connect(this.masterGain);
+      osc.start(time);
+      osc.stop(time + 0.065);
+
+      // Noise snap
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = this.noiseBuffer;
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(2200, time);
+      filter.Q.setValueAtTime(1.2, time);
+
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.55 * velocity, time);
+      noiseGain.gain.exponentialRampToValueAtTime(0.005, time + 0.11);
+
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(this.masterGain);
+      noise.start(time);
+      noise.stop(time + 0.12);
+    }
+
+    playHiHat(time, isOpen = false) {
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = this.noiseBuffer;
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(7500, time);
+
+      const gain = this.ctx.createGain();
+      const dur = isOpen ? 0.09 : 0.032;
+      gain.gain.setValueAtTime(isOpen ? 0.18 : 0.12, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+      noise.start(time);
+      noise.stop(time + dur + 0.01);
+    }
+
+    playDancehallBass(time, freq, duration) {
+      const osc = this.ctx.createOscillator();
+      const sub = this.ctx.createOscillator();
+      const filter = this.ctx.createBiquadFilter();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq * 2, time); // upper harmonic bite
+
+      sub.type = 'sine';
+      sub.frequency.setValueAtTime(freq, time); // deep Kingston sub
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(520, time);
+      filter.frequency.exponentialRampToValueAtTime(130, time + duration * 0.85);
+      filter.Q.setValueAtTime(4.5, time);
+
+      gain.gain.setValueAtTime(0.001, time);
+      gain.gain.linearRampToValueAtTime(0.52, time + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.008, time + duration);
+
+      osc.connect(filter);
+      sub.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(time);
+      sub.start(time);
+      osc.stop(time + duration + 0.01);
+      sub.stop(time + duration + 0.01);
+    }
+
+    playClavSkank(time, rootFreq) {
+      // 2004 Casio/Korg dancehall minor triad chop
+      const ratios = [1, 1.2, 1.5];
+      ratios.forEach((r) => {
+        const osc = this.ctx.createOscillator();
+        const filter = this.ctx.createBiquadFilter();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(rootFreq * r, time);
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1400, time);
+        filter.Q.setValueAtTime(2.5, time);
+
+        gain.gain.setValueAtTime(0.09, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.055);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(time);
+        osc.stop(time + 0.06);
+      });
+    }
+
+    // Sound Effects
+    playHopSFX(combo) {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      const baseFreq = 240 + Math.min(combo * 15, 240);
+      osc.frequency.setValueAtTime(baseFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.45, now + 0.065);
+
+      gain.gain.setValueAtTime(0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.075);
+    }
+
+    playAttackSFX(isAirhorn = false) {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      if (isAirhorn) {
+        this.playAirhornSFX();
+        return;
+      }
+      // Punchy impact + laser dub siren chirp
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(620, now);
+      osc.frequency.exponentialRampToValueAtTime(110, now + 0.14);
+
+      gain.gain.setValueAtTime(0.45, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.16);
+    }
+
+    playAirhornSFX() {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      // Classic Dancehall Reggae Airhorn ("PEW-PEW-PEWEEEW!")
+      const freqs = [480, 605, 720];
+      freqs.forEach((f) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(f * 0.94, now);
+        osc.frequency.linearRampToValueAtTime(f, now + 0.03);
+        osc.frequency.setValueAtTime(f, now + 0.22);
+
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.005, now + 0.26);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.27);
+      });
+    }
+
+    playMissScratchSFX() {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      // Vinyl record scratch / off-beat buzzer
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(150, now);
+      osc.frequency.linearRampToValueAtTime(85, now + 0.12);
+
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.005, now + 0.14);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.15);
+    }
+
+    playCoinSFX() {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(987.77, now); // B5
+      osc.frequency.setValueAtTime(1318.51, now + 0.055); // E6
+
+      gain.gain.setValueAtTime(0.28, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.19);
+    }
+
+    playHurtSFX() {
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(190, now);
+      osc.frequency.exponentialRampToValueAtTime(55, now + 0.22);
+
+      gain.gain.setValueAtTime(0.5, now);
+      gain.gain.exponentialRampToValueAtTime(0.005, now + 0.24);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    }
+  }
+
+  const audio = new DancehallSoundSystem();
+
+  // ==========================================
+  // GAME STATE & ENTITIES
+  // ==========================================
+  const SLANG_HIT = ['BRAP!', 'PULL UP!', 'FORWARD!', 'WHEEL & COME AGAIN!', 'BOOYAKA!', 'MADNESS!', 'BIG TUNE!'];
+  const SLANG_STEP = ['IRIE!', 'SWEET!', 'ON LOCK!', 'NICE!', 'PON DI BEAT!'];
+  const SLANG_MISS = ['OFF BEAT!', 'CLASH LOST!', 'NO RHYTHM!', 'CHUNE SPOIL!'];
+
+  const PERK_POOL = [
+    {
+      id: 'gold_medallion',
+      name: 'Gold Medallion',
+      desc: 'Widens your on-beat timing window by +25% (±150ms) and adds +1 Max Heart.',
+      tag: '+25% Beat Window'
+    },
+    {
+      id: 'airhorn_dubplate',
+      name: 'Airhorn Dubplate',
+      desc: 'Bump-attacking an enemy blasts a shockwave that knocks back & damages adjacent foes!',
+      tag: 'AOE Bass Knockback'
+    },
+    {
+      id: 'fresh_clarks',
+      name: 'Fresh Clarks Kicks',
+      desc: 'Stepping on-beat heals +1 HP every 16-combo streak & boosts gold drops!',
+      tag: 'Combo Heal + Style'
+    }
+  ];
+
+  let gameState = 'START'; // START, PLAYING, PERK_SELECT, GAMEOVER
+  let stage = 1;
+  let score = 0;
+  let blingCoins = 0;
+  let combo = 0;
+  let maxCombo = 0;
+  let screenShake = 0;
+  let invertFlashTimer = 0;
+  let currentQuarterBeat = 0;
+
+  // Player state
+  const player = {
+    x: 4,
+    y: 5,
+    renderX: 4,
+    renderY: 5,
+    hopAnim: 0,
+    hp: 6, // 3 full hearts (2 HP per heart)
+    maxHp: 6,
+    facing: 1, // 1 right, -1 left
+    actedBeatIndex: -1,
+    streakSteps: 0,
+    perks: {
+      gold_medallion: 0,
+      airhorn_dubplate: 0,
+      fresh_clarks: 0
+    }
+  };
+
+  let enemies = [];
+  let coins = [];
+  let portal = null;
+  let floatingTexts = [];
+  let particles = [];
+  let shockwaves = [];
+  let timingJudgement = { text: '', color: '#FFD700', alpha: 0, scale: 1 };
+
+  // ==========================================
+  // INITIALIZATION & STAGE GENERATION
+  // ==========================================
+  function startNewRun() {
+    stage = 1;
+    score = 0;
+    blingCoins = 0;
+    combo = 0;
+    maxCombo = 0;
+    player.hp = 6;
+    player.maxHp = 6;
+    player.perks = { gold_medallion: 0, airhorn_dubplate: 0, fresh_clarks: 0 };
+    player.streakSteps = 0;
+    setupStage(stage);
+    gameState = 'PLAYING';
+    audio.start();
+  }
+
+  function setupStage(stageNum) {
+    player.x = 4;
+    player.y = 8;
+    player.renderX = 4;
+    player.renderY = 8;
+    player.actedBeatIndex = Math.round(audio.getCurrentBeatFloat());
+    enemies = [];
+    coins = [];
+    portal = null;
+    floatingTexts = [];
+    particles = [];
+    shockwaves = [];
+
+    // Spawn enemies based on stage
+    const numRoadies = 2 + stageNum;
+    const numSelectors = Math.floor(stageNum / 1); // At least 1 Selector Rival from stage 1 so player sees both or focuses on Roadie + Rival!
+
+    const occupied = new Set([`${player.x},${player.y}`]);
+
+    const getFreeTile = (minY = 0, maxY = 6) => {
+      for (let tries = 0; tries < 100; tries++) {
+        const tx = Math.floor(Math.random() * GRID_SIZE);
+        const ty = minY + Math.floor(Math.random() * (maxY - minY + 1));
+        const key = `${tx},${ty}`;
+        if (!occupied.has(key) && Math.hypot(tx - player.x, ty - player.y) >= 2.5) {
+          occupied.add(key);
+          return { x: tx, y: ty };
+        }
+      }
+      return { x: 1, y: 1 };
+    };
+
+    // Spawn Soundboy Roadies (Moves 1 tile every 2 beats)
+    for (let i = 0; i < numRoadies; i++) {
+      const pos = getFreeTile(0, 6);
+      enemies.push({
+        type: 'roadie',
+        name: 'Soundboy Roadie',
+        x: pos.x,
+        y: pos.y,
+        renderX: pos.x,
+        renderY: pos.y,
+        hp: 2 + Math.floor((stageNum - 1) / 2),
+        maxHp: 2 + Math.floor((stageNum - 1) / 2),
+        beatCounter: i % 2, // stagger slightly or synchronize
+        period: 2,
+        hopAnim: 0,
+        flashTimer: 0,
+        facing: 1
+      });
+    }
+
+    // Spawn Selector Rivals (Bounces in place 3 beats, rushes 2 tiles on 4th beat)
+    for (let i = 0; i < numSelectors; i++) {
+      const pos = getFreeTile(0, 5);
+      enemies.push({
+        type: 'selector',
+        name: 'Selector Rival',
+        x: pos.x,
+        y: pos.y,
+        renderX: pos.x,
+        renderY: pos.y,
+        hp: 3 + Math.floor(stageNum / 2),
+        maxHp: 3 + Math.floor(stageNum / 2),
+        beatCounter: 0,
+        period: 4,
+        hopAnim: 0,
+        flashTimer: 0,
+        facing: 1
+      });
+    }
+
+    spawnFloatingText(
+      ARENA_OFFSET_X + (GRID_SIZE * TILE_SIZE) / 2,
+      ARENA_OFFSET_Y + (GRID_SIZE * TILE_SIZE) / 2,
+      `CLASH ARENA #${stageNum} — FIGHT PON DI BEAT!`,
+      '#FFD700',
+      22
+    );
+  }
+
+  // ==========================================
+  // TIMING & INPUT QUANTIZATION
+  // ==========================================
+  function getActiveTimingWindow() {
+    // Gold Medallion perk widens window by 25% per stack
+    return BASE_TIMING_WINDOW * (1 + 0.25 * player.perks.gold_medallion);
+  }
+
+  function evaluateBeatTiming() {
+    const elapsed = audio.getElapsedBeatTime();
+    const nearestBeatIndex = Math.round(elapsed / BEAT_DURATION);
+    const nearestBeatTime = nearestBeatIndex * BEAT_DURATION;
+    const deltaSeconds = elapsed - nearestBeatTime; // negative = early, positive = late
+    const absDelta = Math.abs(deltaSeconds);
+    const windowSec = getActiveTimingWindow();
+
+    return {
+      isOnBeat: absDelta <= windowSec,
+      nearestBeatIndex,
+      deltaMs: Math.round(deltaSeconds * 1000),
+      absDelta
+    };
+  }
+
+  function triggerJudgementBanner(text, color) {
+    timingJudgement.text = text;
+    timingJudgement.color = color;
+    timingJudgement.alpha = 1.0;
+    timingJudgement.scale = 1.35;
+  }
+
+  function handlePlayerInput(dx, dy) {
+    if (gameState !== 'PLAYING') return;
+
+    const timing = evaluateBeatTiming();
+
+    // Prevent acting twice on the same beat
+    if (timing.nearestBeatIndex === player.actedBeatIndex) {
+      // Already acted on this beat! Penalty for spamming off-rhythm
+      onBeatMiss('ALREADY MOVED!');
+      return;
+    }
+
+    if (!timing.isOnBeat) {
+      // Missed the ±120ms beat window!
+      player.actedBeatIndex = timing.nearestBeatIndex;
+      onBeatMiss(SLANG_MISS[Math.floor(Math.random() * SLANG_MISS.length)]);
+      return;
+    }
+
+    // Valid On-Beat Input!
+    player.actedBeatIndex = timing.nearestBeatIndex;
+    if (dx !== 0) player.facing = dx;
+
+    const targetX = player.x + dx;
+    const targetY = player.y + dy;
+
+    // Check speaker wall boundaries
+    if (targetX < 0 || targetX >= GRID_SIZE || targetY < 0 || targetY >= GRID_SIZE) {
+      // Bump speaker wall on beat (keeps rhythm, bounces back)
+      player.hopAnim = 1.0;
+      audio.playHopSFX(combo);
+      spawnFloatingText(
+        tileCenterX(player.x),
+        tileCenterY(player.y) - 18,
+        'SPEAKER WALL!',
+        '#00F0FF',
+        14
+      );
+      return;
+    }
+
+    // Check if enemy is at target tile -> BUMP ATTACK!
+    const targetEnemy = enemies.find(e => e.x === targetX && e.y === targetY);
+    if (targetEnemy) {
+      performBumpAttack(targetEnemy, dx, dy, timing);
+    } else {
+      // Move to tile
+      player.x = targetX;
+      player.y = targetY;
+      player.hopAnim = 1.0;
+
+      increaseCombo(timing.absDelta < 0.045 ? 'PERFECT RIDDIM!' : 'ON BEAT!');
+      audio.playHopSFX(combo);
+
+      // Spawn step dust
+      spawnParticles(tileCenterX(player.x), tileCenterY(player.y) + 12, '#00E676', 6);
+
+      // Check coin pickup
+      for (let i = coins.length - 1; i >= 0; i--) {
+        if (coins[i].x === player.x && coins[i].y === player.y) {
+          const val = coins[i].value;
+          blingCoins += val;
+          score += val * 25 * Math.max(1, combo);
+          audio.playCoinSFX();
+          spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 20, `+$${val} BLING!`, '#FFD700', 16);
+          coins.splice(i, 1);
+        }
+      }
+
+      // Check dubplate portal entry
+      if (portal && player.x === portal.x && player.y === portal.y) {
+        audio.playAirhornSFX();
+        openPerkSelection();
+      }
+    }
+  }
+
+  function performBumpAttack(enemy, dx, dy, timing) {
+    increaseCombo('BRAP! +HYPE');
+    player.hopAnim = 1.25;
+    // Lunge visual nudge
+    player.renderX = player.x + dx * 0.45;
+    player.renderY = player.y + dy * 0.45;
+
+    const dmg = 1 + (combo >= 8 ? 1 : 0);
+    enemy.hp -= dmg;
+    enemy.flashTimer = 0.25;
+    screenShake = 8;
+
+    const slang = SLANG_HIT[Math.floor(Math.random() * SLANG_HIT.length)];
+    spawnFloatingText(tileCenterX(enemy.x), tileCenterY(enemy.y) - 22, `${slang} -${dmg}`, '#FF1744', 18);
+    spawnParticles(tileCenterX(enemy.x), tileCenterY(enemy.y), '#FFD700', 16);
+
+    const hasAirhorn = player.perks.airhorn_dubplate > 0;
+    audio.playAttackSFX(hasAirhorn);
+
+    // Airhorn Dubplate Perk: Knockback & shockwave adjacent enemies
+    if (hasAirhorn) {
+      shockwaves.push({
+        x: tileCenterX(enemy.x),
+        y: tileCenterY(enemy.y),
+        radius: 10,
+        maxRadius: TILE_SIZE * 1.9,
+        alpha: 1.0,
+        color: '#00F0FF'
+      });
+
+      enemies.forEach(other => {
+        if (other !== enemy && Math.abs(other.x - enemy.x) <= 1 && Math.abs(other.y - enemy.y) <= 1) {
+          const kx = Math.sign(other.x - enemy.x);
+          const ky = Math.sign(other.y - enemy.y);
+          const nx = other.x + kx;
+          const ny = other.y + ky;
+          if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE &&
+              !(nx === player.x && ny === player.y) &&
+              !enemies.some(e => e.x === nx && e.y === ny)) {
+            other.x = nx;
+            other.y = ny;
+          }
+          other.hp -= 1;
+          other.flashTimer = 0.25;
+          spawnFloatingText(tileCenterX(other.x), tileCenterY(other.y) - 14, 'BASS BLAST! -1', '#00F0FF', 14);
+        }
+      });
+    }
+
+    // Check enemy defeat
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      if (enemies[i].hp <= 0) {
+        const dead = enemies[i];
+        score += 150 * Math.max(1, combo);
+        spawnParticles(tileCenterX(dead.x), tileCenterY(dead.y), '#00E676', 24);
+        spawnFloatingText(tileCenterX(dead.x), tileCenterY(dead.y) - 30, 'K.O. FORWARD!', '#00E676', 18);
+
+        // Drop Gold Bling Coin
+        const coinBonus = player.perks.fresh_clarks > 0 ? 2 : 1;
+        coins.push({
+          x: dead.x,
+          y: dead.y,
+          value: (dead.type === 'selector' ? 3 : 1) * coinBonus,
+          bobOffset: Math.random() * Math.PI * 2
+        });
+
+        enemies.splice(i, 1);
+      }
+    }
+
+    // Check if all enemies cleared -> Spawn Dubplate Portal!
+    if (enemies.length === 0 && !portal) {
+      spawnDubplatePortal();
+    }
+  }
+
+  function increaseCombo(bannerLabel) {
+    combo++;
+    if (combo > maxCombo) maxCombo = combo;
+    player.streakSteps++;
+    score += 10 * combo;
+
+    // Fresh Clarks Kicks Perk: Heals 1 HP every 16-combo streak
+    if (player.perks.fresh_clarks > 0 && player.streakSteps % 16 === 0) {
+      if (player.hp < player.maxHp) {
+        player.hp = Math.min(player.maxHp, player.hp + 1);
+        spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 32, 'FRESH CLARKS! +1 HP', '#00E676', 17);
+      }
+    }
+
+    triggerJudgementBanner(`${bannerLabel} (${combo}x HYPE)`, '#00E676');
+  }
+
+  function onBeatMiss(reason) {
+    combo = 0;
+    player.streakSteps = 0;
+    screenShake = 6;
+    audio.playMissScratchSFX();
+    triggerJudgementBanner(`${reason} (COMBO RESET)`, '#FF1744');
+    spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 24, reason, '#FF1744', 16);
+  }
+
+  function spawnDubplatePortal() {
+    // Spawn near center of arena away from player
+    let px = 4, py = 4;
+    if (player.x === 4 && player.y === 4) { px = 5; py = 4; }
+    portal = { x: px, y: py, angle: 0 };
+    audio.playAirhornSFX();
+    spawnFloatingText(
+      tileCenterX(px),
+      tileCenterY(py) - 26,
+      'DUBPLATE PORTAL OPEN! STEP IN!',
+      '#FFD700',
+      20
+    );
+    shockwaves.push({
+      x: tileCenterX(px),
+      y: tileCenterY(py),
+      radius: 8,
+      maxRadius: TILE_SIZE * 3.5,
+      alpha: 1.0,
+      color: '#FFD700'
+    });
+  }
+
+  // ==========================================
+  // BEAT-SYNCHRONIZED ENEMY AI & QUARTER-NOTE PULSE
+  // ==========================================
+  function onQuarterNoteBeat(beatIndex) {
+    currentQuarterBeat = beatIndex;
+    invertFlashTimer = 1.0; // Triggers dancefloor checkerboard invert/flash
+
+    // Check if the player completely missed the PREVIOUS beat without acting
+    const prevBeat = beatIndex - 1;
+    if (prevBeat >= 1 && player.actedBeatIndex < prevBeat && combo > 0) {
+      // Missed beat window expired -> reset combo
+      combo = 0;
+      player.streakSteps = 0;
+      triggerJudgementBanner('MISSED BEAT! COMBO 0x', '#FF9100');
+    }
+
+    // Update all enemies deterministically on the beat
+    enemies.forEach(enemy => {
+      enemy.beatCounter = (enemy.beatCounter + 1) % enemy.period;
+
+      if (enemy.type === 'roadie') {
+        // Soundboy Roadie: Moves 1 tile toward player every 2 beats
+        if (enemy.beatCounter === 0) {
+          stepEnemyTowardPlayer(enemy, 1);
+        } else {
+          // Telegraph 1 beat before moving/attacking
+          enemy.hopAnim = 0.5;
+        }
+      } else if (enemy.type === 'selector') {
+        // Selector Rival: Bounces in place for 3 beats (1,2,3), rushes 2 tiles on 4th beat (0)
+        if (enemy.beatCounter === 0) {
+          stepEnemyTowardPlayer(enemy, 2);
+        } else {
+          enemy.hopAnim = 0.65;
+        }
+      }
+    });
+  }
+
+  function stepEnemyTowardPlayer(enemy, stepsCount) {
+    for (let s = 0; s < stepsCount; s++) {
+      const dx = player.x - enemy.x;
+      const dy = player.y - enemy.y;
+
+      let moveX = 0;
+      let moveY = 0;
+
+      if (Math.abs(dx) >= Math.abs(dy)) {
+        moveX = Math.sign(dx);
+      } else {
+        moveY = Math.sign(dy);
+      }
+
+      if (moveX !== 0) enemy.facing = moveX;
+
+      const nextX = enemy.x + moveX;
+      const nextY = enemy.y + moveY;
+
+      // Did enemy step into player? Attack MC Ananas!
+      if (nextX === player.x && nextY === player.y) {
+        damagePlayer(enemy);
+        enemy.hopAnim = 1.2;
+        enemy.renderX = enemy.x + moveX * 0.45;
+        enemy.renderY = enemy.y + moveY * 0.45;
+        break;
+      }
+
+      // Check if blocked by another enemy
+      const occupiedByEnemy = enemies.some(other => other !== enemy && other.x === nextX && other.y === nextY);
+      if (!occupiedByEnemy && nextX >= 0 && nextX < GRID_SIZE && nextY >= 0 && nextY < GRID_SIZE) {
+        enemy.x = nextX;
+        enemy.y = nextY;
+        enemy.hopAnim = 1.0;
+      } else {
+        // Try alternate axis if primary axis blocked
+        const altX = moveX === 0 ? Math.sign(dx) : 0;
+        const altY = moveY === 0 ? Math.sign(dy) : 0;
+        const nx2 = enemy.x + altX;
+        const ny2 = enemy.y + altY;
+        const blockedAlt = enemies.some(other => other !== enemy && other.x === nx2 && other.y === ny2);
+        if ((altX !== 0 || altY !== 0) && !blockedAlt && nx2 >= 0 && nx2 < GRID_SIZE && ny2 >= 0 && ny2 < GRID_SIZE && !(nx2 === player.x && ny2 === player.y)) {
+          enemy.x = nx2;
+          enemy.y = ny2;
+          enemy.hopAnim = 1.0;
+        }
+      }
+    }
+  }
+
+  function damagePlayer(attacker) {
+    player.hp -= 1;
+    combo = 0;
+    player.streakSteps = 0;
+    screenShake = 14;
+    audio.playHurtSFX();
+    spawnParticles(tileCenterX(player.x), tileCenterY(player.y), '#FF1744', 22);
+    spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 26, 'CLASH HIT! -1 HP', '#FF1744', 19);
+
+    if (player.hp <= 0) {
+      triggerGameOver();
+    }
+  }
+
+  // ==========================================
+  // PERK SELECTION & GAME OVER FLOW
+  // ==========================================
+  function openPerkSelection() {
+    gameState = 'PERK_SELECT';
+    perkOverlay.classList.remove('hidden');
+    perkCardsContainer.innerHTML = '';
+
+    PERK_POOL.forEach(perk => {
+      const card = document.createElement('div');
+      card.className = 'perk-card';
+      const currentStacks = player.perks[perk.id] || 0;
+      card.innerHTML = `
+        <div>
+          <div class="perk-title">${perk.name} ${currentStacks > 0 ? `(Lv.${currentStacks + 1})` : ''}</div>
+          <div class="perk-desc">${perk.desc}</div>
+        </div>
+        <div class="perk-tag">${perk.tag}</div>
+      `;
+      card.addEventListener('click', () => {
+        player.perks[perk.id] = (player.perks[perk.id] || 0) + 1;
+        if (perk.id === 'gold_medallion') {
+          player.maxHp += 2;
+          player.hp = Math.min(player.maxHp, player.hp + 2);
+        }
+        // Heal 1 HP between stages
+        player.hp = Math.min(player.maxHp, player.hp + 1);
+        stage++;
+        perkOverlay.classList.add('hidden');
+        setupStage(stage);
+        gameState = 'PLAYING';
+      });
+      perkCardsContainer.appendChild(card);
+    });
+  }
+
+  function triggerGameOver() {
+    gameState = 'GAMEOVER';
+    audio.stop();
+    gameOverOverlay.classList.remove('hidden');
+    document.getElementById('endStats').innerHTML = `
+      <p><span class="highlight-gold">STAGE REACHED:</span> Kingston Arena #${stage}</p>
+      <p><span class="highlight-green">TOTAL SCORE:</span> ${score.toLocaleString()} PTS</p>
+      <p><span class="highlight-gold">MAX HYPE COMBO:</span> ${maxCombo}x STREAK</p>
+      <p><span class="highlight-green">BLING COLLECTED:</span> $${blingCoins} GOLD</p>
+    `;
+  }
+
+  // ==========================================
+  // VISUAL HELPERS & PROCEDURAL PIXEL ART
+  // ==========================================
+  function tileCenterX(gx) {
+    return ARENA_OFFSET_X + gx * TILE_SIZE + TILE_SIZE / 2;
+  }
+
+  function tileCenterY(gy) {
+    return ARENA_OFFSET_Y + gy * TILE_SIZE + TILE_SIZE / 2;
+  }
+
+  function spawnFloatingText(x, y, text, color = '#FFD700', size = 16) {
+    floatingTexts.push({
+      x,
+      y,
+      text,
+      color,
+      size,
+      alpha: 1.0,
+      vy: -42
+    });
+  }
+
+  function spawnParticles(x, y, color, count = 10) {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 35 + Math.random() * 110;
+      particles.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: 3 + Math.random() * 4,
+        color,
+        alpha: 1.0
+      });
+    }
+  }
+
+  // Draw procedural 16-bit Speaker Cabinet on the border walls
+  function drawSpeakerCabinet(x, y, size, beatPulse) {
+    ctx.fillStyle = '#181522';
+    ctx.fillRect(x, y, size, size);
+    ctx.strokeStyle = '#352f47';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x + 1, y + 1, size - 2, size - 2);
+
+    // Gold corner brackets
+    ctx.fillStyle = '#b59410';
+    ctx.fillRect(x + 2, y + 2, 5, 5);
+    ctx.fillRect(x + size - 7, y + 2, 5, 5);
+    ctx.fillRect(x + 2, y + size - 7, 5, 5);
+    ctx.fillRect(x + size - 7, y + size - 7, 5, 5);
+
+    // Woofer cone pulsing with the 100 BPM kick
+    const cx = x + size / 2;
+    const cy = y + size / 2;
+    const coneRadius = 11 + beatPulse * 4.5;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, coneRadius, 0, Math.PI * 2);
+    ctx.fillStyle = '#09080d';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = beatPulse > 0.5 ? '#FFD700' : '#4a4363';
+    ctx.stroke();
+
+    // Inner dust cap
+    ctx.beginPath();
+    ctx.arc(cx, cy, 4 + beatPulse * 2, 0, Math.PI * 2);
+    ctx.fillStyle = beatPulse > 0.6 ? '#00E676' : '#2c263d';
+    ctx.fill();
+  }
+
+  // Draw MC Ananas (Protagonist in Pineapple Suit, Oversized Sunglasses & Gold Chains)
+  function drawMCAnanas(cx, cy, hop, beatPulse, facing) {
+    ctx.save();
+    const jumpY = -Math.sin(hop * Math.PI) * 14 - beatPulse * 3;
+    ctx.translate(cx, cy + jumpY);
+
+    // Drop shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
+    ctx.beginPath();
+    ctx.ellipse(0, 18 - jumpY * 0.6, 14 - hop * 3, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Green Spiky Pineapple Crown (Leaves on top)
+    ctx.fillStyle = '#00E676';
+    ctx.beginPath();
+    ctx.moveTo(-12, -14);
+    ctx.lineTo(-16, -26 - beatPulse * 3);
+    ctx.lineTo(-5, -18);
+    ctx.lineTo(0, -30 - beatPulse * 4);
+    ctx.lineTo(5, -18);
+    ctx.lineTo(16, -26 - beatPulse * 3);
+    ctx.lineTo(12, -14);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#007a3d';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Pineapple Suit Body (Golden yellow rounded pixel torso)
+    ctx.fillStyle = '#FFB300';
+    ctx.fillRect(-13, -14, 26, 26);
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(-11, -12, 22, 22);
+
+    // Cross-hatch diamond pineapple texture
+    ctx.strokeStyle = '#CC7A00';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-11, -4); ctx.lineTo(11, -4);
+    ctx.moveTo(-11, 4);  ctx.lineTo(11, 4);
+    ctx.moveTo(-4, -12); ctx.lineTo(-4, 10);
+    ctx.moveTo(4, -12);  ctx.lineTo(4, 10);
+    ctx.stroke();
+
+    // Thick Gold Chains & Medallion
+    ctx.strokeStyle = '#FFF176';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(0, 1, 8, 0.15 * Math.PI, 0.85 * Math.PI);
+    ctx.stroke();
+    // Gold Medallion Pendant
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.arc(0, 9, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#FF6F00';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Oversized 2004 Dancehall Shutter/Shield Sunglasses
+    const shadeOffset = facing * 2;
+    ctx.fillStyle = '#08060c';
+    ctx.fillRect(-12 + shadeOffset, -10, 24, 8);
+    ctx.strokeStyle = '#00F0FF';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(-12 + shadeOffset, -10, 24, 8);
+    // Lens glint
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(-9 + shadeOffset, -8, 5, 2);
+    ctx.fillRect(3 + shadeOffset, -8, 5, 2);
+
+    // Fresh Clarks Boots (Feet)
+    ctx.fillStyle = player.perks.fresh_clarks > 0 ? '#00F0FF' : '#D7CCC8';
+    ctx.fillRect(-10, 12, 7, 5);
+    ctx.fillRect(3, 12, 7, 5);
+
+    ctx.restore();
+  }
+
+  // Draw Enemies (Soundboy Roadie & Selector Rival)
+  function drawEnemy(enemy, beatPulse) {
+    const cx = tileCenterX(enemy.renderX);
+    const cy = tileCenterY(enemy.renderY);
+    const isTelegraphing = (enemy.beatCounter === enemy.period - 1);
+
+    ctx.save();
+
+    // Danger Telegraph Tile Highlight (1 beat before moving/attacking!)
+    if (isTelegraphing) {
+      const tx = ARENA_OFFSET_X + enemy.x * TILE_SIZE;
+      const ty = ARENA_OFFSET_Y + enemy.y * TILE_SIZE;
+      ctx.fillStyle = `rgba(255, 23, 68, ${0.28 + beatPulse * 0.35})`;
+      ctx.fillRect(tx + 2, ty + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+      ctx.strokeStyle = '#FF1744';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(tx + 3, ty + 3, TILE_SIZE - 6, TILE_SIZE - 6);
+    }
+
+    const jumpY = -Math.sin(enemy.hopAnim * Math.PI) * 12 - beatPulse * 2.5;
+    ctx.translate(cx, cy + jumpY);
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.beginPath();
+    ctx.ellipse(0, 17 - jumpY * 0.5, 13, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (enemy.type === 'roadie') {
+      // SOUNDBOY ROADIE: Rasta Beanie + Boombox/Cable Vest
+      ctx.fillStyle = enemy.flashTimer > 0 ? '#FFFFFF' : '#263238';
+      ctx.fillRect(-12, -10, 24, 22);
+
+      // Red/Gold/Green Cap
+      ctx.fillStyle = '#FF1744';
+      ctx.fillRect(-13, -17, 26, 4);
+      ctx.fillStyle = '#FFD700';
+      ctx.fillRect(-13, -13, 26, 3);
+      ctx.fillStyle = '#00E676';
+      ctx.fillRect(-13, -10, 26, 3);
+
+      // Mean Eyes / Brow
+      ctx.fillStyle = isTelegraphing ? '#FF1744' : '#FFF';
+      ctx.fillRect(-8, -5, 5, 4);
+      ctx.fillRect(3, -5, 5, 4);
+
+      // Gold Boombox / Mic icon on chest
+      ctx.fillStyle = '#FFD700';
+      ctx.fillRect(-7, 3, 14, 6);
+    } else {
+      // SELECTOR RIVAL: Neon Pink/Cyan Turntable Boss Jacket & Visor
+      ctx.fillStyle = enemy.flashTimer > 0 ? '#FFFFFF' : '#4A148C';
+      ctx.fillRect(-14, -12, 28, 24);
+      ctx.strokeStyle = isTelegraphing ? '#FF1744' : '#00F0FF';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(-14, -12, 28, 24);
+
+      // DJ Headphones
+      ctx.fillStyle = '#00F0FF';
+      ctx.fillRect(-17, -9, 4, 10);
+      ctx.fillRect(13, -9, 4, 10);
+      ctx.fillRect(-15, -16, 30, 4);
+
+      // Neon Visor
+      ctx.fillStyle = isTelegraphing ? '#FF1744' : '#FF007F';
+      ctx.fillRect(-10, -7, 20, 6);
+
+      // Charge Counter Dots (shows 3-beat windup)
+      for (let b = 0; b < 3; b++) {
+        ctx.fillStyle = b < enemy.beatCounter ? '#FFD700' : '#311B92';
+        ctx.fillRect(-8 + b * 6, 4, 4, 4);
+      }
+    }
+
+    // Telegraph Exclamation Marker ("!")
+    if (isTelegraphing) {
+      ctx.fillStyle = '#FF1744';
+      ctx.font = '900 18px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('!', 0, -22 - beatPulse * 4);
+    }
+
+    // Mini HP Pip Bar
+    const barW = 24;
+    const pipW = barW / enemy.maxHp;
+    for (let h = 0; h < enemy.maxHp; h++) {
+      ctx.fillStyle = h < enemy.hp ? '#FF1744' : '#222';
+      ctx.fillRect(-barW / 2 + h * pipW, 15, pipW - 2, 4);
+    }
+
+    ctx.restore();
+  }
+
+  // Draw Spinning Golden Dubplate Portal
+  function drawDubplatePortal(portalObj, beatPulse) {
+    const cx = tileCenterX(portalObj.x);
+    const cy = tileCenterY(portalObj.y);
+    portalObj.angle += 0.06;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(portalObj.angle);
+
+    const r = 19 + beatPulse * 3;
+    // Vinyl outer rim
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#111';
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#FFD700';
+    ctx.stroke();
+
+    // Grooves
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.72, 0, Math.PI);
+    ctx.strokeStyle = '#00F0FF';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Jamaican Dubplate Center Label
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.42, 0, Math.PI * 2);
+    ctx.fillStyle = '#00E676';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(0, 0, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#000';
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  // ==========================================
+  // BOTTOM BEAT BAR & PINEAPPLE ICON
+  // ==========================================
+  function drawBeatBar(beatFloat, beatPulse) {
+    const barWidth = 640;
+    const barHeight = 44;
+    const barX = (canvas.width - barWidth) / 2;
+    const barY = canvas.height - 76;
+    const centerX = canvas.width / 2;
+    const centerY = barY + barHeight / 2;
+
+    // Beat Bar Frame
+    ctx.fillStyle = 'rgba(10, 8, 18, 0.92)';
+    ctx.fillRect(barX, barY, barWidth, barHeight);
+    ctx.strokeStyle = beatPulse > 0.6 ? '#FFD700' : '#4a3e66';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(barX, barY, barWidth, barHeight);
+
+    // Hit Zone Window Indicator around center
+    const windowRatio = getActiveTimingWindow() / BEAT_DURATION;
+    const hitZoneHalfWidth = (barWidth / 2) * (windowRatio / 2); // proportional to 2 beats visible on each side
+    ctx.fillStyle = 'rgba(0, 230, 118, 0.18)';
+    ctx.fillRect(centerX - hitZoneHalfWidth, barY + 3, hitZoneHalfWidth * 2, barHeight - 6);
+    ctx.strokeStyle = '#00E676';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(centerX - hitZoneHalfWidth, barY + 3, hitZoneHalfWidth * 2, barHeight - 6);
+
+    // Draw converging beat markers from BOTH Left and Right edges
+    // Show upcoming 2 beats on each side
+    const frac = beatFloat - Math.floor(beatFloat); // 0.0 -> 1.0
+    const beatsVisible = 2.0;
+    const halfSpan = barWidth / 2 - 14;
+
+    for (let k = 0; k < 2; k++) {
+      // Distance in beats until this marker hits center (0 = at center, 2 = at outer edge)
+      const distBeats = (1 - frac) + k;
+      const normDist = distBeats / beatsVisible; // 0 at center, 1 at edge
+
+      if (normDist >= 0 && normDist <= 1) {
+        const offsetPx = normDist * halfSpan;
+        const alpha = 0.35 + (1 - normDist) * 0.65;
+        const markerColor = normDist < (windowRatio / beatsVisible) ? '#00E676' : '#FFD700';
+
+        ctx.fillStyle = markerColor;
+        ctx.globalAlpha = alpha;
+
+        // Left marker sliding right toward center
+        ctx.fillRect(centerX - offsetPx - 4, barY + 6, 8, barHeight - 12);
+        // Right marker sliding left toward center
+        ctx.fillRect(centerX + offsetPx - 4, barY + 6, 8, barHeight - 12);
+
+        ctx.globalAlpha = 1.0;
+      }
+    }
+
+    // Center Pulsing Pineapple Target Icon
+    const scale = 1.0 + beatPulse * 0.35;
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.scale(scale, scale);
+
+    // Crown leaves
+    ctx.fillStyle = '#00E676';
+    ctx.beginPath();
+    ctx.moveTo(-8, -10);
+    ctx.lineTo(-10, -20);
+    ctx.lineTo(0, -14);
+    ctx.lineTo(0, -23);
+    ctx.lineTo(4, -14);
+    ctx.lineTo(10, -20);
+    ctx.lineTo(8, -10);
+    ctx.closePath();
+    ctx.fill();
+
+    // Golden Pineapple Heart
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.arc(0, 2, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#FF1744';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Pineapple cross-lines
+    ctx.strokeStyle = '#B26A00';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-7, -3); ctx.lineTo(7, 7);
+    ctx.moveTo(7, -3);  ctx.lineTo(-7, 7);
+    ctx.stroke();
+
+    ctx.restore();
+
+    // Timing Judgement Banner above Beat Bar
+    if (timingJudgement.alpha > 0.01) {
+      ctx.save();
+      ctx.globalAlpha = timingJudgement.alpha;
+      ctx.font = `900 ${Math.round(16 * timingJudgement.scale)}px "Courier New", monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = timingJudgement.color;
+      ctx.shadowColor = '#000';
+      ctx.shadowBlur = 6;
+      ctx.fillText(timingJudgement.text, centerX, barY - 12);
+      ctx.restore();
+    }
+  }
+
+  // ==========================================
+  // TOP HUD RENDERING
+  // ==========================================
+  function drawHUD(beatPulse) {
+    // Top Banner Backdrop
+    ctx.fillStyle = 'rgba(12, 10, 20, 0.9)';
+    ctx.fillRect(14, 10, canvas.width - 28, 56);
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(14, 10, canvas.width - 28, 56);
+
+    // Hearts (Vibes / HP)
+    ctx.font = 'bold 14px "Courier New", monospace';
+    ctx.fillStyle = '#FFD700';
+    ctx.textAlign = 'left';
+    ctx.fillText('SOUND VIBES:', 28, 30);
+
+    const totalHearts = Math.ceil(player.maxHp / 2);
+    for (let i = 0; i < totalHearts; i++) {
+      const hx = 36 + i * 28;
+      const hy = 46;
+      const hpForHeart = Math.max(0, Math.min(2, player.hp - i * 2));
+      ctx.fillStyle = hpForHeart === 2 ? '#FF1744' : (hpForHeart === 1 ? '#FF9100' : '#2c2538');
+      ctx.beginPath();
+      ctx.arc(hx - 4, hy - 3, 6, 0, Math.PI * 2);
+      ctx.arc(hx + 4, hy - 3, 6, 0, Math.PI * 2);
+      ctx.moveTo(hx - 10, hy - 1);
+      ctx.lineTo(hx, hy + 9);
+      ctx.lineTo(hx + 10, hy - 1);
+      ctx.fill();
+    }
+
+    // Center Arena Title & BPM
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#00E676';
+    ctx.font = '900 18px "Courier New", monospace';
+    ctx.fillText(`KINGSTON ARENA #${stage} • 100 BPM`, canvas.width / 2, 32);
+
+    ctx.fillStyle = '#e0dce8';
+    ctx.font = 'bold 13px "Courier New", monospace';
+    const remainingText = enemies.length > 0
+      ? `RIVAL SOUNDBOYS LEFT: ${enemies.length}`
+      : 'DUBPLATE PORTAL OPEN — STEP ON IT!';
+    ctx.fillText(remainingText, canvas.width / 2, 52);
+
+    // Right Side: Combo Multiplier, Score & Bling
+    ctx.textAlign = 'right';
+    const comboScale = combo > 0 ? 1 + beatPulse * 0.15 : 1;
+    ctx.save();
+    ctx.translate(canvas.width - 30, 32);
+    ctx.scale(comboScale, comboScale);
+    ctx.fillStyle = combo >= 4 ? '#FFD700' : '#00F0FF';
+    ctx.font = '900 18px "Courier New", monospace';
+    ctx.fillText(`HYPE COMBO: ${combo}x`, 0, 0);
+    ctx.restore();
+
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 14px "Courier New", monospace';
+    ctx.fillText(`BLING: $${blingCoins}  |  SCORE: ${score}`, canvas.width - 30, 53);
+  }
+
+  // ==========================================
+  // MAIN GAME LOOP (UPDATE & RENDER)
+  // ==========================================
+  let lastFrameTime = performance.now();
+
+  function gameLoop(now) {
+    const dt = Math.min(0.1, (now - lastFrameTime) / 1000);
+    lastFrameTime = now;
+
+    update(dt);
+    render();
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  function update(dt) {
+    if (gameState === 'PLAYING' && audio.isPlaying) {
+      const beatFloat = audio.getCurrentBeatFloat();
+      const beatIndex = Math.floor(beatFloat);
+
+      if (beatIndex > audio.lastProcessedBeatIndex) {
+        audio.lastProcessedBeatIndex = beatIndex;
+        onQuarterNoteBeat(beatIndex);
+      }
+    }
+
+    // Smoothly interpolate positions & animations
+    player.renderX += (player.x - player.renderX) * Math.min(1, dt * 18);
+    player.renderY += (player.y - player.renderY) * Math.min(1, dt * 18);
+    player.hopAnim = Math.max(0, player.hopAnim - dt * 4.5);
+
+    enemies.forEach(e => {
+      e.renderX += (e.x - e.renderX) * Math.min(1, dt * 16);
+      e.renderY += (e.y - e.renderY) * Math.min(1, dt * 16);
+      e.hopAnim = Math.max(0, e.hopAnim - dt * 4.0);
+      e.flashTimer = Math.max(0, e.flashTimer - dt);
+    });
+
+    invertFlashTimer = Math.max(0, invertFlashTimer - dt * 3.8);
+    screenShake = Math.max(0, screenShake - dt * 40);
+
+    if (timingJudgement.alpha > 0) {
+      timingJudgement.alpha = Math.max(0, timingJudgement.alpha - dt * 1.4);
+      timingJudgement.scale = 1.0 + (timingJudgement.scale - 1.0) * Math.pow(0.01, dt);
+    }
+
+    // Update particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.alpha -= dt * 2.2;
+      if (p.alpha <= 0) particles.splice(i, 1);
+    }
+
+    // Update shockwaves
+    for (let i = shockwaves.length - 1; i >= 0; i--) {
+      const sw = shockwaves[i];
+      sw.radius += (sw.maxRadius - sw.radius) * dt * 8;
+      sw.alpha -= dt * 2.4;
+      if (sw.alpha <= 0) shockwaves.splice(i, 1);
+    }
+
+    // Update Jamaican slang floating popups
+    for (let i = floatingTexts.length - 1; i >= 0; i--) {
+      const ft = floatingTexts[i];
+      ft.y += ft.vy * dt;
+      ft.alpha -= dt * 1.1;
+      if (ft.alpha <= 0) floatingTexts.splice(i, 1);
+    }
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const beatFloat = audio.isPlaying ? audio.getCurrentBeatFloat() : 0;
+    const frac = beatFloat - Math.floor(beatFloat);
+    // Exponential decay pulse on every quarter note
+    const beatPulse = audio.isPlaying ? Math.pow(1 - frac, 3) : 0;
+
+    ctx.save();
+    if (screenShake > 0.5) {
+      const sx = (Math.random() - 0.5) * screenShake;
+      const sy = (Math.random() - 0.5) * screenShake;
+      ctx.translate(sx, sy);
+    }
+
+    // 1. Draw Speaker Wall Perimeter around the 10x10 Arena
+    for (let gx = -1; gx <= GRID_SIZE; gx++) {
+      for (let gy = -1; gy <= GRID_SIZE; gy++) {
+        if (gx === -1 || gx === GRID_SIZE || gy === -1 || gy === GRID_SIZE) {
+          const wx = ARENA_OFFSET_X + gx * TILE_SIZE;
+          const wy = ARENA_OFFSET_Y + gy * TILE_SIZE;
+          drawSpeakerCabinet(wx, wy, TILE_SIZE, beatPulse);
+        }
+      }
+    }
+
+    // 2. Draw 10x10 Pulsing Checkerboard Dancefloor (Inverts on every quarter note!)
+    const parityInvert = currentQuarterBeat % 2;
+    for (let gx = 0; gx < GRID_SIZE; gx++) {
+      for (let gy = 0; gy < GRID_SIZE; gy++) {
+        const tx = ARENA_OFFSET_X + gx * TILE_SIZE;
+        const ty = ARENA_OFFSET_Y + gy * TILE_SIZE;
+        const isEvenTile = ((gx + gy + parityInvert) % 2 === 0);
+
+        // Vibrant Kingston Dancehall palette (Gold/Green/Deep Club Black/Neon)
+        if (isEvenTile) {
+          ctx.fillStyle = invertFlashTimer > 0.5 ? '#261e3f' : '#161224';
+        } else {
+          ctx.fillStyle = invertFlashTimer > 0.5 ? '#122b24' : '#0d1b18';
+        }
+        ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
+
+        // Glowing inner dancefloor tile border
+        ctx.strokeStyle = isEvenTile
+          ? `rgba(255, 215, 0, ${0.16 + beatPulse * 0.28})`
+          : `rgba(0, 230, 118, ${0.16 + beatPulse * 0.28})`;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(tx + 2, ty + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+
+        // Center LED dot on dancefloor tiles
+        ctx.fillStyle = isEvenTile
+          ? `rgba(255, 215, 0, ${0.12 + beatPulse * 0.25})`
+          : `rgba(0, 230, 118, ${0.12 + beatPulse * 0.25})`;
+        ctx.fillRect(tx + TILE_SIZE / 2 - 2, ty + TILE_SIZE / 2 - 2, 4, 4);
+      }
+    }
+
+    // 3. Draw Gold Coins / Bling Drops
+    coins.forEach(c => {
+      c.bobOffset += 0.08;
+      const cx = tileCenterX(c.x);
+      const cy = tileCenterY(c.y) + Math.sin(c.bobOffset) * 3;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFD700';
+      ctx.fill();
+      ctx.strokeStyle = '#FFF';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 10px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('$', cx, cy + 3.5);
+    });
+
+    // 4. Draw Dubplate Portal if active
+    if (portal) {
+      drawDubplatePortal(portal, beatPulse);
+    }
+
+    // 5. Draw Shockwaves
+    shockwaves.forEach(sw => {
+      ctx.save();
+      ctx.globalAlpha = sw.alpha;
+      ctx.beginPath();
+      ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+      ctx.strokeStyle = sw.color;
+      ctx.lineWidth = 4;
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // 6. Draw Enemies
+    enemies.forEach(enemy => drawEnemy(enemy, beatPulse));
+
+    // 7. Draw Protagonist: MC Ananas
+    drawMCAnanas(
+      tileCenterX(player.renderX),
+      tileCenterY(player.renderY),
+      player.hopAnim,
+      beatPulse,
+      player.facing
+    );
+
+    // 8. Draw Particles
+    particles.forEach(p => {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.alpha);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+      ctx.restore();
+    });
+
+    // 9. Draw Jamaican Slang Floating Popups ("BRAP!", "PULL UP!", "FORWARD!")
+    floatingTexts.forEach(ft => {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, ft.alpha);
+      ctx.font = `900 ${ft.size}px "Courier New", monospace`;
+      ctx.textAlign = 'center';
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 4;
+      ctx.strokeText(ft.text, ft.x, ft.y);
+      ctx.fillStyle = ft.color;
+      ctx.fillText(ft.text, ft.x, ft.y);
+      ctx.restore();
+    });
+
+    ctx.restore(); // End screenShake transform
+
+    // 10. Draw Top HUD & Bottom Beat Bar
+    drawHUD(beatPulse);
+    drawBeatBar(beatFloat, beatPulse);
+  }
+
+  // ==========================================
+  // EVENT LISTENERS
+  // ==========================================
+  window.addEventListener('keydown', (e) => {
+    if (gameState !== 'PLAYING') return;
+
+    switch (e.key) {
+      case 'ArrowUp':
+      case 'w':
+      case 'W':
+        e.preventDefault();
+        handlePlayerInput(0, -1);
+        break;
+      case 'ArrowDown':
+      case 's':
+      case 'S':
+        e.preventDefault();
+        handlePlayerInput(0, 1);
+        break;
+      case 'ArrowLeft':
+      case 'a':
+      case 'A':
+        e.preventDefault();
+        handlePlayerInput(-1, 0);
+        break;
+      case 'ArrowRight':
+      case 'd':
+      case 'D':
+        e.preventDefault();
+        handlePlayerInput(1, 0);
+        break;
+    }
+  });
+
+  startBtn.addEventListener('click', () => {
+    startOverlay.classList.add('hidden');
+    startNewRun();
+  });
+
+  restartBtn.addEventListener('click', () => {
+    gameOverOverlay.classList.add('hidden');
+    startNewRun();
+  });
+
+  // Start render loop immediately so background canvas is visible
+  requestAnimationFrame(gameLoop);
+})();
+</script>
+</body>
+</html>
