@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -341,15 +341,15 @@
     <div class="rasta-stripe"></div>
 
     <div class="instructions-card">
-      <p><span class="highlight-gold">THE 4-STAGE KINGSTON TOUR:</span> Guide <strong>MC Ananas</strong> through 4 distinct dancehall venues—each with its own authentic '04 Riddim, obstacles &amp; tempo:</p>
-      <p>• <strong>Stage 1 (100 BPM):</strong> Downtown Corner — <em>Dem Bow Riddim</em><br>
-         • <strong>Stage 2 (100 BPM):</strong> Half-Way Tree — <em>Diwali Clap Riddim</em> + Vinyl Crates<br>
-         • <strong>Stage 3 (105 BPM):</strong> Harbour Beach — <em>Sleng Teng Digital Dub</em> + Bass Traps<br>
-         • <strong>Stage 4 (110 BPM):</strong> Sting '04 Finals — <em>Bruk Out Riddim</em> vs. <strong>BOSS: KING SOUNDCLASH!</strong></p>
+      <p><span class="highlight-gold">THE 4-STAGE KINGSTON TOUR:</span> Guide <strong>MC Ananas</strong> through 4 distinct dancehall venuesΓÇöeach with its own authentic '04 Riddim, obstacles &amp; tempo:</p>
+      <p>ΓÇó <strong>Stage 1 (100 BPM):</strong> Downtown Corner ΓÇö <em>Dem Bow Riddim</em><br>
+         ΓÇó <strong>Stage 2 (100 BPM):</strong> Half-Way Tree ΓÇö <em>Diwali Clap Riddim</em> + Vinyl Crates<br>
+         ΓÇó <strong>Stage 3 (105 BPM):</strong> Harbour Beach ΓÇö <em>Sleng Teng Digital Dub</em> + Bass Traps<br>
+         ΓÇó <strong>Stage 4 (110 BPM):</strong> Sting '04 Finals ΓÇö <em>Bruk Out Riddim</em> vs. <strong>BOSS: KING SOUNDCLASH!</strong></p>
       <p><span class="highlight-cyan">CONTROLS:</span> Tap the 4 hammered <strong>Steelpan Note Domes</strong> at the bottom (or use <span class="key-badge">WASD</span> / <span class="key-badge">ARROWS</span>) strictly on the beat!</p>
     </div>
 
-    <button id="startBtn" class="btn-clash">🔥 Start Sound Clash 🔥</button>
+    <button id="startBtn" class="btn-clash">≡ƒöÑ Start Sound Clash ≡ƒöÑ</button>
   </div>
 
   <!-- BACKGROUND / AUDIO RESUME OVERLAY -->
@@ -360,7 +360,7 @@
     <p style="color:#d8d4e8; max-width: 360px; margin: 14px 0 24px 0; font-size: 14px; line-height: 1.5;">
       Audio clock paused cleanly while in background so the riddim stays locked in sync.
     </p>
-    <button id="resumeBtn" class="btn-clash">▶️ Drop Di Riddim (Resume)</button>
+    <button id="resumeBtn" class="btn-clash">Γû╢∩╕Å Drop Di Riddim (Resume)</button>
   </div>
 
   <!-- PERK / STAGE CLEAR OVERLAY -->
@@ -377,7 +377,7 @@
     <h1 id="endTitle" class="game-title">SOUND SYSTEM SHUT DOWN</h1>
     <h2 id="endSubtitle" class="game-subtitle">DROWNED OUT BY THE RIVAL CREW</h2>
     <div class="instructions-card" id="endStats" style="text-align:center; font-size:15px;"></div>
-    <button id="restartBtn" class="btn-clash">🔄 Run It Back (Rewind)</button>
+    <button id="restartBtn" class="btn-clash">≡ƒöä Run It Back (Rewind)</button>
   </div>
 </div>
 
@@ -484,7 +484,7 @@
   let currentBPM = 100;
   let beatDuration = 60 / currentBPM;
   let sixteenthDuration = beatDuration / 4;
-  const BASE_TIMING_WINDOW = 0.120; // ±120ms around each beat
+  const BASE_TIMING_WINDOW = 0.120; // ┬▒120ms around each beat
 
   function setStageTempo(bpm) {
     currentBPM = bpm;
@@ -595,7 +595,7 @@
           bassStyle: 'digital_square',
           leadStyle: 'dub_chord'
         },
-        // STAGE 4: Sting '04 Finals — Bruk Out Badman Riddim (D Minor, 110 BPM)
+        // STAGE 4: Sting '04 Finals ΓÇö Bruk Out Badman Riddim (D Minor, 110 BPM)
         {
           kick:  [1, 0, 0, 1,  0, 0, 1, 0,  1, 0, 0, 1,  0, 1, 0, 0],
           snare: [0, 0, 0, 1,  0, 0, 1, 0,  0, 0, 0, 1,  0, 0, 1, 1],
@@ -983,7 +983,7 @@
       }
     }
 
-    // Authentic Caribbean Steel Drum (Steelpan) Note Synthesis — Transposes automatically to current Stage Key!
+    // Authentic Caribbean Steel Drum (Steelpan) Note Synthesis ΓÇö Transposes automatically to current Stage Key!
     playSteelDrumStepSFX(dirKey, stageNum) {
       if (!this.ctx) return;
       const now = this.ctx.currentTime;
@@ -1157,7 +1157,7 @@
     {
       id: 'gold_medallion',
       name: 'Gold Medallion',
-      desc: 'Widens your on-beat timing window by +25% (±150ms) and adds +1 Max Heart.',
+      desc: 'Widens your on-beat timing window by +25% (┬▒150ms) and adds +1 Max Heart.',
       tag: '+25% Window'
     },
     {
@@ -1412,7 +1412,7 @@
     spawnFloatingText(
       ARENA_OFFSET_X + (GRID_SIZE * TILE_SIZE) / 2,
       ARENA_OFFSET_Y + (GRID_SIZE * TILE_SIZE) / 2 + 12,
-      `🎵 ${theme.riddimName.toUpperCase()} (${theme.bpm} BPM)`,
+      `≡ƒÄ╡ ${theme.riddimName.toUpperCase()} (${theme.bpm} BPM)`,
       '#00E676',
       14
     );
@@ -1614,7 +1614,7 @@
         spawnFloatingText(
           tileCenterX(dead.x),
           tileCenterY(dead.y) - 26,
-          isBoss ? '👑 KING SOUNDCLASH DEFEATED!' : 'K.O. FORWARD!',
+          isBoss ? '≡ƒææ KING SOUNDCLASH DEFEATED!' : 'K.O. FORWARD!',
           isBoss ? '#FFD700' : '#00E676',
           isBoss ? 18 : 16
         );
@@ -1864,7 +1864,7 @@
 
     const nextTheme = getStageTheme(stage + 1);
     document.getElementById('perkSubtitle').textContent =
-      `NEXT UP: STAGE ${stage + 1} — ${nextTheme.name} (${nextTheme.bpm} BPM)`;
+      `NEXT UP: STAGE ${stage + 1} ΓÇö ${nextTheme.name} (${nextTheme.bpm} BPM)`;
 
     PERK_POOL.forEach(perk => {
       const card = document.createElement('div');
@@ -1898,7 +1898,7 @@
   function triggerVictory() {
     gameState = 'GAMEOVER';
     audio.stop();
-    document.getElementById('endTitle').textContent = '👑 KINGSTON SOUND CLASH CHAMPION! 👑';
+    document.getElementById('endTitle').textContent = '≡ƒææ KINGSTON SOUND CLASH CHAMPION! ≡ƒææ';
     document.getElementById('endSubtitle').textContent = 'MC ANANAS RULED STING \'04 PON DI RIDDIM!';
     gameOverOverlay.classList.remove('hidden');
     document.getElementById('endStats').innerHTML = `
@@ -1917,7 +1917,7 @@
     document.getElementById('endSubtitle').textContent = 'DROWNED OUT BY THE RIVAL CREW';
     gameOverOverlay.classList.remove('hidden');
     document.getElementById('endStats').innerHTML = `
-      <p><span class="highlight-gold">STAGE REACHED:</span> Stage ${stage} — ${theme.name} (${theme.bpm} BPM)</p>
+      <p><span class="highlight-gold">STAGE REACHED:</span> Stage ${stage} ΓÇö ${theme.name} (${theme.bpm} BPM)</p>
       <p><span class="highlight-green">TOTAL SCORE:</span> ${score.toLocaleString()} PTS</p>
       <p><span class="highlight-gold">MAX HYPE COMBO:</span> ${maxCombo}x STREAK</p>
       <p><span class="highlight-green">BLING COLLECTED:</span> $${blingCoins} GOLD</p>
@@ -2259,7 +2259,7 @@
       ctx.fillStyle = '#FF1744';
       ctx.font = '900 18px "Courier New", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(enemy.type === 'boss' ? '⚡AIM⚡' : '!', 0, -24 - beatPulse * 4);
+      ctx.fillText(enemy.type === 'boss' ? 'ΓÜíAIMΓÜí' : '!', 0, -24 - beatPulse * 4);
     }
 
     const barW = enemy.type === 'boss' ? 34 : 24;
@@ -2486,10 +2486,10 @@
 
     const padDist = 74;
     const padOrder = [
-      { key: 'up',    arrow: '▲', name: 'UP',    rx: 38, ry: 28, rot: 0 },
-      { key: 'down',  arrow: '▼', name: 'DOWN',  rx: 38, ry: 28, rot: 0 },
-      { key: 'left',  arrow: '◀', name: 'LEFT',  rx: 28, ry: 38, rot: 0 },
-      { key: 'right', arrow: '▶', name: 'RIGHT', rx: 28, ry: 38, rot: 0 }
+      { key: 'up',    arrow: 'Γû▓', name: 'UP',    rx: 38, ry: 28, rot: 0 },
+      { key: 'down',  arrow: 'Γû╝', name: 'DOWN',  rx: 38, ry: 28, rot: 0 },
+      { key: 'left',  arrow: 'ΓùÇ', name: 'LEFT',  rx: 28, ry: 38, rot: 0 },
+      { key: 'right', arrow: 'Γû╢', name: 'RIGHT', rx: 28, ry: 38, rot: 0 }
     ];
 
     padOrder.forEach(item => {
@@ -2612,7 +2612,7 @@
     ctx.font = 'bold 11.5px "Courier New", monospace';
     const bossAlive = enemies.find(e => e.type === 'boss');
     const remainingText = bossAlive
-      ? `👑 BOSS HP: ${bossAlive.hp}/${bossAlive.maxHp} | RIVALS: ${enemies.length}`
+      ? `≡ƒææ BOSS HP: ${bossAlive.hp}/${bossAlive.maxHp} | RIVALS: ${enemies.length}`
       : (enemies.length > 0 ? `RIVALS LEFT: ${enemies.length}` : 'STEP ON DUBPLATE!');
     ctx.fillText(remainingText, canvas.width / 2, 48);
 
