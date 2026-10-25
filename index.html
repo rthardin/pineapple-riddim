@@ -666,6 +666,28 @@
     sixteenthDuration = beatDuration / 4;
   }
 
+  const CHROMATIC_SCALE = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+  function transposeNoteLabel(noteStr, semitones) {
+    if (!semitones || semitones <= 0) return noteStr;
+    const match = noteStr.match(/^([A-G][b#]?)(\d)$/);
+    if (!match) return noteStr;
+    const note = match[1];
+    let oct = parseInt(match[2], 10);
+    let idx = CHROMATIC_SCALE.indexOf(note);
+    if (idx === -1) {
+      if (note === 'Db') idx = 1;
+      else if (note === 'D#') idx = 3;
+      else if (note === 'Gb') idx = 6;
+      else if (note === 'G#') idx = 8;
+      else if (note === 'A#') idx = 10;
+    }
+    if (idx === -1) return noteStr;
+    const targetIdx = idx + semitones;
+    oct += Math.floor(targetIdx / 12);
+    const newNote = CHROMATIC_SCALE[((targetIdx % 12) + 12) % 12];
+    return `${newNote}${oct}`;
+  }
+
   // Persistent High Score & Tour Records (localStorage)
   const STORAGE_KEY = 'pineapple_riddim_records_v1';
   let savedRecords = { highScore: 0, maxCombo: 0, bestStage: 1, loopsCleared: 0 };
@@ -856,6 +878,7 @@
     }
 
     setRiddimForStage(stageNum, loopNum = 1) {
+      this.loopNum = loopNum;
       this.riddimIndex = (stageNum - 1) % this.riddims.length;
       setStageTempo(getStageBPM(stageNum, loopNum));
 
@@ -866,6 +889,12 @@
         this.nextNoteTime = this.startTime;
         this.lastProcessedBeatIndex = -1;
       }
+    }
+
+    getPitchMultiplier() {
+      const loop = (typeof tourLoop !== 'undefined') ? tourLoop : (this.loopNum || 1);
+      // Each Encore Loop steps up the music pitch by 1 semitone (+1 musical step)
+      return Math.pow(2, (loop - 1) / 12);
     }
 
     start(stageNum = 1, loopNum = 1) {
@@ -948,12 +977,13 @@
       // Tier 2 (10-19x): Full Organ Skank / Reed / Brass Leads + Open Resonant Bass
       // Tier 3 (20x+):   FEVER MODE! High-Octave Steelpan Descant + Driving Shaker
       const hypeTier = combo >= 20 ? 3 : (combo >= 10 ? 2 : (combo >= 5 ? 1 : 0));
+      const pitchMult = this.getPitchMultiplier();
 
       // DUBSTEP HALF-TIME DROP: When rivals are slowed to half-rate, riddim drops to heavy dubstep!
       const isSlowMo = (typeof playerBuffs !== 'undefined' && playerBuffs.slowMoBeats > 0);
       if (isSlowMo) {
         const bassNotes = (bar % 2 === 0) ? r.bassA : r.bassB;
-        const rootFreq = bassNotes[0] || 43.65;
+        const rootFreq = (bassNotes[0] || 43.65) * pitchMult;
 
         // Step 0 (Beat 1): Heavy Sub Kick + 8th-note Wobble Bass
         if (step === 0) {
@@ -966,7 +996,7 @@
         } else if (step === 8) {
           // Step 8 (Beat 3): Massive Half-Time Snare / Rimshot Crack + Triplet Wobble
           this.playRimSnare(time, 1.35);
-          const dropFreq = bassNotes[8] || rootFreq;
+          const dropFreq = (bassNotes[8] || bassNotes[0] || 43.65) * pitchMult;
           const wobbleRate = 1.0 / (sixteenthDuration * 1.5);
           this.playDubstepWobbleBass(time, dropFreq, sixteenthDuration * 7.4, wobbleRate);
         } else if (step === 10) {
@@ -1011,19 +1041,19 @@
       const bassNotes = (bar % 2 === 0) ? r.bassA : r.bassB;
       const freq = bassNotes[step];
       if (freq > 0) {
-        this.playStageBass(time, freq, sixteenthDuration * 0.92, r.bassStyle, hypeTier);
+        this.playStageBass(time, freq * pitchMult, sixteenthDuration * 0.92, r.bassStyle, hypeTier);
       }
 
       // Layer 2 (10x+ Hype Combo): Unlocks Punchy Organ Skanks / Reed / Brass Leads!
       const leadFreq = r.lead[step];
       if (hypeTier >= 2 && leadFreq > 0) {
-        this.playStageLead(time, leadFreq, sixteenthDuration * 0.88, r.leadStyle);
+        this.playStageLead(time, leadFreq * pitchMult, sixteenthDuration * 0.88, r.leadStyle);
       }
 
       // Layer 3 (20x+ HYPE FEVER MODE!): Continuous High-Octave Steelpan Descant Melody!
       const feverFreq = r.fever ? r.fever[step] : 0;
       if (hypeTier >= 3 && feverFreq > 0) {
-        this.playFeverDescant(time, feverFreq, sixteenthDuration * 0.78);
+        this.playFeverDescant(time, feverFreq * pitchMult, sixteenthDuration * 0.78);
       }
     }
 
@@ -1056,7 +1086,7 @@
       if (!this.ctx) return;
       const now = this.ctx.currentTime;
       const theme = getStageTheme(stage);
-      const root = theme.steelpanNotes.down || 349.23;
+      const root = (theme.steelpanNotes.down || 349.23) * this.getPitchMultiplier();
       // Ascending celebratory chord arpeggio when unlocking 4x HYPE or 10x FEVER!
       const notes = tier === 2
         ? [root, root * 1.25, root * 1.5, root * 2.0, root * 2.5, root * 3.0]
@@ -1085,12 +1115,13 @@
     }
 
     playKick(time, velocity = 1.0) {
+      const pitchMult = this.getPitchMultiplier();
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(145, time);
-      osc.frequency.exponentialRampToValueAtTime(42, time + 0.085);
-      osc.frequency.exponentialRampToValueAtTime(28, time + 0.24);
+      osc.frequency.setValueAtTime(145 * pitchMult, time);
+      osc.frequency.exponentialRampToValueAtTime(42 * pitchMult, time + 0.085);
+      osc.frequency.exponentialRampToValueAtTime(28 * pitchMult, time + 0.24);
 
       gain.gain.setValueAtTime(0.95 * velocity, time);
       gain.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
@@ -1102,11 +1133,12 @@
     }
 
     playRimSnare(time, velocity = 0.85) {
+      const pitchMult = this.getPitchMultiplier();
       const osc = this.ctx.createOscillator();
       const oscGain = this.ctx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(390, time);
-      osc.frequency.exponentialRampToValueAtTime(155, time + 0.045);
+      osc.frequency.setValueAtTime(390 * pitchMult, time);
+      osc.frequency.exponentialRampToValueAtTime(155 * pitchMult, time + 0.045);
 
       oscGain.gain.setValueAtTime(0.65 * velocity, time);
       oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.06);
@@ -1375,7 +1407,7 @@
       if (!this.ctx) return;
       const now = this.ctx.currentTime;
       const theme = getStageTheme(stageNum);
-      const baseFreq = theme.steelpanNotes[dirKey] || 415.30;
+      const baseFreq = (theme.steelpanNotes[dirKey] || 415.30) * this.getPitchMultiplier();
 
       // Base harmonics (0-9x combo: pure single note)
       const harmonics = [
@@ -1762,6 +1794,7 @@
       if (!this.ctx) return;
       this.stopEndgameLoop();
       const now = this.ctx.currentTime;
+      const pitchMult = this.getPitchMultiplier();
 
       // Triple Airhorn Salute + Major Steelpan Arpeggio
       this.playAirhornSFX();
@@ -1771,7 +1804,7 @@
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(f, t);
+        osc.frequency.setValueAtTime(f * pitchMult, t);
         gain.gain.setValueAtTime(0.32, t);
         gain.gain.exponentialRampToValueAtTime(0.002, t + 0.35);
         osc.connect(gain);
@@ -1781,7 +1814,7 @@
       });
 
       let step = 0;
-      const winNotes = [65.41, 77.78, 87.31, 98.00];
+      const winNotes = [65.41 * pitchMult, 77.78 * pitchMult, 87.31 * pitchMult, 98.00 * pitchMult];
       this.endgameTimerID = setInterval(() => {
         if (gameState !== 'GAMEOVER' || !this.ctx) {
           this.stopEndgameLoop();
@@ -2055,11 +2088,12 @@
     const venueStage = ((stageNum - 1) % 4) + 1;
     setStageTempo(getStageBPM(stageNum, tourLoop));
 
-    // Update steelpan pitch labels for current stage key
-    steelPads.up.label = theme.steelpanLabels.up;
-    steelPads.down.label = theme.steelpanLabels.down;
-    steelPads.left.label = theme.steelpanLabels.left;
-    steelPads.right.label = theme.steelpanLabels.right;
+    // Update steelpan pitch labels for current stage key & Encore Loop pitch transpose!
+    const semitones = tourLoop - 1;
+    steelPads.up.label = transposeNoteLabel(theme.steelpanLabels.up, semitones);
+    steelPads.down.label = transposeNoteLabel(theme.steelpanLabels.down, semitones);
+    steelPads.left.label = transposeNoteLabel(theme.steelpanLabels.left, semitones);
+    steelPads.right.label = transposeNoteLabel(theme.steelpanLabels.right, semitones);
 
     player.x = 4;
     player.y = 8;
@@ -2135,8 +2169,9 @@
 
     // SPAWN ENEMIES (Roadies, Selectors, Bogle Dancers, Mic Hype Men, & Stage 4 Boss!)
     const hpScale = (tourLoop - 1) * 2;
+    const loopBonus = tourLoop - 1; // More enemies spawn on each successive Encore Loop!
     if (venueStage === 4) {
-      // BOSS: KING SOUNDCLASH ("DON GORGON") + Backup Crew
+      // BOSS: KING SOUNDCLASH ("DON GORGON") + Backup Crew (Encore Loops scale rival crew size!)
       const bossHp = 10 + (tourLoop - 1) * 6;
       occupied.add('4,1');
       enemies.push({
@@ -2155,44 +2190,91 @@
         facing: 1
       });
 
-      const posR = getFreeTile(0, 5);
-      enemies.push({
-        type: 'roadie',
-        name: 'Soundboy Roadie',
-        x: posR.x,
-        y: posR.y,
-        renderX: posR.x,
-        renderY: posR.y,
-        hp: 3 + hpScale,
-        maxHp: 3 + hpScale,
-        beatCounter: 0,
-        period: 2,
-        hopAnim: 0,
-        flashTimer: 0,
-        facing: 1
-      });
+      const numBossRoadies = 1 + loopBonus;
+      const numBossBogles = 1 + Math.floor(loopBonus / 2);
+      const numBossSelectors = loopBonus >= 1 ? 1 : 0;
+      const numBossHypemen = loopBonus >= 2 ? 1 : 0;
 
-      const posB = getFreeTile(0, 5);
-      enemies.push({
-        type: 'bogle',
-        name: 'Bogle Dancer',
-        x: posB.x,
-        y: posB.y,
-        renderX: posB.x,
-        renderY: posB.y,
-        hp: 3 + hpScale,
-        maxHp: 3 + hpScale,
-        beatCounter: 1,
-        period: 2,
-        hopAnim: 0,
-        flashTimer: 0,
-        facing: 1
-      });
+      for (let i = 0; i < numBossRoadies; i++) {
+        const posR = getFreeTile(0, 5);
+        enemies.push({
+          type: 'roadie',
+          name: 'Soundboy Roadie',
+          x: posR.x,
+          y: posR.y,
+          renderX: posR.x,
+          renderY: posR.y,
+          hp: 3 + hpScale,
+          maxHp: 3 + hpScale,
+          beatCounter: i % 2,
+          period: 2,
+          hopAnim: 0,
+          flashTimer: 0,
+          facing: 1
+        });
+      }
+
+      for (let i = 0; i < numBossBogles; i++) {
+        const posB = getFreeTile(0, 5);
+        enemies.push({
+          type: 'bogle',
+          name: 'Bogle Dancer',
+          x: posB.x,
+          y: posB.y,
+          renderX: posB.x,
+          renderY: posB.y,
+          hp: 3 + hpScale,
+          maxHp: 3 + hpScale,
+          beatCounter: (i + 1) % 2,
+          period: 2,
+          hopAnim: 0,
+          flashTimer: 0,
+          facing: 1
+        });
+      }
+
+      for (let i = 0; i < numBossSelectors; i++) {
+        const posS = getFreeTile(0, 5);
+        enemies.push({
+          type: 'selector',
+          name: 'Selector Rival',
+          x: posS.x,
+          y: posS.y,
+          renderX: posS.x,
+          renderY: posS.y,
+          hp: 4 + hpScale,
+          maxHp: 4 + hpScale,
+          beatCounter: 0,
+          period: 4,
+          hopAnim: 0,
+          flashTimer: 0,
+          facing: 1
+        });
+      }
+
+      for (let i = 0; i < numBossHypemen; i++) {
+        const posH = getFreeTile(0, 4);
+        enemies.push({
+          type: 'hypeman',
+          name: 'Mic Hype Man',
+          x: posH.x,
+          y: posH.y,
+          renderX: posH.x,
+          renderY: posH.y,
+          hp: 3 + hpScale,
+          maxHp: 3 + hpScale,
+          beatCounter: 0,
+          period: 3,
+          hopAnim: 0,
+          flashTimer: 0,
+          facing: 1
+        });
+      }
     } else {
-      const numRoadies = 2 + Math.floor(venueStage / 2);
-      const numSelectors = venueStage >= 2 ? 1 : 1;
-      const numBogles = venueStage >= 2 ? 1 + (venueStage === 3 ? 1 : 0) : 0;
-      const numHypemen = venueStage >= 3 ? 1 : 0;
+      const numRoadies = 2 + Math.floor(venueStage / 2) + loopBonus;
+      const numSelectors = (venueStage >= 2 ? 1 : 1) + Math.floor(loopBonus / 2);
+      const numBogles = (venueStage >= 2 ? 1 + (venueStage === 3 ? 1 : 0) : 0) + loopBonus;
+      const numHypemen = (venueStage >= 3 ? 1 : 0) + Math.floor(loopBonus / 2);
 
       for (let i = 0; i < numRoadies; i++) {
         const pos = getFreeTile(0, 6);
@@ -2281,10 +2363,11 @@
       '#FFD700',
       16
     );
+    const pitchTag = tourLoop > 1 ? ` • +${tourLoop - 1} PITCH` : '';
     spawnFloatingText(
       ARENA_OFFSET_X + (GRID_SIZE * TILE_SIZE) / 2,
       ARENA_OFFSET_Y + (GRID_SIZE * TILE_SIZE) / 2 + 12,
-      `🎵 ${theme.riddimName.toUpperCase()} (${currentBPM} BPM)`,
+      `🎵 ${theme.riddimName.toUpperCase()} (${currentBPM} BPM${pitchTag})`,
       '#00E676',
       14
     );
@@ -4491,7 +4574,8 @@
     ctx.fillStyle = theme.coneActive;
     ctx.font = '900 13.5px "Courier New", monospace';
     const loopPrefix = tourLoop > 1 ? `L${tourLoop}•` : '';
-    ctx.fillText(`${loopPrefix}STG ${stage}: ${theme.name} (${currentBPM} BPM)`, canvas.width / 2, 27);
+    const pitchSuffix = tourLoop > 1 ? ` +${tourLoop - 1}P` : '';
+    ctx.fillText(`${loopPrefix}STG ${stage}: ${theme.name} (${currentBPM} BPM${pitchSuffix})`, canvas.width / 2, 27);
 
     ctx.fillStyle = globalFreezeBeats > 0 ? '#00F0FF' : '#e0dce8';
     ctx.font = 'bold 11.5px "Courier New", monospace';
