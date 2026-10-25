@@ -209,19 +209,23 @@
     width: 100%;
     max-width: 460px;
     max-height: 520px;
+    box-sizing: border-box;
     overflow-y: auto;
-    padding-right: 4px;
+    overflow-x: hidden;
+    padding: 4px 6px 6px 4px;
     scrollbar-width: thin;
     scrollbar-color: var(--gold) rgba(20, 16, 34, 0.6);
   }
 
   .perk-card {
+    box-sizing: border-box;
+    width: 100%;
     background: linear-gradient(180deg, #1b162a 0%, #0f0b18 100%);
     border: 2px solid var(--gold);
     border-radius: 8px;
     padding: 11px 13px;
     cursor: pointer;
-    transition: transform 0.1s, border-color 0.1s, box-shadow 0.1s;
+    transition: transform 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -230,10 +234,30 @@
     position: relative;
   }
 
-  .perk-card:hover, .perk-card:active {
-    transform: scale(1.02);
+  .perk-card:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(180deg, #251d38 0%, #150f24 100%);
     border-color: var(--green);
-    box-shadow: 0 0 18px rgba(0, 230, 118, 0.55);
+    box-shadow: 0 4px 16px rgba(0, 230, 118, 0.45);
+  }
+
+  .perk-card:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0, 230, 118, 0.3);
+  }
+
+  .perk-card.locked, .perk-card.unaffordable {
+    opacity: 0.55;
+    border-color: #555;
+    filter: grayscale(0.4);
+    cursor: not-allowed;
+  }
+
+  .perk-card.locked:hover, .perk-card.unaffordable:hover {
+    transform: none;
+    border-color: #555;
+    box-shadow: none;
+    background: linear-gradient(180deg, #1b162a 0%, #0f0b18 100%);
   }
 
   .perk-card.synergy-card {
@@ -925,6 +949,36 @@
       // Tier 3 (20x+):   FEVER MODE! High-Octave Steelpan Descant + Driving Shaker
       const hypeTier = combo >= 20 ? 3 : (combo >= 10 ? 2 : (combo >= 5 ? 1 : 0));
 
+      // DUBSTEP HALF-TIME DROP: When rivals are slowed to half-rate, riddim drops to heavy dubstep!
+      const isSlowMo = (typeof playerBuffs !== 'undefined' && playerBuffs.slowMoBeats > 0);
+      if (isSlowMo) {
+        const bassNotes = (bar % 2 === 0) ? r.bassA : r.bassB;
+        const rootFreq = bassNotes[0] || 43.65;
+
+        // Step 0 (Beat 1): Heavy Sub Kick + 8th-note Wobble Bass
+        if (step === 0) {
+          this.playKick(time, 1.25);
+          const wobbleRate = 1.0 / (sixteenthDuration * 2);
+          this.playDubstepWobbleBass(time, rootFreq, sixteenthDuration * 7.4, wobbleRate);
+        } else if (step === 4) {
+          // Step 4 (Beat 2): Airy Dub Echo Hi-Hat
+          this.playHiHat(time, true);
+        } else if (step === 8) {
+          // Step 8 (Beat 3): Massive Half-Time Snare / Rimshot Crack + Triplet Wobble
+          this.playRimSnare(time, 1.35);
+          const dropFreq = bassNotes[8] || rootFreq;
+          const wobbleRate = 1.0 / (sixteenthDuration * 1.5);
+          this.playDubstepWobbleBass(time, dropFreq, sixteenthDuration * 7.4, wobbleRate);
+        } else if (step === 10) {
+          // Step 10: Syncopated Dubstep Punch Kick
+          this.playKick(time, 0.88);
+        } else if (step === 12) {
+          // Step 12 (Beat 4): Airy Dub Echo Hi-Hat
+          this.playHiHat(time, true);
+        }
+        return;
+      }
+
       // Core Drums (Always active)
       if (r.kick[step]) {
         const isMainBeat = (step === 0 || step === 8);
@@ -1179,6 +1233,60 @@
       sub.start(time);
       osc.stop(time + duration + 0.01);
       sub.stop(time + duration + 0.01);
+    }
+
+    playDubstepWobbleBass(time, freq, duration, wobbleHz = 4.0) {
+      if (!this.ctx) return;
+      // Dubstep Wobble Sub-Bass:
+      // Heavy sub-sine oscillator + harmonically rich low-saw oscillator
+      // passed through a resonant Lowpass BiquadFilter (Q = 7.0) modulated by an LFO!
+      const sub = this.ctx.createOscillator();
+      const osc = this.ctx.createOscillator();
+      const filter = this.ctx.createBiquadFilter();
+      const gain = this.ctx.createGain();
+
+      // Ensure root pitch is grounded in heavy sub range (~35-78 Hz)
+      let bassFreq = freq;
+      while (bassFreq > 78) bassFreq *= 0.5;
+      while (bassFreq < 34) bassFreq *= 2;
+
+      sub.type = 'sine';
+      sub.frequency.setValueAtTime(bassFreq, time);
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(bassFreq * 2, time);
+
+      filter.type = 'lowpass';
+      filter.Q.setValueAtTime(7.0, time);
+      filter.frequency.setValueAtTime(560, time);
+
+      // Wobble LFO: modulates filter cutoff between ~120 Hz and ~1000 Hz
+      const lfo = this.ctx.createOscillator();
+      const lfoGain = this.ctx.createGain();
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(wobbleHz, time);
+      lfoGain.gain.setValueAtTime(440, time);
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      gain.gain.setValueAtTime(0.001, time);
+      gain.gain.linearRampToValueAtTime(0.58, time + 0.015);
+      gain.gain.setValueAtTime(0.52, time + duration * 0.75);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+
+      sub.connect(filter);
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+
+      lfo.start(time);
+      sub.start(time);
+      osc.start(time);
+
+      lfo.stop(time + duration + 0.02);
+      sub.stop(time + duration + 0.02);
+      osc.stop(time + duration + 0.02);
     }
 
     playStageLead(time, rootFreq, duration, style) {
@@ -2875,8 +2983,7 @@
 
     // HALF-RATE SLOW-MO RIDDIM: Rivals move at half-rate (only on even beats!)
     if (playerBuffs.slowMoBeats > 0 && (beatIndex % 2 !== 0)) {
-      enemies.forEach(e => { e.hopAnim = 0.3; }); // gentle sway on skipped beat
-      return;
+      return; // Gracefully continue 2-beat hop arc on skipped beats
     }
 
     // 2. Update Enemies & Stage 4 Boss
@@ -3747,6 +3854,13 @@
     ctx.ellipse(0, 17 - jumpY * 0.5, 13, 5, 0, 0, Math.PI * 2);
     ctx.fill();
 
+    if (playerBuffs.slowMoBeats > 0) {
+      ctx.fillStyle = `rgba(0, 240, 255, ${0.2 + beatPulse * 0.3})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 17 - jumpY * 0.5, 16, 6.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
     if (enemy.type === 'roadie') {
       ctx.fillStyle = enemy.flashTimer > 0 ? '#FFFFFF' : '#263238';
       ctx.fillRect(-12, -10, 24, 22);
@@ -4457,10 +4571,13 @@
     player.renderY += (player.y - player.renderY) * Math.min(1, dt * 18);
     player.hopAnim = Math.max(0, player.hopAnim - dt * 4.5);
 
+    const isEnemySlowMo = playerBuffs.slowMoBeats > 0;
+    const enemyHopSpeed = isEnemySlowMo ? 2.0 : 4.0;
+    const enemyMoveSpeed = isEnemySlowMo ? 8 : 16;
     enemies.forEach(e => {
-      e.renderX += (e.x - e.renderX) * Math.min(1, dt * 16);
-      e.renderY += (e.y - e.renderY) * Math.min(1, dt * 16);
-      e.hopAnim = Math.max(0, e.hopAnim - dt * 4.0);
+      e.renderX += (e.x - e.renderX) * Math.min(1, dt * enemyMoveSpeed);
+      e.renderY += (e.y - e.renderY) * Math.min(1, dt * enemyMoveSpeed);
+      e.hopAnim = Math.max(0, e.hopAnim - dt * enemyHopSpeed);
       e.flashTimer = Math.max(0, e.flashTimer - dt);
     });
 
@@ -4531,6 +4648,9 @@
     const beatFloat = (audio.isPlaying && !audio.isPaused) ? audio.getCurrentBeatFloat() : 0;
     const frac = beatFloat - Math.floor(beatFloat);
     const beatPulse = (audio.isPlaying && !audio.isPaused) ? Math.pow(1 - frac, 3) : 0;
+    const halfBeatFrac = (beatFloat * 0.5) - Math.floor(beatFloat * 0.5);
+    const halfBeatPulse = (audio.isPlaying && !audio.isPaused) ? Math.pow(1 - halfBeatFrac, 3) : 0;
+    const enemyPulse = (playerBuffs.slowMoBeats > 0) ? halfBeatPulse : beatPulse;
 
     ctx.save();
     if (screenShake > 0.5) {
@@ -4635,8 +4755,8 @@
       ctx.restore();
     });
 
-    // 8. Draw Enemies & Stage 4 Boss
-    enemies.forEach(enemy => drawEnemy(enemy, beatPulse));
+    // 8. Draw Enemies & Stage 4 Boss (Dances at half-rate when Slow-Mo Riddim is active!)
+    enemies.forEach(enemy => drawEnemy(enemy, enemyPulse));
 
     // 8.5 Draw Golden Pineapple Fever Mode Afterimages
     afterimages.forEach(a => {
