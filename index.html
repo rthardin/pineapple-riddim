@@ -433,7 +433,7 @@
     <div class="instructions-card">
       <p><span class="highlight-gold">THE 4-STAGE KINGSTON TOUR:</span> Guide <strong>MC Ananas</strong> through 4 dancehall venues—each with its own '04 Riddim, obstacles &amp; dynamic combo music!</p>
       <p>• <strong>Rivals:</strong> <em>Soundboy Roadie</em> (2-beat hop), <em>Selector Rival</em> (4-beat rush), <em>Bogle Dancer</em> (diagonal sidestep), &amp; <em>Mic Hype Man</em> (sonic wave).<br>
-         • <strong>PULL UP! SPECIAL:</strong> Build 8 steps of Hype to charge the <strong>Center Steelpan Hub</strong>—tap it (or press <span class="key-badge">SPACE</span>) on the beat to freeze all rivals &amp; blast adjacent foes!</p>
+         • <strong>PULL UP! SPECIAL:</strong> Build 12 steps of Hype to charge the <strong>Center Steelpan Hub</strong>—tap it (or press <span class="key-badge">SPACE</span>) on the beat to freeze all rivals &amp; blast adjacent foes!</p>
       <p><span class="highlight-cyan">CONTROLS:</span> Tap the 4 hammered <strong>Steelpan Note Domes</strong> at the bottom (or use <span class="key-badge">WASD</span> / <span class="key-badge">ARROWS</span>) strictly on the beat!</p>
     </div>
 
@@ -867,7 +867,12 @@
       const step = stepCounter % 16;
       const bar = Math.floor(stepCounter / 16);
       const r = this.riddims[this.riddimIndex];
-      const hypeTier = combo >= 10 ? 2 : (combo >= 4 ? 1 : 0);
+      // 4-Stage Combo Audio Progression:
+      // Tier 0 (0-4x):  Deep Dub Sub + Quarter Hats
+      // Tier 1 (5-9x):  16th Hi-Hats + Diwali Handclaps + Warmer Bass
+      // Tier 2 (10-19x): Full Organ Skank / Reed / Brass Leads + Open Resonant Bass
+      // Tier 3 (20x+):   FEVER MODE! High-Octave Steelpan Descant + Driving Shaker
+      const hypeTier = combo >= 20 ? 3 : (combo >= 10 ? 2 : (combo >= 5 ? 1 : 0));
 
       // Core Drums (Always active)
       if (r.kick[step]) {
@@ -879,40 +884,40 @@
         this.playRimSnare(time, step === 6 || step === 14 ? 0.9 : 0.78);
       }
 
-      // Dynamic Musical Layer 1 (4x+ Hype Combo): Unlocks Syncopated Handclaps & Full 16th Hi-Hats!
+      // Layer 1 (5x+ Combo): Unlocks Syncopated Handclaps & Full 16th Hi-Hats!
       if (hypeTier >= 1 && r.clap && r.clap[step]) {
         this.playDiwaliHandclap(time);
       }
 
       if (r.hat[step]) {
-        // At 0-3x combo, only quarter-note hats play; at 4x+, full syncopated 16ths + open off-beats kick in!
+        // At 0-4x combo, only quarter-note hats play; at 5x+, full syncopated 16ths + open off-beats kick in!
         if (hypeTier >= 1 || step % 4 === 0) {
-          const openHat = hypeTier >= 1 && (step === 2 || step === 6 || step === 10 || step === 14);
+          const openHat = hypeTier >= 2 && (step === 2 || step === 6 || step === 10 || step === 14);
           this.playHiHat(time, openHat);
         }
       }
 
-      // Dynamic Musical Layer 1.5 (10x+ Fever Mode): Driving 16th-note Dancehall Tambourine Shaker!
-      if (hypeTier >= 2 && step % 2 === 1) {
+      // Layer 3 Shaker (20x+ Fever Mode): Driving 16th-note Dancehall Tambourine Shaker!
+      if (hypeTier >= 3 && step % 2 === 1) {
         this.playHiHat(time, true);
       }
 
-      // Bassline: Deep low-pass Dub Sub at 0-3x; opens filter wide with resonant growl at 4x+!
+      // Bassline: Gradually opens filter from Deep Dub (0-4x) -> Warm Groove (5-9x) -> Resonant Growl (10x+)!
       const bassNotes = (bar % 2 === 0) ? r.bassA : r.bassB;
       const freq = bassNotes[step];
       if (freq > 0) {
         this.playStageBass(time, freq, sixteenthDuration * 0.92, r.bassStyle, hypeTier);
       }
 
-      // Dynamic Musical Layer 2 (4x+ Hype Combo): Unlocks Punchy Organ Skanks / Reed / Brass Leads!
+      // Layer 2 (10x+ Hype Combo): Unlocks Punchy Organ Skanks / Reed / Brass Leads!
       const leadFreq = r.lead[step];
-      if (hypeTier >= 1 && leadFreq > 0) {
+      if (hypeTier >= 2 && leadFreq > 0) {
         this.playStageLead(time, leadFreq, sixteenthDuration * 0.88, r.leadStyle);
       }
 
-      // Dynamic Musical Layer 3 (10x+ HYPE FEVER MODE!): Continuous High-Octave Steelpan Descant Melody!
+      // Layer 3 (20x+ HYPE FEVER MODE!): Continuous High-Octave Steelpan Descant Melody!
       const feverFreq = r.fever ? r.fever[step] : 0;
-      if (hypeTier >= 2 && feverFreq > 0) {
+      if (hypeTier >= 3 && feverFreq > 0) {
         this.playFeverDescant(time, feverFreq, sixteenthDuration * 0.78);
       }
     }
@@ -1072,9 +1077,10 @@
       const filter = this.ctx.createBiquadFilter();
       const gain = this.ctx.createGain();
 
-      // At 0-3x combo (hypeTier === 0), keep bass in warm, deep low-pass dub mode;
-      // At 4x+ combo, open the filter cutoff & resonance so the bass growls!
-      const cutoffMult = hypeTier === 0 ? 0.38 : (hypeTier >= 2 ? 1.35 : 1.0);
+      // Gradual filter opening across the 4 combo tiers:
+      // Tier 0 (0-4x): 0.38x (deep dub sub) -> Tier 1 (5-9x): 0.72x (warm bounce) ->
+      // Tier 2 (10-19x): 1.0x (full growl)  -> Tier 3 (20x+): 1.35x (fever overdrive)
+      const cutoffMult = hypeTier === 0 ? 0.38 : (hypeTier === 1 ? 0.72 : (hypeTier >= 3 ? 1.35 : 1.0));
 
       if (style === 'digital_square') {
         // Stage 3: Sleng Teng Casio MT-40 Square Bass
@@ -1085,7 +1091,7 @@
         filter.type = 'lowpass';
         filter.frequency.setValueAtTime(780 * cutoffMult, time);
         filter.frequency.exponentialRampToValueAtTime(190, time + duration * 0.8);
-        filter.Q.setValueAtTime(hypeTier >= 1 ? 4.5 : 2.0, time);
+        filter.Q.setValueAtTime(hypeTier >= 2 ? 4.5 : 2.0, time);
       } else if (style === 'heavy_808') {
         // Stage 4: Sting '04 Finals Heavy Distorted 808 Sub
         osc.type = 'sawtooth';
@@ -1096,7 +1102,7 @@
         filter.type = 'lowpass';
         filter.frequency.setValueAtTime(860 * cutoffMult, time);
         filter.frequency.exponentialRampToValueAtTime(140, time + duration * 0.9);
-        filter.Q.setValueAtTime(hypeTier >= 1 ? 6.5 : 2.5, time);
+        filter.Q.setValueAtTime(hypeTier >= 2 ? 6.5 : 2.5, time);
       } else {
         // Stage 1 & 2: Deep Kingston Sub + Pluck
         osc.type = 'sawtooth';
@@ -1106,7 +1112,7 @@
         filter.type = 'lowpass';
         filter.frequency.setValueAtTime(680 * cutoffMult, time);
         filter.frequency.exponentialRampToValueAtTime(130, time + duration * 0.85);
-        filter.Q.setValueAtTime(hypeTier >= 1 ? 5.5 : 2.0, time);
+        filter.Q.setValueAtTime(hypeTier >= 2 ? 5.5 : 2.0, time);
       }
 
       gain.gain.setValueAtTime(0.001, time);
@@ -1212,19 +1218,19 @@
       const theme = getStageTheme(stageNum);
       const baseFreq = theme.steelpanNotes[dirKey] || 415.30;
 
-      // Base harmonics (0-3x combo: pure single note)
+      // Base harmonics (0-9x combo: pure single note)
       const harmonics = [
         { ratio: 1.0, amp: 0.25, decay: 0.16 },
         { ratio: 2.0, amp: 0.15, decay: 0.11 },
         { ratio: 2.98, amp: 0.08, decay: 0.06 }
       ];
 
-      // At 4x+ Hype Combo: Add resonant Fifth harmony (1.5x) so every step rings as a power chord!
-      if (combo >= 4) {
+      // At 10x+ Hype Combo: Add resonant Fifth harmony (1.5x) so every step rings as a power chord!
+      if (combo >= 10) {
         harmonics.push({ ratio: 1.498, amp: 0.18, decay: 0.18 });
       }
-      // At 10x+ Fever Mode: Add Minor Third (1.2x) + High Octave Shimmer Bell (4.0x) triad!
-      if (combo >= 10) {
+      // At 20x+ Fever Mode: Add Minor Third (1.2x) + High Octave Shimmer Bell (4.0x) triad!
+      if (combo >= 20) {
         harmonics.push({ ratio: 1.189, amp: 0.16, decay: 0.19 });
         harmonics.push({ ratio: 4.0, amp: 0.12, decay: 0.14 });
       }
@@ -1544,21 +1550,21 @@
     {
       id: 'fresh_clarks',
       name: 'Fresh Clarks Kicks',
-      desc: 'Stepping on-beat heals +1 HP every 16-combo streak & doubles gold coin drops!',
+      desc: 'Stepping on-beat heals +1 HP every 20-combo streak & doubles gold coin drops!',
       cost: 7,
       tag: 'Combo Heal + 2x $'
     },
     {
       id: 'subwoofer_chain',
       name: 'Cuban Link Amp',
-      desc: 'Permanent +1 Bump-Attack damage and lowers Hype Combo needed for Double Damage to 5x!',
+      desc: 'Permanent +1 Bump-Attack damage and lowers Hype Combo needed for Double Damage to 8x (instead of 14x)!',
       cost: 9,
       tag: '+1 Attack Power'
     },
     {
       id: 'dub_siren_battery',
       name: ' Megaphone Siren Mod',
-      desc: 'Your Center Steelpan PULL UP! Special charges in 6 steps (instead of 8) & freezes for +1 beat!',
+      desc: 'Your Center Steelpan PULL UP! Special charges in 9 steps (instead of 12) & freezes for +1 beat!',
       cost: 8,
       tag: 'Fast Pull-Up Special'
     }
@@ -1574,9 +1580,9 @@
   let screenShake = 0;
   let invertFlashTimer = 0;
   let currentQuarterBeat = 0;
-  let hypeCharge = 0; // Charges up to 8 (or 6 with Megaphone mod) to unleash PULL UP! REWIND Special!
+  let hypeCharge = 0; // Charges up to 12 (or 9 with Megaphone mod) to unleash PULL UP! REWIND Special!
   let globalFreezeBeats = 0; // Freeze duration on enemies when PULL UP! is triggered
-  let afterimages = []; // Golden pineapple motion trails during 10x+ FEVER MODE!
+  let afterimages = []; // Golden pineapple motion trails during 20x+ FEVER MODE!
 
   const steelPads = {
     up:    { label: 'C5',  dx: 0,  dy: -1, angle: -Math.PI / 2, pulse: 0, lastResult: 'on' },
@@ -1616,7 +1622,7 @@
   let timingJudgement = { text: '', color: '#FFD700', alpha: 0, scale: 1 };
 
   function getMaxHypeCharge() {
-    return player.perks.dub_siren_battery > 0 ? 6 : 8;
+    return player.perks.dub_siren_battery > 0 ? 9 : 12;
   }
 
   // ==========================================
@@ -2047,8 +2053,8 @@
     if (targetEnemy) {
       performBumpAttack(targetEnemy, dx, dy, dirKey);
     } else {
-      // Leave golden pineapple afterimage trail in 10x+ FEVER MODE!
-      if (combo >= 10) {
+      // Leave golden pineapple afterimage trail in 20x+ FEVER MODE!
+      if (combo >= 20) {
         afterimages.push({
           x: player.x,
           y: player.y,
@@ -2098,7 +2104,7 @@
     player.renderX = player.x + dx * 0.45;
     player.renderY = player.y + dy * 0.45;
 
-    const doubleComboThreshold = player.perks.subwoofer_chain > 0 ? 5 : 8;
+    const doubleComboThreshold = player.perks.subwoofer_chain > 0 ? 8 : 14;
     const dmg = 1 + player.perks.subwoofer_chain + (combo >= doubleComboThreshold ? 1 : 0);
     enemy.hp -= dmg;
     enemy.flashTimer = 0.25;
@@ -2198,14 +2204,19 @@
     score += 10 * combo;
     saveRecords();
 
-    // Audible & Visual Tier-Up Celebration when unlocking 4x HYPE or 10x FEVER MODE!
-    if (combo === 4) {
-      audio.playComboTierUpSFX(1);
-      spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 30, '🔊 4x FULL RIDDIM UNLOCKED!', '#00F0FF', 15);
+    // 4-Stage Audible & Visual Tier-Up Celebration:
+    // 5x  -> Percussion & Handclap Bounce
+    // 10x -> Full Organ Skanks / Reed / Brass Leads + Fifth Power-Chords
+    // 20x -> FEVER MODE! High-Octave Steelpan Descant + Golden Afterimages!
+    if (combo === 5) {
+      spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 30, '👏 5x HANDCLAP GROOVE!', '#00E676', 14);
     } else if (combo === 10) {
+      audio.playComboTierUpSFX(1);
+      spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 30, '🔊 10x FULL RIDDIM UNLOCKED!', '#00F0FF', 15);
+    } else if (combo === 20) {
       audio.playComboTierUpSFX(2);
       screenShake = 7;
-      spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 32, '🔥 10x FEVER DESCANT! 🔥', '#FFD700', 16);
+      spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 32, '🔥 20x FEVER DESCANT! 🔥', '#FFD700', 16);
     }
 
     const maxCharge = getMaxHypeCharge();
@@ -2216,15 +2227,15 @@
       }
     }
 
-    if (player.perks.fresh_clarks > 0 && player.streakSteps % 16 === 0) {
+    if (player.perks.fresh_clarks > 0 && player.streakSteps % 20 === 0) {
       if (player.hp < player.maxHp) {
         player.hp = Math.min(player.maxHp, player.hp + 1);
         spawnFloatingText(tileCenterX(player.x), tileCenterY(player.y) - 28, 'FRESH CLARKS! +1 HP', '#00E676', 15);
       }
     }
 
-    const feverSuffix = combo >= 10 ? ' 🔥FEVER!🔥' : '';
-    triggerJudgementBanner(`${bannerLabel} (${combo}x HYPE)${feverSuffix}`, combo >= 10 ? '#FFD700' : '#00E676');
+    const feverSuffix = combo >= 20 ? ' 🔥FEVER!🔥' : '';
+    triggerJudgementBanner(`${bannerLabel} (${combo}x HYPE)${feverSuffix}`, combo >= 20 ? '#FFD700' : '#00E676');
   }
 
   function onBeatMiss(reason) {
@@ -3586,7 +3597,7 @@
   function drawHUD(beatPulse, theme) {
     ctx.fillStyle = 'rgba(12, 10, 20, 0.92)';
     ctx.fillRect(16, 8, canvas.width - 32, 56);
-    ctx.strokeStyle = combo >= 10 ? '#FFD700' : theme.speakerCorner;
+    ctx.strokeStyle = combo >= 20 ? '#FFD700' : theme.speakerCorner;
     ctx.lineWidth = 2;
     ctx.strokeRect(16, 8, canvas.width - 32, 56);
 
@@ -3631,9 +3642,9 @@
     ctx.save();
     ctx.translate(canvas.width - 26, 27);
     ctx.scale(comboScale, comboScale);
-    ctx.fillStyle = combo >= 10 ? '#00E676' : (combo >= 4 ? '#FFD700' : '#00F0FF');
+    ctx.fillStyle = combo >= 20 ? '#00E676' : (combo >= 10 ? '#FFD700' : '#00F0FF');
     ctx.font = '900 14.5px "Courier New", monospace';
-    ctx.fillText(combo >= 10 ? `🔥FEVER ${combo}x` : `HYPE: ${combo}x`, 0, 0);
+    ctx.fillText(combo >= 20 ? `🔥FEVER ${combo}x` : `HYPE: ${combo}x`, 0, 0);
     ctx.restore();
 
     ctx.fillStyle = '#FFD700';
